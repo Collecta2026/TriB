@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Reports" %}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>{% translate "Reports" %}</h1></div>
+<div class="glance">
+  <a class="blk" style="min-height:0;color:inherit" href="{% url 'reports:profit_loss' %}"><div class="bh"><h3>{% translate "Profit and loss" %}</h3></div><div class="lbl">{% translate "Income and expenses for a period." %}</div></a>
+  <a class="blk" style="min-height:0;color:inherit" href="{% url 'reports:balance_sheet' %}"><div class="bh"><h3>{% translate "Balance sheet" %}</h3></div><div class="lbl">{% translate "Assets, liabilities and equity on a date." %}</div></a>
+  <a class="blk" style="min-height:0;color:inherit" href="{% url 'reports:trial_balance' %}"><div class="bh"><h3>{% translate "Trial balance" %}</h3></div><div class="lbl">{% translate "Opening, movement and closing balance of every account." %}</div></a>
+  <a class="blk" style="min-height:0;color:inherit" href="{% url 'reports:statement' %}"><div class="bh"><h3>{% translate "Account statement" %}</h3></div><div class="lbl">{% translate "Every posting to one account, with a running balance." %}</div></a>
+</div>
+{% endblock %}

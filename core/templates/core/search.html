@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Search" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Search" %}</h1>{% if q %}<div class="sub">“{{ q }}”</div>{% endif %}</div></div>
+{% if not q %}<div class="empty">{% translate "Type a voucher number, a name, an account code or a cheque number." %}</div>{% else %}
+<div class="panel"><h2>{% translate "Vouchers" %}</h2>
+  {% if results.vouchers %}<div class="table-wrap"><table class="tbl"><tbody>
+  {% for v in results.vouchers %}<tr><td><a href="{% url 'vouchers:detail' v.pk %}">{{ v.number|default:_("Draft") }}</a></td><td>{{ v.get_kind_display }}</td><td>{{ v.party_name }}</td><td>{{ v.date }}</td><td class="num">{{ v.total|money:v.currency }}</td><td><span class="pill {{ v.status }}">{{ v.get_status_display }}</span></td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<p class="lbl">{% translate "Nothing found." %}</p>{% endif %}
+</div>
+<div class="panel"><h2>{% translate "Accounts" %}</h2>
+  {% if results.accounts %}<div class="table-wrap"><table class="tbl"><tbody>
+  {% for a in results.accounts %}<tr><td>{{ a.code }}</td><td>{% if can.reports.view %}<a href="{% url 'reports:statement' %}?account={{ a.pk }}">{{ a.name }}</a>{% else %}{{ a.name }}{% endif %}</td><td>{{ a.get_type_display }}</td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<p class="lbl">{% translate "Nothing found." %}</p>{% endif %}
+</div>
+<div class="panel"><h2>{% translate "Cheques" %}</h2>
+  {% if results.cheques %}<div class="table-wrap"><table class="tbl"><tbody>
+  {% for c in results.cheques %}<tr><td>#{{ c.number }}</td><td>{{ c.party_name }}</td><td>{{ c.due_date }}</td><td class="num">{{ c.amount|money:c.currency }}</td><td><span class="pill {{ c.status }}">{{ c.get_status_display }}</span></td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<p class="lbl">{% translate "Nothing found." %}</p>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

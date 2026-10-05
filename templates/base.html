@@ -1,0 +1,101 @@
+{% load static i18n trib %}<!doctype html>
+{% get_current_language as LANG %}{% get_current_language_bidi as RTL %}
+<html lang="{{ LANG }}" dir="{% if RTL %}rtl{% else %}ltr{% endif %}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{% translate "Home" %}{% endblock %} · {% if LANG == "ar" %}{{ product.name_ar }}{% else %}{{ product.name_en }}{% endif %}</title>
+  <link rel="icon" href="{% static 'img/logo.svg' %}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="{% static 'css/trib.css' %}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+{% block body %}
+<div class="app" id="app">
+  <aside class="rail" aria-label="{% translate 'Main menu' %}">
+    <a class="rail-logo" href="{% url 'dashboard:home' %}" title="TriB"><img src="{% static 'img/logo.svg' %}" width="38" height="38" alt="TriB"></a>
+    <button class="ri" type="button" data-toggle="#createPop" aria-haspopup="true"><span class="ic">{% include "partials/icon.html" with name="plus" %}</span><span>{% translate "Create" %}</span></button>
+    <a class="ri {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard:home' %}"><span class="ic">{% include "partials/icon.html" with name="home" %}</span><span>{% translate "Home" %}</span></a>
+    {% if can.reports.view %}<a class="ri {% active '/reports/' %}" href="{% url 'reports:index' %}"><span class="ic">{% include "partials/icon.html" with name="chart" %}</span><span>{% translate "Reports" %}</span></a>{% endif %}
+    <a class="ri {% active '/apps/' %}" href="{% url 'core:apps' %}"><span class="ic">{% include "partials/icon.html" with name="grid" %}</span><span>{% translate "All apps" %}</span></a>
+    <div class="rail-sep">{% translate "PINNED" %}</div>
+    {% if can.vouchers.view %}<a class="ri {% active '/vouchers/' %}" href="{% url 'vouchers:list' %}"><span class="ic">{% include "partials/icon.html" with name="sales" %}</span><span>{% translate "Vouchers" %}</span></a>{% endif %}
+    {% if can.banking.view %}<a class="ri {% active '/banking/' %}" href="{% url 'banking:accounts' %}"><span class="ic">{% include "partials/icon.html" with name="bank" %}</span><span>{% translate "Banking" %}</span></a>{% endif %}
+    {% if can.ledger.view %}<a class="ri {% active '/ledger/' %}" href="{% url 'ledger:accounts' %}"><span class="ic">{% include "partials/icon.html" with name="book" %}</span><span>{% translate "Accounting" %}</span></a>{% endif %}
+    {% if can.vouchers.approve %}<a class="ri {% active '/approvals/' %}" href="{% url 'approvals:inbox' %}"><span class="ic">{% include "partials/icon.html" with name="shield" %}</span><span>{% translate "Approvals" %}</span>{% if pending_approvals %}<span class="bdg">{{ pending_approvals }}</span>{% endif %}</a>{% endif %}
+    <div class="grow"></div>
+    {% if can.setup.view %}<a class="ri {% active '/settings/' %}" href="{% url 'core:settings' %}"><span class="ic">{% include "partials/icon.html" with name="gear" %}</span><span>{% translate "Settings" %}</span></a>{% endif %}
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <div class="pop" id="createPop" data-popover hidden>
+    <div><h3>{% translate "Customers" %}</h3>
+      {% if can.vouchers.create %}<a href="{% url 'vouchers:new' 'receipt' %}">{% translate "Receipt voucher" %}</a>{% endif %}
+      <span class="soon">{% translate "Sales invoice" %} · {% translate "soon" %}</span>
+    </div>
+    <div><h3>{% translate "Suppliers" %}</h3>
+      {% if can.vouchers.create %}<a href="{% url 'vouchers:new' 'payment' %}">{% translate "Payment voucher" %}</a>{% endif %}
+      <span class="soon">{% translate "Supplier bill" %} · {% translate "soon" %}</span>
+    </div>
+    <div><h3>{% translate "Banking" %}</h3>
+      {% if can.banking.create %}<a href="{% url 'banking:account_new' %}">{% translate "Bank account or cash box" %}</a>{% endif %}
+      {% if can.cheques.view %}<a href="{% url 'banking:cheques' %}">{% translate "Cheques" %}</a>{% endif %}
+    </div>
+    <div><h3>{% translate "Other" %}</h3>
+      {% if can.vouchers.create %}<a href="{% url 'vouchers:new' 'journal' %}">{% translate "Journal voucher" %}</a>{% endif %}
+      {% if can.ledger.create %}<a href="{% url 'ledger:account_new' %}">{% translate "Account" %}</a>{% endif %}
+      {% if can.users.create %}<a href="{% url 'users:user_new' %}">{% translate "User" %}</a>{% endif %}
+    </div>
+  </div>
+
+  <div class="main">
+    <header class="top">
+      <button class="iconbtn hamb" id="hambBtn" type="button" aria-label="{% translate 'Menu' %}">{% include "partials/icon.html" with name="menu" %}</button>
+      <div class="co">
+        {% if my_companies|length > 1 %}
+        <form method="post" action="{% url 'core:switch_company' %}">{% csrf_token %}
+          <select name="company" onchange="this.form.submit()" aria-label="{% translate 'Company' %}">
+            {% for c in my_companies %}<option value="{{ c.pk }}" {% if c.pk == company.pk %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+          </select>
+        </form>
+        {% else %}{{ company.name }}{% endif %}
+      </div>
+      <form class="search" method="get" action="{% url 'core:search' %}" role="search">
+        {% include "partials/icon.html" with name="search" %}
+        <input type="search" name="q" value="{{ request.GET.q|default:'' }}" placeholder="{% translate 'Find vouchers, accounts, cheques…' %}" aria-label="{% translate 'Search' %}">
+      </form>
+      <div class="tools">
+        <form method="post" action="{% url 'core:language' %}">{% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <input type="hidden" name="language" value="{% if LANG == 'ar' %}en{% else %}ar{% endif %}">
+          <button class="pillbtn" type="submit" lang="{% if LANG == 'ar' %}en{% else %}ar{% endif %}">{% if LANG == "ar" %}English{% else %}عربي{% endif %}</button>
+        </form>
+        {% if can.vouchers.approve %}<a class="iconbtn" href="{% url 'approvals:inbox' %}" aria-label="{% translate 'Approvals' %}">{% include "partials/icon.html" with name="bell" %}{% if pending_approvals %}<span class="dot">{{ pending_approvals }}</span>{% endif %}</a>{% endif %}
+        <div class="menu">
+          <button class="avatar" type="button" data-toggle="#userMenu" aria-label="{% translate 'Account' %}">{{ user.initials }}</button>
+          <div class="menu-pop" id="userMenu" data-popover hidden>
+            <div class="who"><b>{{ user }}</b><div class="lbl">{{ user.email }}</div></div>
+            {% if can.setup.view %}<a href="{% url 'core:settings' %}">{% translate "Company settings" %}</a>{% endif %}
+            {% if can.users.view %}<a href="{% url 'users:users' %}">{% translate "Users & roles" %}</a>{% endif %}
+            {% if can.audit.view %}<a href="{% url 'core:audit' %}">{% translate "Audit log" %}</a>{% endif %}
+            <a href="{% url 'users:password' %}">{% translate "Change password" %}</a>
+            <form method="post" action="{% url 'users:logout' %}">{% csrf_token %}<button type="submit">{% translate "Sign out" %}</button></form>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="page">
+      {% if messages %}<div class="messages">{% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}</div>{% endif %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% endblock %}
+<script src="{% static 'js/trib.js' %}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

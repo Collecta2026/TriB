@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Company settings" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Company settings" %}</h1><div class="sub">{{ company.name }} · {% translate "Base currency" %}: {{ company.base_currency_id }}</div></div>
+  <div class="toolbar">
+    {% if can.users.view %}<a class="btn" href="{% url 'users:users' %}">{% translate "Users & roles" %}</a>{% endif %}
+    {% if can.setup.edit %}<a class="btn" href="{% url 'approvals:rules' %}">{% translate "Approval rules" %}</a>{% endif %}
+    {% if can.ledger.view %}<a class="btn" href="{% url 'ledger:cost_centers' %}">{% translate "Cost centres" %}</a>{% endif %}
+  </div>
+</div>
+
+<div class="panel">
+  <h2>{% translate "Company details" %}</h2>
+  <form method="post" class="form">{% csrf_token %}<input type="hidden" name="action" value="company">
+    {% with form=company_form %}{% include "partials/form_fields.html" %}{% endwith %}
+    {% if can_edit %}<div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button></div>{% endif %}
+  </form>
+</div>
+
+<div class="cols">
+  <div class="panel">
+    <h2>{% translate "Currencies in use" %}</h2>
+    <p class="lbl">{% translate "Only the currencies you tick appear on bank accounts, vouchers and cheques." %}</p>
+    <form method="post" class="form">{% csrf_token %}<input type="hidden" name="action" value="currencies">
+      <div class="checks" style="max-height:280px;overflow:auto">{% for box in currencies_form.currencies %}<label class="check">{{ box.tag }} {{ box.choice_label }}</label>{% endfor %}</div>
+      {% if can_edit %}<div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button></div>{% endif %}
+    </form>
+  </div>
+  <div class="panel">
+    <h2>{% translate "Add-ons" %}</h2>
+    <p class="lbl">{% translate "Switch optional packs on or off. Switching one off hides it but keeps its data." %}</p>
+    <form method="post" class="form">{% csrf_token %}<input type="hidden" name="action" value="addons">
+      <div class="checks" style="grid-template-columns:1fr">{% for f in addons_form %}<label class="check">{{ f }} {{ f.label }}</label>{% endfor %}</div>
+      {% if can_edit %}<div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button></div>{% endif %}
+    </form>
+  </div>
+</div>
+
+<div class="cols">
+  <div class="panel">
+    <h2>{% translate "Exchange rates" %}</h2>
+    {% if can_edit %}
+    <form method="post" class="form">{% csrf_token %}<input type="hidden" name="action" value="rate">
+      {% with form=rate_form %}{% include "partials/form_fields.html" %}{% endwith %}
+      <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save rate" %}</button></div>
+    </form>
+    {% endif %}
+    <div class="table-wrap" style="margin-top:14px"><table class="tbl">
+      <thead><tr><th>{% translate "Date" %}</th><th>{% translate "Currency" %}</th><th class="num">{% translate "Rate" %}</th></tr></thead>
+      <tbody>{% for r in rates %}<tr><td>{{ r.date }}</td><td>{{ r.currency_id }}</td><td class="num">{{ r.rate|num:4 }}</td></tr>{% empty %}<tr><td colspan="3" class="lbl">{% translate "No rates yet." %}</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </div>
+  <div class="panel">
+    <h2>{% translate "Branches" %}</h2>
+    {% if can_edit %}
+    <form method="post" class="form">{% csrf_token %}<input type="hidden" name="action" value="branch">
+      {% with form=branch_form %}{% include "partials/form_fields.html" %}{% endwith %}
+      <div class="form-actions"><button class="btn primary" type="submit">{% translate "Add branch" %}</button></div>
+    </form>
+    {% endif %}
+    <div class="table-wrap" style="margin-top:14px"><table class="tbl">
+      <tbody>{% for b in branches %}<tr><td>{{ b.code }}</td><td>{{ b.name }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </div>
+</div>
+{% endblock %}

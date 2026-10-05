@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% block body %}
+<div class="auth">
+  <div class="auth-card{% block card_class %}{% endblock %}">
+    <div class="auth-brand">
+      <img src="{% static 'img/logo.svg' %}" width="40" height="40" alt="">
+      <div><b>{% if LANG == "ar" %}{{ product.name_ar }}{% else %}{{ product.name_en }}{% endif %}</b><div class="lbl">{{ product.tagline }}</div></div>
+      <form method="post" action="{% url 'core:language' %}" style="margin-inline-start:auto">{% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <input type="hidden" name="language" value="{% if LANG == 'ar' %}en{% else %}ar{% endif %}">
+        <button class="pillbtn" type="submit">{% if LANG == "ar" %}English{% else %}عربي{% endif %}</button>
+      </form>
+    </div>
+    {% if messages %}<div class="messages">{% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}</div>{% endif %}
+    {% block auth_content %}{% endblock %}
+  </div>
+</div>
+{% endblock %}

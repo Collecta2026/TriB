@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Balance sheet" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'reports:index' %}">{% translate "Reports" %}</a></div><h1>{% translate "Balance sheet" %}</h1>
+  <div class="sub">{{ company.name }} · {% translate "As of" %} {{ to }} · {{ company.base_currency_id }}</div></div>
+  {% include "reports/_period.html" %}
+</div>
+<div class="table-wrap" style="max-width:860px"><table class="tbl">
+  <tbody>
+    <tr class="grp"><td colspan="2">{% translate "Assets" %}</td></tr>
+    {% for a, v in r.asset %}<tr><td class="indent-1">{{ a.code }} · {{ a.name }}</td><td class="num">{{ v|num }}</td></tr>{% endfor %}
+    <tr class="grp"><td>{% translate "Total assets" %}</td><td class="num">{{ r.total_assets|num }}</td></tr>
+    <tr class="grp"><td colspan="2">{% translate "Liabilities" %}</td></tr>
+    {% for a, v in r.liability %}<tr><td class="indent-1">{{ a.code }} · {{ a.name }}</td><td class="num">{{ v|num }}</td></tr>{% endfor %}
+    <tr class="grp"><td>{% translate "Total liabilities" %}</td><td class="num">{{ r.total_liabilities|num }}</td></tr>
+    <tr class="grp"><td colspan="2">{% translate "Equity" %}</td></tr>
+    {% for a, v in r.equity %}<tr><td class="indent-1">{{ a.code }} · {{ a.name }}</td><td class="num">{{ v|num }}</td></tr>{% endfor %}
+    <tr><td class="indent-1">{% translate "Profit to date (not yet closed to retained earnings)" %}</td><td class="num">{{ r.earnings|num }}</td></tr>
+    <tr class="grp"><td>{% translate "Total equity" %}</td><td class="num">{{ r.total_equity|num }}</td></tr>
+  </tbody>
+  <tfoot><tr><td>{% translate "Liabilities and equity" %}</td><td class="num">{{ r.total_liabilities_equity|num }}</td></tr></tfoot>
+</table></div>
+{% if r.check %}<div class="msg error">{% translate "The balance sheet does not balance. Contact support." %}</div>{% endif %}
+{% endblock %}

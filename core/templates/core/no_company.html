@@ -1,0 +1,8 @@
+{% extends "auth_base.html" %}
+{% load i18n %}
+{% block title %}{% translate "No company" %}{% endblock %}
+{% block auth_content %}
+<h1>{% translate "Your account is not linked to a company" %}</h1>
+<p>{% translate "Ask your company administrator to add you in Users & roles." %}</p>
+<form method="post" action="{% url 'users:logout' %}">{% csrf_token %}<button class="btn" type="submit">{% translate "Sign out" %}</button></form>
+{% endblock %}

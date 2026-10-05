@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Trial balance" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'reports:index' %}">{% translate "Reports" %}</a></div><h1>{% translate "Trial balance" %}</h1>
+  <div class="sub">{{ company.name }} · {{ from }} – {{ to }} · {{ company.base_currency_id }}</div></div>
+  <div class="toolbar">{% include "reports/_period.html" with show_from=1 %}
+    {% if can.reports.export %}<a class="btn" href="?from={{ from|date:'Y-m-d' }}&to={{ to|date:'Y-m-d' }}&format=csv">{% translate "Export to Excel (CSV)" %}</a>{% endif %}</div>
+</div>
+<div class="table-wrap"><table class="tbl">
+  <thead>
+    <tr><th rowspan="2">{% translate "Code" %}</th><th rowspan="2">{% translate "Account" %}</th><th colspan="2" class="num">{% translate "Opening" %}</th><th colspan="2" class="num">{% translate "Movement" %}</th><th colspan="2" class="num">{% translate "Closing" %}</th></tr>
+    <tr><th class="num">{% translate "Debit" %}</th><th class="num">{% translate "Credit" %}</th><th class="num">{% translate "Debit" %}</th><th class="num">{% translate "Credit" %}</th><th class="num">{% translate "Debit" %}</th><th class="num">{% translate "Credit" %}</th></tr>
+  </thead>
+  <tbody>{% for r in rows %}<tr><td>{{ r.account.code }}</td><td><a href="{% url 'reports:statement' %}?account={{ r.account.pk }}&from={{ from|date:'Y-m-d' }}&to={{ to|date:'Y-m-d' }}">{{ r.account.name }}</a></td>
+    <td class="num">{{ r.od|num }}</td><td class="num">{{ r.oc|num }}</td><td class="num">{{ r.pd|num }}</td><td class="num">{{ r.pc|num }}</td><td class="num">{{ r.cd|num }}</td><td class="num">{{ r.cc|num }}</td></tr>
+  {% empty %}<tr><td colspan="8" class="lbl">{% translate "No postings in this period." %}</td></tr>{% endfor %}</tbody>
+  <tfoot><tr><td colspan="2">{% translate "Total" %}</td><td class="num">{{ t.od|num }}</td><td class="num">{{ t.oc|num }}</td><td class="num">{{ t.pd|num }}</td><td class="num">{{ t.pc|num }}</td><td class="num">{{ t.cd|num }}</td><td class="num">{{ t.cc|num }}</td></tr></tfoot>
+</table></div>
+{% endblock %}

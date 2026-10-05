@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "All apps" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "All apps" %}</h1><div class="sub">{% translate "Everything in TriB, including what is coming in the next releases." %}</div></div></div>
+<div class="glance">
+  {% if can.vouchers.view %}<a class="blk" href="{% url 'vouchers:list' %}" style="min-height:0;color:inherit"><div class="bh"><h3>{% translate "Vouchers" %}</h3></div><div class="lbl">{% translate "Receipt, payment and journal vouchers with approvals and printing." %}</div></a>{% endif %}
+  {% if can.banking.view %}<a class="blk" href="{% url 'banking:accounts' %}" style="min-height:0;color:inherit"><div class="bh"><h3>{% translate "Banking & cheques" %}</h3></div><div class="lbl">{% translate "Bank accounts in any currency, cash boxes and post-dated cheques." %}</div></a>{% endif %}
+  {% if can.ledger.view %}<a class="blk" href="{% url 'ledger:accounts' %}" style="min-height:0;color:inherit"><div class="bh"><h3>{% translate "Accounting" %}</h3></div><div class="lbl">{% translate "Chart of accounts, cost centres and journal entries." %}</div></a>{% endif %}
+  {% if can.reports.view %}<a class="blk" href="{% url 'reports:index' %}" style="min-height:0;color:inherit"><div class="bh"><h3>{% translate "Reports" %}</h3></div><div class="lbl">{% translate "Trial balance, account statement, profit and loss, balance sheet." %}</div></a>{% endif %}
+  {% if can.vouchers.approve %}<a class="blk" href="{% url 'approvals:inbox' %}" style="min-height:0;color:inherit"><div class="bh"><h3>{% translate "Approvals" %}</h3></div><div class="lbl">{% translate "Documents waiting for your electronic approval." %}</div></a>{% endif %}
+  {% if can.users.view %}<a class="blk" href="{% url 'users:users' %}" style="min-height:0;color:inherit"><div class="bh"><h3>{% translate "Users & roles" %}</h3></div><div class="lbl">{% translate "People, roles, the authority matrix and approval limits." %}</div></a>{% endif %}
+  <div class="blk soon-blk" style="min-height:0"><div class="bh"><h3>{% translate "Sales & invoices" %}</h3></div><div class="lbl">{% translate "Coming in the next release" %}</div></div>
+  <div class="blk soon-blk" style="min-height:0"><div class="bh"><h3>{% translate "Expenses & bills" %}</h3></div><div class="lbl">{% translate "Coming in the next release" %}</div></div>
+  <div class="blk soon-blk" style="min-height:0"><div class="bh"><h3>{% translate "ETA e-invoicing" %}</h3></div><div class="lbl">{% translate "Coming in the next release" %}</div></div>
+  <div class="blk soon-blk" style="min-height:0"><div class="bh"><h3>{% translate "Inventory & imports" %}</h3></div><div class="lbl">{% translate "Release 2" %}</div></div>
+  <div class="blk soon-blk" style="min-height:0"><div class="bh"><h3>{% translate "Planning & cash forecast" %}</h3></div><div class="lbl">{% translate "Release 3" %}</div></div>
+  <div class="blk soon-blk" style="min-height:0"><div class="bh"><h3>{% translate "GCC pack" %}</h3></div><div class="lbl">{% translate "Add-on, Release 4" %}</div></div>
+</div>
+{% endblock %}

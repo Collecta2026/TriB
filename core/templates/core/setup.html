@@ -1,0 +1,12 @@
+{% extends "auth_base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Set up your company" %}{% endblock %}
+{% block card_class %} wide{% endblock %}
+{% block auth_content %}
+<h1>{% translate "Set up your company" %}</h1>
+<p class="lbl" style="margin:0">{% translate "This creates your company with a starter chart of accounts, roles, a cash box and approval rules. You become its owner." %}</p>
+<form method="post" class="form">{% csrf_token %}
+  {% include "partials/form_fields.html" %}
+  <div class="form-actions"><button class="btn primary" type="submit">{% translate "Create company" %}</button></div>
+</form>
+{% endblock %}

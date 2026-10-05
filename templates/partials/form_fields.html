@@ -1,0 +1,5 @@
+{% if form.non_field_errors %}<div class="msg error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+<div class="fields">
+  {% for f in form.visible_fields %}{% include "partials/field.html" %}{% endfor %}
+</div>
+{% for h in form.hidden_fields %}{{ h }}{% endfor %}

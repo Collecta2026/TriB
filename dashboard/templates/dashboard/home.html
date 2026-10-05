@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load i18n static trib %}
+{% block title %}{% translate "Home" %}{% endblock %}
+{% block content %}
+<div class="hello">
+  <h1>{% blocktranslate %}{{ greeting }}, {{ first_name }}!{% endblocktranslate %}</h1>
+  <div class="opts">
+    <button class="optbtn" id="privBtn" type="button" aria-pressed="false">{% include "partials/icon.html" with name="eye" %}<span>{% translate "Privacy" %}</span></button>
+  </div>
+</div>
+
+<nav class="apps" aria-label="{% translate 'Apps' %}">
+  {% if can.ledger.view %}<a class="app-p" href="{% url 'ledger:accounts' %}"><span class="c">{% include "partials/icon.html" with name="book" %}</span>{% translate "Accounting" %}</a>{% endif %}
+  {% if can.vouchers.view %}<a class="app-p" href="{% url 'vouchers:list' %}"><span class="c s">{% include "partials/icon.html" with name="sales" %}</span>{% translate "Vouchers" %}</a>{% endif %}
+  {% if can.banking.view %}<a class="app-p" href="{% url 'banking:accounts' %}"><span class="c">{% include "partials/icon.html" with name="bank" %}</span>{% translate "Banking & cheques" %}</a>{% endif %}
+  {% if can.vouchers.approve %}<a class="app-p" href="{% url 'approvals:inbox' %}"><span class="c s">{% include "partials/icon.html" with name="shield" %}</span>{% translate "Approvals" %}</a>{% endif %}
+  {% if can.reports.view %}<a class="app-p" href="{% url 'reports:index' %}"><span class="c">{% include "partials/icon.html" with name="chart" %}</span>{% translate "Reports" %}</a>{% endif %}
+  <span class="app-p soon"><span class="c s">{% include "partials/icon.html" with name="wallet" %}</span>{% translate "Sales & Get Paid" %}<span class="tag">{% translate "soon" %}</span></span>
+  <span class="app-p soon"><span class="c">{% include "partials/icon.html" with name="box" %}</span>{% translate "Inventory" %}<span class="tag">{% translate "soon" %}</span></span>
+  <span class="app-p soon"><span class="c s">{% include "partials/icon.html" with name="ship" %}</span>{% translate "Imports" %}<span class="tag">{% translate "soon" %}</span></span>
+  <span class="app-p soon"><span class="c">{% include "partials/icon.html" with name="trend" %}</span>{% translate "Planning" %}<span class="tag">{% translate "soon" %}</span></span>
+</nav>
+
+<section>
+  <div class="sh"><h2>{% translate "Business feed" %}</h2></div>
+  <div class="feed" style="margin-top:4px">
+    {% for color, text, url_name, action in feed %}<div class="fi"><span class="d" style="background:{{ color }}"></span><span class="tx">{{ text }}</span><a class="link" href="{% url url_name %}">{{ action }}</a></div>
+    {% empty %}<div class="fi"><span class="tx lbl">{% translate "Nothing new right now. Check back soon!" %}</span></div>{% endfor %}
+  </div>
+</section>
+
+{% if can.vouchers.create %}
+<div class="acts"><h2>{% translate "Create actions" %}</h2>
+  <a class="act" href="{% url 'vouchers:new' 'receipt' %}">{% translate "Receipt voucher" %}</a>
+  <a class="act" href="{% url 'vouchers:new' 'payment' %}">{% translate "Payment voucher" %}</a>
+  <a class="act" href="{% url 'vouchers:new' 'journal' %}">{% translate "Journal voucher" %}</a>
+  {% if can.banking.create %}<a class="act" href="{% url 'banking:account_new' %}">{% translate "Add bank account" %}</a>{% endif %}
+  {% if can.cheques.view %}<a class="act" href="{% url 'banking:cheques' %}">{% translate "Cheques" %}</a>{% endif %}
+</div>
+{% endif %}
+
+<div class="sh"><h2>{% translate "Business at a glance" %}</h2></div>
+<div class="glance">
+  <section class="blk">
+    <div class="bh"><h3>{% translate "Profit & loss" %}</h3><span class="lbl">{{ year }}</span></div>
+    <div><div class="lbl">{% blocktranslate %}Net profit for {{ year }}{% endblocktranslate %}</div>
+      <div class="kv"><span class="big">{{ pl.net|money:company.base_currency }}</span>{% if pl.margin is not None %}<span class="pill info">{{ pl.margin|floatformat:1 }}% {% translate "margin" %}</span>{% endif %}</div></div>
+    <div class="plrow"><div><div class="v">{{ pl.income|money:company.base_currency }}</div><div class="lbl">{% translate "Income" %}</div></div>
+      {% if pl.income_review %}<a class="link rv" href="{% url 'vouchers:list' %}?kind=receipt">{% blocktranslate with n=pl.income_review %}{{ n }} to review{% endblocktranslate %}</a>{% else %}<span></span>{% endif %}
+      <div class="hbar" style="width:{{ pl.income_bar.width|floatformat:2 }}%;--hc:var(--good)"><span style="width:{{ pl.income_bar.solid|floatformat:2 }}%;background:var(--good)"></span><span class="hatch" style="width:{{ pl.income_bar.hatch|floatformat:2 }}%"></span></div></div>
+    <div class="plrow"><div><div class="v">{{ pl.expense|money:company.base_currency }}</div><div class="lbl">{% translate "Expenses" %}</div></div>
+      {% if pl.expense_review %}<a class="link rv" href="{% url 'vouchers:list' %}?kind=payment">{% blocktranslate with n=pl.expense_review %}{{ n }} to review{% endblocktranslate %}</a>{% else %}<span></span>{% endif %}
+      <div class="hbar" style="width:{{ pl.expense_bar.width|floatformat:2 }}%;--hc:var(--brand)"><span style="width:{{ pl.expense_bar.solid|floatformat:2 }}%;background:var(--brand)"></span><span class="hatch" style="width:{{ pl.expense_bar.hatch|floatformat:2 }}%"></span></div></div>
+    <div class="bfoot">{% if can.reports.view %}<a class="link" href="{% url 'reports:profit_loss' %}">{% translate "View profit and loss" %}</a>{% endif %}</div>
+  </section>
+
+  <section class="blk">
+    <div class="bh"><h3>{% translate "Expenses" %}</h3><span class="lbl">{% translate "Last 30 days" %}</span></div>
+    <div><div class="lbl">{% translate "Spending for last 30 days" %}</div><div class="big">{{ exp.total|money:company.base_currency }}</div>
+      {% if exp.change is not None %}<span class="lbl">{% if exp.change >= 0 %}▲{% else %}▼{% endif %} {{ exp.change|floatformat:0 }}% {% translate "from prior 30 days" %}</span>{% endif %}</div>
+    {% if exp.items %}<div class="exp"><div class="donut"><canvas id="expChart" aria-label="{% translate 'Expenses' %}" role="img"></canvas></div>
+      <div class="elist">{% for name, v in exp.items %}<div><i style="background:var(--c{{ forloop.counter }})"></i><span>{{ name }}</span><span class="m tnum">{{ v|num:0 }}</span></div>{% endfor %}</div></div>
+    {% else %}<p class="lbl">{% translate "No expenses posted in the last 30 days." %}</p>{% endif %}
+    <div class="bfoot">{% if can.vouchers.create %}<a class="link" href="{% url 'vouchers:new' 'payment' %}">{% translate "Record a payment" %}</a>{% endif %}</div>
+  </section>
+
+  <section class="blk">
+    <div class="bh"><h3>{% translate "Bank accounts" %}</h3><span class="lbl">{% translate "As of today" %}</span></div>
+    <div class="rows">{% for r in bank.rows %}<div class="row"><div class="bico">{% if r.acc.kind == "cash" %}{% include "partials/icon.html" with name="wallet" %}{% else %}{{ r.acc.bank.short_name|default:"BK" }}{% endif %}</div>
+      <div><div class="nm">{{ r.acc.name }}</div><div class="sub">{% translate "Chart account" %} {{ r.acc.gl_account.code }}</div></div><div class="amt">{{ r.own|money:r.acc.currency }}</div></div>
+    {% empty %}<p class="lbl">{% translate "No bank accounts yet." %}</p>{% endfor %}</div>
+    <div class="bfoot"><span><span class="lbl">{% translate "Total available" %}</span> <b>{{ bank.total|money:company.base_currency }}</b></span>{% if can.banking.view %}<a class="link" href="{% url 'banking:accounts' %}">{% translate "View all" %}</a>{% endif %}</div>
+  </section>
+
+  <section class="blk">
+    <div class="bh"><h3>{% translate "Post-dated cheques" %}</h3><span class="lbl">{% translate "Received" %}</span></div>
+    <div class="tiles">{% for t in cheques.tiles %}<div class="tile {{ t.cls }}"><span class="lbl">{{ t.label }}</span><span class="n">{{ t.n }}</span><span class="a">{{ t.a|money:company.base_currency }}</span></div>{% endfor %}</div>
+    <div class="rows">{% for c in cheques.next %}<div class="row"><div class="bico">{% include "partials/icon.html" with name="cheque" %}</div><div><div class="nm">{{ c.party_name }}</div><div class="sub">#{{ c.number }} · {% translate "Due" %} {{ c.due_date }}</div></div><div class="amt">{{ c.amount|money:c.currency }}</div></div>{% endfor %}</div>
+    <div class="bfoot">{% if can.cheques.view %}<a class="link" href="{% url 'banking:cheques' %}">{% translate "View all" %}</a>{% endif %}</div>
+  </section>
+
+  <section class="blk w2">
+    <div class="bh"><h3>{% translate "Cash flow" %}</h3><span class="lbl">{% translate "Last 12 weeks" %}</span></div>
+    <div><div class="lbl">{% translate "Today's cash balance" %}</div><div class="big">{{ bank.total|money:company.base_currency }}</div></div>
+    <div class="chartbox"><canvas id="cashChart" aria-label="{% translate 'Cash flow' %}" role="img"></canvas></div>
+    <div class="bfoot"><span class="lbl">{% translate "The 13-week forecast arrives with the planning suite." %}</span></div>
+  </section>
+
+  <section class="blk w2">
+    <div class="bh"><h3>{% translate "Approvals" %}</h3><span class="lbl">{{ approvals_count }}</span></div>
+    <div>{% for r in approvals %}<div class="ap-row">
+      <div class="ap-main"><div class="ap-type">{{ r.voucher.get_kind_display }} · <b>{{ r.voucher.number }}</b></div><div>{{ r.voucher.party_name|default:r.voucher.description }}</div></div>
+      <div class="ap-amt"><b>{{ r.voucher.total|money:r.voucher.currency }}</b><div>{% translate "From" %} {{ r.voucher.created_by }}</div></div>
+      <div class="ap-act"><a class="btn sm" href="{% url 'vouchers:detail' r.voucher.pk %}">{% translate "Review" %}</a>
+        <form method="post" action="{% url 'vouchers:action' r.voucher.pk %}">{% csrf_token %}<button class="btn primary sm" name="action" value="approve">{% translate "Approve" %}</button></form></div>
+    </div>{% empty %}<p class="lbl">{% translate "Nothing is waiting for you." %}</p>{% endfor %}</div>
+  </section>
+
+  <section class="blk soon-blk"><div class="bh"><h3>{% translate "Invoices" %}</h3></div><p>{% translate "Sales invoices, unpaid and overdue, arrive in the next release." %}</p></section>
+  <section class="blk soon-blk"><div class="bh"><h3>{% translate "ETA e-invoicing" %}</h3></div><p>{% translate "Submission to the Egyptian Tax Authority arrives in the next release." %}</p></section>
+  <section class="blk soon-blk"><div class="bh"><h3>{% translate "Import shipments" %}</h3></div><p>{% translate "Goods in transit and landed cost arrive in Release 2." %}</p></section>
+  <section class="blk soon-blk"><div class="bh"><h3>{% translate "Stock alerts" %}</h3></div><p>{% translate "Serial numbers, batches and expiry dates arrive in Release 2." %}</p></section>
+</div>
+
+{{ trend|json_script:"trend-data" }}
+<script id="exp-data" type="application/json">[{% for name, v in exp.items %}{{ v|num:2|cut:"," }}{% if not forloop.last %},{% endif %}{% endfor %}]</script>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

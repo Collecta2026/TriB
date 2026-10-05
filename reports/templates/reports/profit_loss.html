@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Profit and loss" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'reports:index' %}">{% translate "Reports" %}</a></div><h1>{% translate "Profit and loss" %}</h1>
+  <div class="sub">{{ company.name }} · {{ from }} – {{ to }} · {{ company.base_currency_id }}</div></div>
+  {% include "reports/_period.html" with show_from=1 %}
+</div>
+<div class="table-wrap" style="max-width:860px"><table class="tbl">
+  <tbody>
+    <tr class="grp"><td colspan="2">{% translate "Income" %}</td></tr>
+    {% for a, v in r.income %}<tr><td class="indent-1">{{ a.code }} · {{ a.name }}</td><td class="num">{{ v|num }}</td></tr>{% endfor %}
+    <tr class="grp"><td>{% translate "Total income" %}</td><td class="num">{{ r.total_income|num }}</td></tr>
+    <tr class="grp"><td colspan="2">{% translate "Expenses" %}</td></tr>
+    {% for a, v in r.expense %}<tr><td class="indent-1">{{ a.code }} · {{ a.name }}</td><td class="num">{{ v|num }}</td></tr>{% endfor %}
+    <tr class="grp"><td>{% translate "Total expenses" %}</td><td class="num">{{ r.total_expense|num }}</td></tr>
+  </tbody>
+  <tfoot><tr><td>{% if r.net >= 0 %}{% translate "Net profit" %}{% else %}{% translate "Net loss" %}{% endif %}</td><td class="num">{{ r.net|num }}</td></tr></tfoot>
+</table></div>
+{% endblock %}

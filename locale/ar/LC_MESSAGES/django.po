@@ -1,0 +1,1516 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: TriB\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+msgid "%(greeting)s, %(first_name)s!"
+msgstr "%(greeting)s يا %(first_name)s!"
+
+msgid "%(n)s cheques bounced this month"
+msgstr "%(n)s شيكات مرتدة هذا الشهر"
+
+msgid "%(n)s documents are waiting for your approval"
+msgstr "%(n)s مستندات بانتظار اعتمادك"
+
+msgid "%(n)s of your vouchers were rejected and need changes"
+msgstr "%(n)s من سنداتك مرفوضة وتحتاج إلى تعديل"
+
+msgid "%(n)s received cheques are due within 7 days"
+msgstr "%(n)s شيكات واردة تستحق خلال 7 أيام"
+
+msgid "%(n)s submitted."
+msgstr "تم تقديم %(n)s للاعتماد."
+
+msgid "%(n)s to review"
+msgstr "%(n)s بانتظار المراجعة"
+
+msgid "%(name)s can now sign in."
+msgstr "يمكن لـ %(name)s تسجيل الدخول الآن."
+
+msgid "%(name)s created with chart account %(code)s."
+msgstr "تم إنشاء %(name)s برقم حساب %(code)s في الدليل."
+
+msgid "A journal entry needs at least two lines."
+msgstr "يحتاج القيد إلى سطرين على الأقل."
+
+msgid "Account"
+msgstr "الحساب"
+
+msgid "Account %(code)s belongs to another company."
+msgstr "الحساب %(code)s يتبع شركة أخرى."
+
+msgid "Account %(code)s cannot take postings."
+msgstr "لا يمكن الترحيل على الحساب %(code)s."
+
+msgid "Account %(code)s created."
+msgstr "تم إنشاء الحساب %(code)s."
+
+msgid "Account number"
+msgstr "رقم الحساب"
+
+msgid "Account statement"
+msgstr "كشف حساب"
+
+msgid "Accounting"
+msgstr "المحاسبة"
+
+msgid "Accounting & ERP · by Heliolink"
+msgstr "المحاسبة وإدارة الأعمال · من هيليولينك"
+
+msgid "Accounts"
+msgstr "الحسابات"
+
+msgid "Action"
+msgstr "الإجراء"
+
+msgid "Active"
+msgstr "نشط"
+
+msgid "Add"
+msgstr "إضافة"
+
+msgid "Add a bank"
+msgstr "إضافة بنك"
+
+msgid "Add at least one line."
+msgstr "أضف سطرًا واحدًا على الأقل."
+
+msgid "Add bank account"
+msgstr "إضافة حساب بنكي"
+
+msgid "Add bank account or cash box"
+msgstr "إضافة حساب بنكي أو خزينة"
+
+msgid "Add branch"
+msgstr "إضافة فرع"
+
+msgid "Add cost centre"
+msgstr "إضافة مركز تكلفة"
+
+msgid "Add line"
+msgstr "إضافة سطر"
+
+msgid "Add rule"
+msgstr "إضافة قاعدة"
+
+msgid "Add user"
+msgstr "إضافة مستخدم"
+
+msgid "Add-on, Release 4"
+msgstr "إضافة، الإصدار الرابع"
+
+msgid "Add-ons"
+msgstr "الإضافات"
+
+msgid "Add-ons saved."
+msgstr "تم حفظ الإضافات."
+
+msgid "Added by you"
+msgstr "مضاف بواسطتك"
+
+msgid "Address"
+msgstr "العنوان"
+
+msgid "All"
+msgstr "الكل"
+
+msgid "All apps"
+msgstr "كل التطبيقات"
+
+msgid "All sources"
+msgstr "كل المصادر"
+
+msgid "All statuses"
+msgstr "كل الحالات"
+
+msgid "All types"
+msgstr "كل الأنواع"
+
+msgid "Amount"
+msgstr "المبلغ"
+
+msgid "An account must have the same type as its parent."
+msgstr "يجب أن يكون نوع الحساب مثل نوع الحساب الرئيسي."
+
+msgid "An account with postings cannot become a header account."
+msgstr "لا يمكن تحويل حساب عليه حركات إلى حساب رئيسي."
+
+msgid "Apply"
+msgstr "تطبيق"
+
+msgid "Approval limit: %(doc)s"
+msgstr "حد الاعتماد: %(doc)s"
+
+msgid "Approval limits"
+msgstr "حدود الاعتماد"
+
+msgid "Approval rule added."
+msgstr "تمت إضافة قاعدة الاعتماد."
+
+msgid "Approval rules"
+msgstr "قواعد الاعتماد"
+
+msgid "Approvals"
+msgstr "الاعتمادات"
+
+msgid "Approve"
+msgstr "اعتماد"
+
+msgid "Approve and e-sign"
+msgstr "اعتماد وتوقيع إلكتروني"
+
+msgid "Approved"
+msgstr "معتمد"
+
+msgid "Approved and e-signed."
+msgstr "تم الاعتماد والتوقيع الإلكتروني."
+
+msgid "Approver role"
+msgstr "دور المعتمِد"
+
+msgid "Approvers in order"
+msgstr "المعتمِدون بالترتيب"
+
+msgid "Apps"
+msgstr "التطبيقات"
+
+msgid "As of"
+msgstr "حتى تاريخ"
+
+msgid "As of today"
+msgstr "حتى اليوم"
+
+msgid "Ask your company administrator to add you in Users & roles."
+msgstr "اطلب من مدير النظام في شركتك إضافتك من شاشة المستخدمين والأدوار."
+
+msgid "Asset"
+msgstr "أصل"
+
+msgid "Assets"
+msgstr "الأصول"
+
+msgid "Assets, liabilities and equity on a date."
+msgstr "الأصول والخصوم وحقوق الملكية في تاريخ محدد."
+
+msgid "Audit log"
+msgstr "سجل المراجعة"
+
+msgid "Authority matrix"
+msgstr "مصفوفة الصلاحيات"
+
+msgid "Back"
+msgstr "رجوع"
+
+msgid "Bahrain"
+msgstr "البحرين"
+
+msgid "Balance"
+msgstr "الرصيد"
+
+msgid "Balance sheet"
+msgstr "الميزانية العمومية"
+
+msgid "Balances in"
+msgstr "الأرصدة بعملة"
+
+msgid "Bank"
+msgstr "البنك"
+
+msgid "Bank account"
+msgstr "حساب بنكي"
+
+msgid "Bank account or cash box"
+msgstr "حساب بنكي أو خزينة"
+
+msgid "Bank accounts"
+msgstr "الحسابات البنكية"
+
+msgid "Bank accounts in any currency, cash boxes and post-dated cheques."
+msgstr "حسابات بنكية بأي عملة، والخزائن، والشيكات الآجلة."
+
+msgid "Bank added."
+msgstr "تمت إضافة البنك."
+
+msgid "Bank transfer"
+msgstr "تحويل بنكي"
+
+msgid "Banking"
+msgstr "البنوك"
+
+msgid "Banking & cheques"
+msgstr "البنوك والشيكات"
+
+msgid "Banks"
+msgstr "البنوك"
+
+msgid "Banks & cash"
+msgstr "البنوك والخزائن"
+
+msgid "Base currency"
+msgstr "العملة الأساسية"
+
+msgid "Base-currency vouchers use an exchange rate of 1."
+msgstr "سندات العملة الأساسية سعر صرفها 1."
+
+msgid "Bounced"
+msgstr "مرتد"
+
+msgid "Bounced this month"
+msgstr "مرتدة هذا الشهر"
+
+msgid "Branch"
+msgstr "الفرع"
+
+msgid "Branch added."
+msgstr "تمت إضافة الفرع."
+
+msgid "Branches"
+msgstr "الفروع"
+
+msgid "Business at a glance"
+msgstr "نظرة سريعة على الأعمال"
+
+msgid "Business feed"
+msgstr "آخر المستجدات"
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "Cancel cheque"
+msgstr "إلغاء الشيك"
+
+msgid "Cancel voucher"
+msgstr "إلغاء السند"
+
+msgid "Cancelled"
+msgstr "ملغى"
+
+msgid "Cannot approve"
+msgstr "لا يملك صلاحية الاعتماد"
+
+msgid "Cash"
+msgstr "نقدًا"
+
+msgid "Cash box"
+msgstr "خزينة"
+
+msgid "Cash box / bank account"
+msgstr "الخزينة / الحساب البنكي"
+
+msgid "Cash flow"
+msgstr "التدفق النقدي"
+
+msgid "Change password"
+msgstr "تغيير كلمة المرور"
+
+msgid "Chart account"
+msgstr "حساب الدليل"
+
+msgid "Chart of accounts"
+msgstr "دليل الحسابات"
+
+msgid "Chart of accounts & journals"
+msgstr "دليل الحسابات والقيود"
+
+msgid "Chart of accounts, cost centres and journal entries."
+msgstr "دليل الحسابات ومراكز التكلفة وقيود اليومية."
+
+msgid "Check the date and bank account."
+msgstr "راجع التاريخ والحساب البنكي."
+
+msgid "Cheque"
+msgstr "شيك"
+
+msgid "Cheque %(n)s bounced"
+msgstr "ارتداد الشيك %(n)s"
+
+msgid "Cheque %(n)s cancelled"
+msgstr "إلغاء الشيك %(n)s"
+
+msgid "Cheque %(n)s cleared"
+msgstr "تحصيل الشيك %(n)s"
+
+msgid "Cheque %(n)s deposited for collection"
+msgstr "إيداع الشيك %(n)s برسم التحصيل"
+
+msgid "Cheque %(n)s updated."
+msgstr "تم تحديث الشيك %(n)s."
+
+msgid "Cheque date"
+msgstr "تاريخ الشيك"
+
+msgid "Cheque due date"
+msgstr "تاريخ استحقاق الشيك"
+
+msgid "Cheque number"
+msgstr "رقم الشيك"
+
+msgid "Cheques"
+msgstr "الشيكات"
+
+msgid ""
+"Cheques are recorded through receipt and payment vouchers paid by cheque."
+msgstr "تُسجَّل الشيكات من خلال سندات القبض والصرف بطريقة دفع شيك."
+
+msgid "Cheques in the safe (notes receivable)"
+msgstr "شيكات بالخزينة (أوراق قبض)"
+
+msgid "Cheques issued (notes payable)"
+msgstr "شيكات صادرة (أوراق دفع)"
+
+msgid "Cheques under collection"
+msgstr "شيكات تحت التحصيل"
+
+msgid "Choose an account and a period."
+msgstr "اختر الحساب والفترة."
+
+msgid "Choose the bank account the cheque cleared through."
+msgstr "اختر الحساب البنكي الذي تم التحصيل عليه."
+
+msgid "Choose the bank account the cheque is deposited into."
+msgstr "اختر الحساب البنكي الذي أودع فيه الشيك."
+
+msgid "Choose the bank account the cheque is drawn on."
+msgstr "اختر الحساب البنكي المسحوب عليه الشيك."
+
+msgid "Choose the bank."
+msgstr "اختر البنك."
+
+msgid "Choose the cash box or bank account."
+msgstr "اختر الخزينة أو الحساب البنكي."
+
+msgid "Cleared"
+msgstr "محصَّل"
+
+msgid "Closing"
+msgstr "الختامي"
+
+msgid "Closing balance"
+msgstr "الرصيد الختامي"
+
+msgid "Code"
+msgstr "الكود"
+
+msgid "Coming in the next release"
+msgstr "في الإصدار القادم"
+
+msgid "Comment"
+msgstr "تعليق"
+
+msgid "Commercial register"
+msgstr "السجل التجاري"
+
+msgid "Company"
+msgstr "الشركة"
+
+msgid "Company details"
+msgstr "بيانات الشركة"
+
+msgid "Company details saved."
+msgstr "تم حفظ بيانات الشركة."
+
+msgid "Company details updated"
+msgstr "تم تحديث بيانات الشركة"
+
+msgid "Company name (Arabic)"
+msgstr "اسم الشركة (عربي)"
+
+msgid "Company name (English)"
+msgstr "اسم الشركة (إنجليزي)"
+
+msgid "Company settings"
+msgstr "إعدادات الشركة"
+
+msgid "Company setup"
+msgstr "إعداد الشركة"
+
+msgid "Cost centre"
+msgstr "مركز التكلفة"
+
+msgid "Cost centre added."
+msgstr "تمت إضافة مركز التكلفة."
+
+msgid "Cost centres"
+msgstr "مراكز التكلفة"
+
+msgid "Country"
+msgstr "الدولة"
+
+msgid "Create"
+msgstr "إنشاء"
+
+msgid "Create actions"
+msgstr "إجراءات سريعة"
+
+msgid "Create company"
+msgstr "إنشاء الشركة"
+
+msgid "Created by"
+msgstr "أنشأه"
+
+msgid "Credit"
+msgstr "دائن"
+
+msgid "Currencies in use"
+msgstr "العملات المستخدمة"
+
+msgid "Currencies saved."
+msgstr "تم حفظ العملات."
+
+msgid "Currency"
+msgstr "العملة"
+
+msgid "Currency (foreign-currency accounts only)"
+msgstr "العملة (لحسابات العملات الأجنبية فقط)"
+
+msgid "Custody & advances"
+msgstr "العهد والسلف"
+
+msgid "Customer / supplier"
+msgstr "العميل / المورد"
+
+msgid "Customers"
+msgstr "العملاء"
+
+msgid "Customers (receivable)"
+msgstr "العملاء (مدينون)"
+
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+msgid "Date"
+msgstr "التاريخ"
+
+msgid "Debit"
+msgstr "مدين"
+
+msgid "Debits (%(d)s) and credits (%(c)s) must be equal."
+msgstr "يجب أن يتساوى المدين (%(d)s) مع الدائن (%(c)s)."
+
+msgid "Deposit for collection"
+msgstr "إيداع برسم التحصيل"
+
+msgid "Description"
+msgstr "البيان"
+
+msgid "Details"
+msgstr "التفاصيل"
+
+msgid "Difference"
+msgstr "الفرق"
+
+msgid "Direction"
+msgstr "الاتجاه"
+
+msgid "Document type"
+msgstr "نوع المستند"
+
+msgid "Documents waiting for your electronic approval."
+msgstr "مستندات بانتظار اعتمادك الإلكتروني."
+
+msgid "Draft"
+msgstr "مسودة"
+
+msgid "Draft saved."
+msgstr "تم حفظ المسودة."
+
+msgid "Drawn on bank"
+msgstr "البنك المسحوب عليه"
+
+msgid "Due"
+msgstr "يستحق"
+
+msgid "Due date"
+msgstr "تاريخ الاستحقاق"
+
+msgid "Due this week"
+msgstr "تستحق هذا الأسبوع"
+
+msgid "ETA e-invoicing"
+msgstr "الفاتورة الإلكترونية"
+
+msgid "Each account has its own account in the chart, in its own currency."
+msgstr "لكل حساب بنكي حساب خاص به في الدليل وبعملته."
+
+msgid "Each line must be either a debit or a credit, and not negative."
+msgstr "يجب أن يكون كل سطر مدينًا أو دائنًا وألا يكون سالبًا."
+
+msgid "Edit"
+msgstr "تعديل"
+
+msgid "Egypt"
+msgstr "مصر"
+
+msgid "Egypt tax & ETA e-invoicing"
+msgstr "ضرائب مصر والفاتورة الإلكترونية"
+
+msgid "Egyptian and Gulf banks are listed. Add any bank you need."
+msgstr "البنوك المصرية والخليجية مدرجة. أضف أي بنك تحتاجه."
+
+msgid "Electronic authorisation"
+msgstr "الاعتماد الإلكتروني"
+
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+msgid "Enter the cheque number and due date."
+msgstr "أدخل رقم الشيك وتاريخ استحقاقه."
+
+msgid "Enter the exchange rate, or save one in Settings."
+msgstr "أدخل سعر الصرف أو احفظه من الإعدادات."
+
+msgid "Enter who the money was received from or paid to."
+msgstr "أدخل اسم من استلمنا منه أو صرفنا له."
+
+msgid ""
+"Entries are created by vouchers and cheques. Corrections are made by "
+"reversing, never by editing."
+msgstr ""
+"تُنشأ القيود من السندات والشيكات. يتم التصحيح بقيد عكسي وليس بالتعديل."
+
+msgid "Entry"
+msgstr "القيد"
+
+msgid "Equity"
+msgstr "حقوق الملكية"
+
+msgid "Every change is recorded and cannot be edited."
+msgstr "كل تغيير مسجَّل ولا يمكن تعديله."
+
+msgid "Every line needs an amount greater than zero."
+msgstr "يجب أن يكون مبلغ كل سطر أكبر من صفر."
+
+msgid "Every posting to one account, with a running balance."
+msgstr "كل الحركات على حساب واحد مع الرصيد المتراكم."
+
+msgid "Everything in TriB, including what is coming in the next releases."
+msgstr "كل ما في تراي بي، بما في ذلك ما سيأتي في الإصدارات القادمة."
+
+msgid "Exchange gains"
+msgstr "أرباح فروق العملة"
+
+msgid "Exchange losses"
+msgstr "خسائر فروق العملة"
+
+msgid "Exchange rate"
+msgstr "سعر الصرف"
+
+msgid "Exchange rate saved."
+msgstr "تم حفظ سعر الصرف."
+
+msgid "Exchange rates"
+msgstr "أسعار الصرف"
+
+msgid "Expense"
+msgstr "مصروف"
+
+msgid "Expenses"
+msgstr "المصروفات"
+
+msgid "Expenses & bills"
+msgstr "المصروفات وفواتير الموردين"
+
+msgid "Export"
+msgstr "تصدير"
+
+msgid "Export to Excel (CSV)"
+msgstr "تصدير إلى إكسل (CSV)"
+
+msgid "Filter"
+msgstr "تصفية"
+
+msgid "Financial year starts in month"
+msgstr "شهر بداية السنة المالية"
+
+msgid "Find vouchers, accounts, cheques…"
+msgstr "ابحث عن سند أو حساب أو شيك…"
+
+msgid "Fix"
+msgstr "تصحيح"
+
+msgid "For example: CIB · USD current account"
+msgstr "مثال: التجاري الدولي · حساب جاري دولار"
+
+msgid "From"
+msgstr "من"
+
+msgid "From amount"
+msgstr "من مبلغ"
+
+msgid "From amount (base currency)"
+msgstr "من مبلغ (بالعملة الأساسية)"
+
+msgid "Full name"
+msgstr "الاسم بالكامل"
+
+msgid "GCC pack"
+msgstr "حزمة دول الخليج"
+
+msgid "General"
+msgstr "عام"
+
+msgid ""
+"Give this to the person; they can change it after signing in. Not needed for"
+" existing users."
+msgstr ""
+"أعطها للمستخدم ليغيرها بعد تسجيل الدخول. غير مطلوبة للمستخدمين الحاليين."
+
+msgid "Good afternoon"
+msgstr "مساء الخير"
+
+msgid "Good evening"
+msgstr "مساء الخير"
+
+msgid "Good morning"
+msgstr "صباح الخير"
+
+msgid "Goods in transit"
+msgstr "بضاعة بالطريق"
+
+msgid "Goods in transit and landed cost arrive in Release 2."
+msgstr "البضاعة بالطريق وتكلفة الاستيراد في الإصدار الثاني."
+
+msgid "Header account (no postings)"
+msgstr "حساب رئيسي (بدون حركات)"
+
+msgid "Home"
+msgstr "الرئيسية"
+
+msgid "IBAN"
+msgstr "رقم الآيبان"
+
+msgid "IP address"
+msgstr "عنوان IP"
+
+msgid "Import shipments"
+msgstr "شحنات الاستيراد"
+
+msgid "Imports"
+msgstr "الاستيراد"
+
+msgid "In"
+msgstr "بعملة"
+
+msgid "In the safe"
+msgstr "بالخزينة"
+
+msgid "In words"
+msgstr "المبلغ كتابةً"
+
+msgid "Inactive"
+msgstr "غير نشط"
+
+msgid "Income"
+msgstr "الإيرادات"
+
+msgid "Income and expenses for a period."
+msgstr "الإيرادات والمصروفات عن فترة."
+
+msgid "Inventory"
+msgstr "المخزون"
+
+msgid "Inventory & imports"
+msgstr "المخزون والاستيراد"
+
+msgid "Invoices"
+msgstr "الفواتير"
+
+msgid "Issued"
+msgstr "صادر"
+
+msgid "Jordan"
+msgstr "الأردن"
+
+msgid "Journal entries"
+msgstr "قيود اليومية"
+
+msgid "Journal voucher"
+msgstr "قيد يومية"
+
+msgid "Kuwait"
+msgstr "الكويت"
+
+msgid "Language"
+msgstr "اللغة"
+
+msgid "Largest amount in base currency. Empty means cannot approve."
+msgstr "أكبر مبلغ بالعملة الأساسية. إذا تُرك فارغًا فلا يملك صلاحية الاعتماد."
+
+msgid "Last 12 weeks"
+msgstr "آخر 12 أسبوعًا"
+
+msgid "Last 30 days"
+msgstr "آخر 30 يومًا"
+
+msgid ""
+"Leave as 1 for the base currency. For other currencies, the latest saved "
+"rate is used if you leave it at 1."
+msgstr ""
+"اتركه 1 للعملة الأساسية. للعملات الأخرى يُستخدم آخر سعر محفوظ إذا تركته 1."
+
+msgid "Leave empty to allow every branch."
+msgstr "اتركه فارغًا للسماح بكل الفروع."
+
+msgid "Level"
+msgstr "المستوى"
+
+msgid "Level 1 approver"
+msgstr "المعتمِد في المستوى الأول"
+
+msgid "Level 2 approver"
+msgstr "المعتمِد في المستوى الثاني"
+
+msgid "Level 3 approver"
+msgstr "المعتمِد في المستوى الثالث"
+
+msgid "Liabilities"
+msgstr "الخصوم"
+
+msgid "Liabilities and equity"
+msgstr "الخصوم وحقوق الملكية"
+
+msgid "Liability"
+msgstr "خصم"
+
+msgid "Lines"
+msgstr "السطور"
+
+msgid "Lock date"
+msgstr "تاريخ الإقفال"
+
+msgid "Main menu"
+msgstr "القائمة الرئيسية"
+
+msgid "Manual journal"
+msgstr "قيد يدوي"
+
+msgid "Memo"
+msgstr "البيان"
+
+msgid "Menu"
+msgstr "القائمة"
+
+msgid "Missing a bank? Add it on the Banks page."
+msgstr "البنك غير موجود؟ أضفه من صفحة البنوك."
+
+msgid "Mobile"
+msgstr "الموبايل"
+
+msgid "Module"
+msgstr "الوحدة"
+
+msgid "Movement"
+msgstr "الحركة"
+
+msgid "Name"
+msgstr "الاسم"
+
+msgid "Name (Arabic)"
+msgstr "الاسم (عربي)"
+
+msgid "Name (English)"
+msgstr "الاسم (إنجليزي)"
+
+msgid "Net loss"
+msgstr "صافي الخسارة"
+
+msgid "Net profit"
+msgstr "صافي الربح"
+
+msgid "Net profit for %(year)s"
+msgstr "صافي الربح لعام %(year)s"
+
+msgid "New account"
+msgstr "حساب جديد"
+
+msgid "New role"
+msgstr "دور جديد"
+
+msgid "No active account is set up for: %(role)s"
+msgstr "لا يوجد حساب نشط مُعرَّف لـ: %(role)s"
+
+msgid "No approval was required for this amount."
+msgstr "لم يتطلب هذا المبلغ اعتمادًا."
+
+msgid "No bank accounts yet."
+msgstr "لا توجد حسابات بنكية بعد."
+
+msgid "No cheques here."
+msgstr "لا توجد شيكات هنا."
+
+msgid "No company"
+msgstr "لا توجد شركة"
+
+msgid "No cost centres yet."
+msgstr "لا توجد مراكز تكلفة بعد."
+
+msgid "No entries can be posted on or before this date."
+msgstr "لا يمكن ترحيل أي قيود في هذا التاريخ أو قبله."
+
+msgid "No entries yet."
+msgstr "لا توجد قيود بعد."
+
+msgid "No exchange rate saved for today: %(codes)s"
+msgstr "لم يُحفظ سعر صرف اليوم لـ: %(codes)s"
+
+msgid "No expenses posted in the last 30 days."
+msgstr "لا توجد مصروفات مرحَّلة في آخر 30 يومًا."
+
+msgid "No postings in this period."
+msgstr "لا توجد حركات في هذه الفترة."
+
+msgid "No rates yet."
+msgstr "لا توجد أسعار بعد."
+
+msgid "No rules: every document is approved as soon as it is submitted."
+msgstr "لا توجد قواعد: يُعتمد كل مستند فور تقديمه."
+
+msgid "No vouchers yet."
+msgstr "لا توجد سندات بعد."
+
+msgid "None yet."
+msgstr "لا يوجد بعد."
+
+msgid "Not needed for cheques: they go to the safe first."
+msgstr "غير مطلوب للشيكات: تذهب إلى الخزينة أولًا."
+
+msgid "Not submitted yet."
+msgstr "لم يُقدَّم بعد."
+
+msgid "Notes"
+msgstr "ملاحظات"
+
+msgid "Nothing found."
+msgstr "لا توجد نتائج."
+
+msgid "Nothing is waiting for you."
+msgstr "لا يوجد ما ينتظر اعتمادك."
+
+msgid "Nothing new right now. Check back soon!"
+msgstr "لا جديد الآن. عُد لاحقًا!"
+
+msgid "Nothing recorded yet."
+msgstr "لم يُسجَّل شيء بعد."
+
+msgid "Number"
+msgstr "الرقم"
+
+msgid "Off"
+msgstr "متوقف"
+
+msgid "Oman"
+msgstr "عُمان"
+
+msgid "On"
+msgstr "مفعّل"
+
+msgid "Only approved vouchers can be posted."
+msgstr "يمكن ترحيل السندات المعتمدة فقط."
+
+msgid "Only draft or rejected vouchers can be cancelled."
+msgstr "يمكن إلغاء السندات المسودة أو المرفوضة فقط."
+
+msgid "Only draft or rejected vouchers can be submitted."
+msgstr "يمكن تقديم السندات المسودة أو المرفوضة فقط."
+
+msgid "Only issued cheques that have not cleared can be cancelled."
+msgstr "يمكن إلغاء الشيكات الصادرة غير المحصَّلة فقط."
+
+msgid "Only received cheques in the safe can be deposited."
+msgstr "يمكن إيداع الشيكات الواردة الموجودة بالخزينة فقط."
+
+msgid "Only received cheques that have not cleared can bounce."
+msgstr "يمكن ارتداد الشيكات الواردة غير المحصَّلة فقط."
+
+msgid ""
+"Only the currencies you tick appear on bank accounts, vouchers and cheques."
+msgstr "تظهر العملات التي تختارها فقط في الحسابات البنكية والسندات والشيكات."
+
+msgid "Open"
+msgstr "فتح"
+
+msgid "Opening"
+msgstr "الافتتاحي"
+
+msgid "Opening balance"
+msgstr "الرصيد الافتتاحي"
+
+msgid "Opening, movement and closing balance of every account."
+msgstr "الرصيد الافتتاحي والحركة والرصيد الختامي لكل حساب."
+
+msgid "Original amount"
+msgstr "المبلغ الأصلي"
+
+msgid "Other"
+msgstr "أخرى"
+
+msgid "Our bank account"
+msgstr "حسابنا البنكي"
+
+msgid "Owner"
+msgstr "المالك"
+
+msgid "PINNED"
+msgstr "المثبّتة"
+
+msgid "Paid for"
+msgstr "صُرف مقابل"
+
+msgid "Paid to"
+msgstr "صُرف إلى"
+
+msgid "Parent account"
+msgstr "الحساب الرئيسي"
+
+msgid "Party"
+msgstr "الطرف"
+
+msgid "Password"
+msgstr "كلمة المرور"
+
+msgid "Payment method"
+msgstr "طريقة الدفع"
+
+msgid "Payment voucher"
+msgstr "سند صرف"
+
+msgid "Payroll"
+msgstr "الرواتب"
+
+msgid "Pending"
+msgstr "قيد الانتظار"
+
+msgid "People, roles, the authority matrix and approval limits."
+msgstr "المستخدمون والأدوار ومصفوفة الصلاحيات وحدود الاعتماد."
+
+msgid "Permissions"
+msgstr "الصلاحيات"
+
+msgid "Phone"
+msgstr "الهاتف"
+
+msgid "Planning"
+msgstr "التخطيط"
+
+msgid "Planning & cash forecast"
+msgstr "التخطيط وتوقعات النقدية"
+
+msgid "Planning suite"
+msgstr "حزمة التخطيط"
+
+msgid "Post"
+msgstr "ترحيل"
+
+msgid "Post documents automatically when fully approved"
+msgstr "ترحيل المستندات تلقائيًا بعد اكتمال اعتمادها"
+
+msgid "Post reversal"
+msgstr "ترحيل القيد العكسي"
+
+msgid "Post to ledger"
+msgstr "ترحيل إلى الأستاذ"
+
+msgid "Post-dated cheques"
+msgstr "الشيكات الآجلة"
+
+msgid "Posted"
+msgstr "مرحَّل"
+
+msgid "Posted as %(n)s."
+msgstr "تم الترحيل بالقيد %(n)s."
+
+msgid "Print"
+msgstr "طباعة"
+
+msgid "Privacy"
+msgstr "الخصوصية"
+
+msgid "Profit & loss"
+msgstr "الأرباح والخسائر"
+
+msgid "Profit and loss"
+msgstr "قائمة الدخل"
+
+msgid "Profit to date (not yet closed to retained earnings)"
+msgstr "الأرباح حتى تاريخه (لم تُقفل في الأرباح المحتجزة بعد)"
+
+msgid "Qatar"
+msgstr "قطر"
+
+msgid "Rate"
+msgstr "السعر"
+
+msgid "Receipt voucher"
+msgstr "سند قبض"
+
+msgid "Receipt, payment and journal vouchers"
+msgstr "سندات القبض والصرف وقيود اليومية"
+
+msgid "Receipt, payment and journal vouchers with approvals and printing."
+msgstr "سندات القبض والصرف وقيود اليومية مع الاعتماد والطباعة."
+
+msgid "Received"
+msgstr "الواردة"
+
+msgid "Received for"
+msgstr "استُلم مقابل"
+
+msgid "Received from"
+msgstr "استلمنا من"
+
+msgid "Received from / paid to"
+msgstr "استلمنا من / صرفنا إلى"
+
+msgid "Record a payment"
+msgstr "تسجيل دفعة"
+
+msgid "Reference"
+msgstr "المرجع"
+
+msgid "Reject"
+msgstr "رفض"
+
+msgid "Rejected"
+msgstr "مرفوض"
+
+msgid "Rejected and returned to the creator."
+msgstr "تم الرفض والإعادة إلى المُنشئ."
+
+msgid "Release 2"
+msgstr "الإصدار الثاني"
+
+msgid "Release 3"
+msgstr "الإصدار الثالث"
+
+msgid "Remove line"
+msgstr "حذف السطر"
+
+msgid "Repeat password"
+msgstr "تأكيد كلمة المرور"
+
+msgid "Reports"
+msgstr "التقارير"
+
+msgid "Retained earnings"
+msgstr "الأرباح المحتجزة"
+
+msgid "Reversal"
+msgstr "قيد عكسي"
+
+msgid "Reversal date"
+msgstr "تاريخ القيد العكسي"
+
+msgid "Reversal of %(n)s"
+msgstr "عكس القيد %(n)s"
+
+msgid "Reverse this entry"
+msgstr "عكس هذا القيد"
+
+msgid "Reversed by %(n)s."
+msgstr "تم العكس بالقيد %(n)s."
+
+msgid "Reverses"
+msgstr "يعكس"
+
+msgid "Review"
+msgstr "مراجعة"
+
+msgid "Role"
+msgstr "الدور"
+
+msgid "Role saved."
+msgstr "تم حفظ الدور."
+
+msgid "Roles"
+msgstr "الأدوار"
+
+msgid "Rule switched off."
+msgstr "تم إيقاف القاعدة."
+
+msgid "Rule switched on."
+msgstr "تم تفعيل القاعدة."
+
+msgid "Run report"
+msgstr "عرض التقرير"
+
+msgid "SWIFT / BIC"
+msgstr "رمز السويفت"
+
+msgid "Sales & Get Paid"
+msgstr "المبيعات والتحصيل"
+
+msgid "Sales & invoices"
+msgstr "المبيعات والفواتير"
+
+msgid "Sales invoice"
+msgstr "فاتورة مبيعات"
+
+msgid "Sales invoices, unpaid and overdue, arrive in the next release."
+msgstr "فواتير المبيعات غير المدفوعة والمتأخرة في الإصدار القادم."
+
+msgid "Saudi Arabia"
+msgstr "المملكة العربية السعودية"
+
+msgid "Save"
+msgstr "حفظ"
+
+msgid "Save and submit for approval"
+msgstr "حفظ وتقديم للاعتماد"
+
+msgid "Save draft"
+msgstr "حفظ كمسودة"
+
+msgid "Save rate"
+msgstr "حفظ السعر"
+
+msgid "Save role"
+msgstr "حفظ الدور"
+
+msgid "Saved."
+msgstr "تم الحفظ."
+
+msgid "Search"
+msgstr "بحث"
+
+msgid "Serial numbers, batches and expiry dates arrive in Release 2."
+msgstr "الأرقام المسلسلة والتشغيلات وتواريخ الصلاحية في الإصدار الثاني."
+
+msgid "Set a temporary password for the new user."
+msgstr "حدد كلمة مرور مؤقتة للمستخدم الجديد."
+
+msgid "Set up your company"
+msgstr "إعداد شركتك"
+
+msgid "Settings"
+msgstr "الإعدادات"
+
+msgid "Short name"
+msgstr "الاسم المختصر"
+
+msgid "Sign in"
+msgstr "تسجيل الدخول"
+
+msgid "Sign out"
+msgstr "تسجيل الخروج"
+
+msgid "Signature does not match"
+msgstr "التوقيع غير مطابق"
+
+msgid "Signature valid"
+msgstr "التوقيع صحيح"
+
+msgid "Source"
+msgstr "المصدر"
+
+msgid "Spending for last 30 days"
+msgstr "الإنفاق خلال آخر 30 يومًا"
+
+msgid "Status"
+msgstr "الحالة"
+
+msgid "Stock alerts"
+msgstr "تنبيهات المخزون"
+
+msgid "Submission to the Egyptian Tax Authority arrives in the next release."
+msgstr "الإرسال إلى مصلحة الضرائب المصرية في الإصدار القادم."
+
+msgid "Submit for approval"
+msgstr "تقديم للاعتماد"
+
+msgid "Submit the voucher before printing it."
+msgstr "قدّم السند للاعتماد قبل طباعته."
+
+msgid "Supplier bill"
+msgstr "فاتورة مورد"
+
+msgid "Suppliers"
+msgstr "الموردون"
+
+msgid "Suppliers (payable)"
+msgstr "الموردون (دائنون)"
+
+msgid "Switch off"
+msgstr "إيقاف"
+
+msgid "Switch on"
+msgstr "تفعيل"
+
+msgid ""
+"Switch optional packs on or off. Switching one off hides it but keeps its "
+"data."
+msgstr "فعّل الحزم الاختيارية أو أوقفها. الإيقاف يخفيها ويحتفظ ببياناتها."
+
+msgid "System role"
+msgstr "الدور في النظام"
+
+msgid "Tax registration number"
+msgstr "رقم التسجيل الضريبي"
+
+msgid "Temporary password"
+msgstr "كلمة مرور مؤقتة"
+
+msgid "The 13-week forecast arrives with the planning suite."
+msgstr "توقعات الـ13 أسبوعًا تأتي مع حزمة التخطيط."
+
+msgid "The balance sheet does not balance. Contact support."
+msgstr "الميزانية غير متوازنة. تواصل مع الدعم."
+
+msgid "The chart of accounts has no header account for banks or cash."
+msgstr "لا يحتوي دليل الحسابات على حساب رئيسي للبنوك أو النقدية."
+
+msgid "The company owner cannot be deactivated."
+msgstr "لا يمكن إيقاف مالك الشركة."
+
+msgid "The currency your books are kept in. It cannot be changed later."
+msgstr "العملة التي تُمسك بها الدفاتر. لا يمكن تغييرها لاحقًا."
+
+msgid "The exchange rate must be greater than zero."
+msgstr "يجب أن يكون سعر الصرف أكبر من صفر."
+
+msgid "The passwords do not match."
+msgstr "كلمتا المرور غير متطابقتين."
+
+msgid "The period up to %(date)s is locked."
+msgstr "الفترة حتى %(date)s مقفلة."
+
+msgid "The person who creates a document cannot approve it"
+msgstr "من ينشئ المستند لا يمكنه اعتماده"
+
+msgid "The rate must be greater than zero."
+msgstr "يجب أن يكون السعر أكبر من صفر."
+
+msgid "The voucher currency must match the cash box or bank account currency."
+msgstr "يجب أن تطابق عملة السند عملة الخزينة أو الحساب البنكي."
+
+msgid "This amount is above your approval limit."
+msgstr "هذا المبلغ أعلى من حد اعتمادك."
+
+msgid "This cheque cannot be cleared from its current status."
+msgstr "لا يمكن تحصيل هذا الشيك من حالته الحالية."
+
+msgid "This code is already used."
+msgstr "هذا الكود مستخدم بالفعل."
+
+msgid ""
+"This creates your company with a starter chart of accounts, roles, a cash "
+"box and approval rules. You become its owner."
+msgstr ""
+"سيتم إنشاء شركتك مع دليل حسابات مبدئي وأدوار وخزينة وقواعد اعتماد، وتصبح أنت"
+" مالكها."
+
+msgid "This document is no longer waiting for approval."
+msgstr "هذا المستند لم يعد بانتظار الاعتماد."
+
+msgid "This document is not waiting for approval."
+msgstr "هذا المستند ليس بانتظار الاعتماد."
+
+msgid "This email is already registered."
+msgstr "هذا البريد مسجل بالفعل."
+
+msgid "This entry has already been reversed."
+msgstr "تم عكس هذا القيد من قبل."
+
+msgid "This entry was reversed by"
+msgstr "تم عكس هذا القيد بالقيد"
+
+msgid "This person is already a user of this company."
+msgstr "هذا الشخص مستخدم بالفعل في هذه الشركة."
+
+msgid "This step must be approved by: %(role)s"
+msgstr "يجب أن يعتمد هذه الخطوة: %(role)s"
+
+msgid "This voucher can no longer be changed."
+msgstr "لم يعد من الممكن تعديل هذا السند."
+
+msgid "This voucher was rejected. Fix it and submit it again."
+msgstr "تم رفض هذا السند. صحّحه وقدّمه مرة أخرى."
+
+msgid ""
+"Tick what this role may do. Approval limits are in the company's base "
+"currency."
+msgstr ""
+"اختر ما يمكن لهذا الدور القيام به. حدود الاعتماد بالعملة الأساسية للشركة."
+
+msgid "To"
+msgstr "إلى"
+
+msgid "Today's cash balance"
+msgstr "رصيد النقدية اليوم"
+
+msgid "Total"
+msgstr "الإجمالي"
+
+msgid "Total assets"
+msgstr "إجمالي الأصول"
+
+msgid "Total available"
+msgstr "إجمالي المتاح"
+
+msgid "Total debits and total credits must be equal."
+msgstr "يجب أن يتساوى إجمالي المدين مع إجمالي الدائن."
+
+msgid "Total equity"
+msgstr "إجمالي حقوق الملكية"
+
+msgid "Total expenses"
+msgstr "إجمالي المصروفات"
+
+msgid "Total income"
+msgstr "إجمالي الإيرادات"
+
+msgid "Total liabilities"
+msgstr "إجمالي الخصوم"
+
+msgid "Trading & imports"
+msgstr "التجارة والاستيراد"
+
+msgid ""
+"TriB creates the matching account in your chart under Banks or Cash on hand."
+msgstr "ينشئ تراي بي الحساب المقابل في الدليل تحت البنوك أو النقدية بالصندوق."
+
+msgid "Trial balance"
+msgstr "ميزان المراجعة"
+
+msgid "Trial balance, account statement, profit and loss, balance sheet."
+msgstr "ميزان المراجعة وكشف الحساب وقائمة الدخل والميزانية."
+
+msgid "Type"
+msgstr "النوع"
+
+msgid "Type a voucher number, a name, an account code or a cheque number."
+msgstr "اكتب رقم سند أو اسمًا أو كود حساب أو رقم شيك."
+
+msgid "Under collection"
+msgstr "تحت التحصيل"
+
+msgid "United Arab Emirates"
+msgstr "الإمارات العربية المتحدة"
+
+msgid "United Kingdom"
+msgstr "المملكة المتحدة"
+
+msgid "Units of base currency for one unit of this currency."
+msgstr "عدد وحدات العملة الأساسية مقابل وحدة واحدة من هذه العملة."
+
+msgid "User"
+msgstr "مستخدم"
+
+msgid "Users"
+msgstr "المستخدمون"
+
+msgid "Users & roles"
+msgstr "المستخدمون والأدوار"
+
+msgid "VAT input"
+msgstr "ضريبة القيمة المضافة - مدخلات"
+
+msgid "VAT output"
+msgstr "ضريبة القيمة المضافة - مخرجات"
+
+msgid "View"
+msgstr "عرض"
+
+msgid "View all"
+msgstr "عرض الكل"
+
+msgid "View profit and loss"
+msgstr "عرض قائمة الدخل"
+
+msgid "Void"
+msgstr "إلغاء"
+
+msgid "Voucher cancelled."
+msgstr "تم إلغاء السند."
+
+msgid "Vouchers"
+msgstr "السندات"
+
+msgid "Waiting for"
+msgstr "بانتظار"
+
+msgid "Waiting for approval"
+msgstr "بانتظار الاعتماد"
+
+msgid "When"
+msgstr "الوقت"
+
+msgid ""
+"When several rules match a document, the one with the highest starting "
+"amount applies. Approvers also need a high enough limit on their role."
+msgstr ""
+"إذا انطبقت أكثر من قاعدة على مستند تُطبق القاعدة ذات المبلغ الأعلى. ويحتاج "
+"المعتمِد أيضًا إلى حد اعتماد كافٍ في دوره."
+
+msgid "Who"
+msgstr "المستخدم"
+
+msgid "Who can do what: the authority matrix and approval limits."
+msgstr "من يفعل ماذا: مصفوفة الصلاحيات وحدود الاعتماد."
+
+msgid "Withholding tax payable"
+msgstr "ضرائب الخصم والإضافة - دائنة"
+
+msgid "Withholding tax receivable"
+msgstr "ضرائب الخصم من المنبع - مدينة"
+
+msgid "Write a comment so the creator knows what to fix."
+msgstr "اكتب تعليقًا ليعرف المُنشئ ما يجب تصحيحه."
+
+msgid "You created this document, so someone else must approve it."
+msgstr "أنت من أنشأ هذا المستند، لذا يجب أن يعتمده شخص آخر."
+
+msgid "You do not have permission to approve documents."
+msgstr "ليست لديك صلاحية اعتماد المستندات."
+
+msgid "You do not have permission to change settings."
+msgstr "ليست لديك صلاحية تغيير الإعدادات."
+
+msgid "You do not have permission to do that."
+msgstr "ليست لديك صلاحية لهذا الإجراء."
+
+msgid "You have %(n)s draft vouchers"
+msgstr "لديك %(n)s سندات مسودة"
+
+msgid "You have already approved an earlier step of this document."
+msgstr "لقد اعتمدت خطوة سابقة من هذا المستند بالفعل."
+
+msgid "Your account is not linked to a company"
+msgstr "حسابك غير مرتبط بأي شركة"
+
+msgid "Your email"
+msgstr "بريدك الإلكتروني"
+
+msgid "Your full name"
+msgstr "اسمك بالكامل"
+
+msgid "Your password was changed."
+msgstr "تم تغيير كلمة المرور."
+
+msgid "Your recent decisions"
+msgstr "قراراتك الأخيرة"
+
+msgid "from prior 30 days"
+msgstr "عن الـ30 يومًا السابقة"
+
+msgid "level %(a)s of %(b)s"
+msgstr "المستوى %(a)s من %(b)s"
+
+msgid "margin"
+msgstr "هامش"
+
+msgid "soon"
+msgstr "قريبًا"
+
+msgid ""
+"Your company is ready. Approval rules are switched on, so documents you "
+"create need a second person to approve them. Add a Finance manager in Users "
+"& roles, or switch the rule off in Settings while you test."
+msgstr ""
+"شركتك جاهزة. قواعد الاعتماد مفعّلة، لذا تحتاج المستندات التي تنشئها إلى شخص "
+"آخر لاعتمادها. أضف مديرًا ماليًا من المستخدمين والأدوار، أو أوقف القاعدة من "
+"الإعدادات أثناء التجربة."
