@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ entry.number }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'ledger:journals' %}">{% translate "Journal entries" %}</a></div><h1>{{ entry.number }}</h1>
+  <div class="sub">{{ entry.date }} · {{ entry.get_source_display }} {{ entry.source_ref }} · {{ entry.created_by|default:"" }}</div></div>
+  {% if entry.reversal_of %}<span class="pill warn">{% translate "Reverses" %} <a href="{% url 'ledger:journal' entry.reversal_of.pk %}">{{ entry.reversal_of.number }}</a></span>{% endif %}
+</div>
+{% if entry.memo %}<p>{{ entry.memo }}</p>{% endif %}
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Account" %}</th><th>{% translate "Cost centre" %}</th><th>{% translate "Description" %}</th><th class="num">{% translate "Original amount" %}</th><th class="num">{% translate "Debit" %}</th><th class="num">{% translate "Credit" %}</th></tr></thead>
+  <tbody>{% for l in lines %}<tr>
+    <td>{{ l.account }}</td><td>{{ l.cost_center|default:"" }}</td><td>{{ l.description }}</td>
+    <td class="num lbl">{% if l.currency_id != company.base_currency_id %}{{ l.amount_fc|money:l.currency }} @ {{ l.rate|num:4 }}{% endif %}</td>
+    <td class="num">{% if l.debit %}{{ l.debit|num }}{% endif %}</td><td class="num">{% if l.credit %}{{ l.credit|num }}{% endif %}</td>
+  </tr>{% endfor %}</tbody>
+  <tfoot><tr><td colspan="4">{% translate "Total" %} ({{ company.base_currency_id }})</td><td class="num">{{ entry.total|num }}</td><td class="num">{{ entry.total|num }}</td></tr></tfoot>
+</table></div>
+{% if entry.reversed_by %}
+  <div class="msg warning">{% translate "This entry was reversed by" %} <a href="{% url 'ledger:journal' entry.reversed_by.pk %}">{{ entry.reversed_by.number }}</a>.</div>
+{% elif can.ledger.void and not entry.reversal_of %}
+  <div class="panel" style="max-width:560px"><h2>{% translate "Reverse this entry" %}</h2>
+    <form method="post" action="{% url 'ledger:journal_reverse' entry.pk %}" class="form">{% csrf_token %}{% include "partials/form_fields.html" %}
+      <div class="form-actions"><button class="btn danger" type="submit">{% translate "Post reversal" %}</button></div></form>
+  </div>
+{% endif %}
+{% endblock %}

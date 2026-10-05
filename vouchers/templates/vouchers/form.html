@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ kind_label }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'vouchers:list' %}">{% translate "Vouchers" %}</a></div>
+  <h1>{{ kind_label }}{% if voucher.number %} · {{ voucher.number }}{% endif %}</h1>
+  {% if voucher.status == "rejected" %}<div class="sub" style="color:var(--crit)">{% translate "This voucher was rejected. Fix it and submit it again." %}</div>{% endif %}</div></div>
+<form method="post" class="form">{% csrf_token %}
+  <div class="panel">
+    {% if form.non_field_errors %}<div class="msg error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+    <div class="fields">
+      {% for f in form.visible_fields %}
+        {% if f.name == "bank_account" %}{% include "partials/field.html" with method="cash bank cheque" %}
+        {% elif f.name == "cheque_number" or f.name == "cheque_bank" or f.name == "cheque_due_date" %}{% include "partials/field.html" with method="cheque" %}
+        {% elif f.name == "description" %}{% include "partials/field.html" with wide=1 %}
+        {% else %}{% include "partials/field.html" %}{% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="panel" data-formset="lines">
+    <div class="panel-h"><h2>{% if kind == "receipt" %}{% translate "Received for" %}{% elif kind == "payment" %}{% translate "Paid for" %}{% else %}{% translate "Lines" %}{% endif %}</h2>
+      <button class="btn sm" type="button" data-add-line>+ {% translate "Add line" %}</button></div>
+    {{ formset.management_form }}
+    {% if formset.non_form_errors %}<div class="msg error">{{ formset.non_form_errors|join:" " }}</div>{% endif %}
+    <div class="table-wrap"><table class="tbl lines">
+      <thead><tr><th>{% translate "Account" %}</th><th>{% translate "Cost centre" %}</th><th>{% translate "Description" %}</th>
+        {% if kind == "journal" %}<th class="num">{% translate "Debit" %}</th><th class="num">{% translate "Credit" %}</th>{% else %}<th class="num">{% translate "Amount" %}</th>{% endif %}<th class="del"></th></tr></thead>
+      <tbody>
+        {% for lf in formset %}{% include "vouchers/_line.html" with lf=lf %}{% endfor %}
+      </tbody>
+      <tfoot>
+        <tr><td colspan="3">{% translate "Total" %}</td>
+          {% if kind == "journal" %}<td class="num" data-total="debit">0.00</td><td class="num" data-total="credit">0.00</td>{% else %}<td class="num" data-total="amount">0.00</td>{% endif %}<td></td></tr>
+        {% if kind == "journal" %}<tr data-diff-row hidden><td colspan="3" style="color:var(--crit)">{% translate "Difference" %}</td><td colspan="2" class="num" data-total="diff" style="color:var(--crit)"></td><td></td></tr>{% endif %}
+      </tfoot>
+    </table></div>
+    <template>{% include "vouchers/_line.html" with lf=formset.empty_form %}</template>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn" type="submit" name="save">{% translate "Save draft" %}</button>
+    <button class="btn primary" type="submit" name="submit">{% translate "Save and submit for approval" %}</button>
+    <a class="btn" href="{% if voucher.pk %}{% url 'vouchers:detail' voucher.pk %}{% else %}{% url 'vouchers:list' %}{% endif %}">{% translate "Cancel" %}</a>
+  </div>
+</form>
+{% endblock %}

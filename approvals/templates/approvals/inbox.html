@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Approvals" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Approvals" %}</h1><div class="sub">{% translate "Documents waiting for your electronic approval." %}</div></div>
+  {% if can.setup.view %}<a class="btn" href="{% url 'approvals:rules' %}">{% translate "Approval rules" %}</a>{% endif %}</div>
+<div class="panel">
+  {% for r in waiting %}<div class="ap-row">
+    <div class="ap-main"><div class="ap-type">{{ r.voucher.get_kind_display }} · <b>{{ r.voucher.number }}</b></div><div>{{ r.voucher.party_name|default:r.voucher.description }}</div></div>
+    <div class="ap-amt"><b>{{ r.voucher.total|money:r.voucher.currency }}</b><div>{% translate "From" %} {{ r.voucher.created_by }} · {% blocktranslate with a=r.current_order b=r.total_steps %}level {{ a }} of {{ b }}{% endblocktranslate %}</div></div>
+    <div class="ap-act"><a class="btn primary sm" href="{% url 'vouchers:detail' r.voucher.pk %}">{% translate "Review" %}</a></div>
+  </div>{% empty %}<p class="lbl">{% translate "Nothing is waiting for you." %}</p>{% endfor %}
+</div>
+<div class="panel"><h2>{% translate "Your recent decisions" %}</h2>
+  <div class="table-wrap"><table class="tbl"><tbody>
+    {% for a in recent %}<tr><td>{{ a.signed_at|date:"Y-m-d H:i" }}</td><td><a href="{% url 'vouchers:detail' a.request.voucher.pk %}">{{ a.request.voucher.number }}</a></td><td>{{ a.request.voucher.total|money:a.request.voucher.currency }}</td><td><span class="pill {% if a.decision == 'approve' %}good{% else %}crit{% endif %}">{{ a.get_decision_display }}</span></td><td>{{ a.comment }}</td></tr>
+    {% empty %}<tr><td class="lbl">{% translate "None yet." %}</td></tr>{% endfor %}
+  </tbody></table></div>
+</div>
+{% endblock %}

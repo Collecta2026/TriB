@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ v }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'vouchers:list' %}">{% translate "Vouchers" %}</a></div>
+  <h1>{{ v.get_kind_display }} · {{ v.number|default:_("Draft") }} <span class="pill {{ v.status }}">{{ v.get_status_display }}</span></h1>
+  <div class="sub">{{ v.date }} · {% translate "Created by" %} {{ v.created_by }}{% if v.journal_entry %} · <a href="{% url 'ledger:journal' v.journal_entry_id %}">{{ v.journal_entry.number }}</a>{% endif %}</div></div>
+  <div class="toolbar">
+    {% if v.number %}<a class="btn" href="{% url 'vouchers:print' v.pk %}">{% include "partials/icon.html" with name="print" %} {% translate "Print" %}</a>{% endif %}
+    {% if v.editable and can.vouchers.edit %}<a class="btn" href="{% url 'vouchers:edit' v.pk %}">{% translate "Edit" %}</a>{% endif %}
+    {% if v.editable and can.vouchers.create %}<form method="post" action="{% url 'vouchers:action' v.pk %}">{% csrf_token %}<button class="btn primary" name="action" value="submit">{% translate "Submit for approval" %}</button></form>{% endif %}
+    {% if v.status == "approved" and can.vouchers.post %}<form method="post" action="{% url 'vouchers:action' v.pk %}">{% csrf_token %}<button class="btn primary" name="action" value="post">{% translate "Post to ledger" %}</button></form>{% endif %}
+    {% if v.editable and can.vouchers.edit %}<form method="post" action="{% url 'vouchers:action' v.pk %}">{% csrf_token %}<button class="btn danger" name="action" value="cancel">{% translate "Cancel voucher" %}</button></form>{% endif %}
+  </div>
+</div>
+
+<div class="cols">
+  <div class="panel">
+    <h2>{% translate "Details" %}</h2>
+    <table class="tbl"><tbody>
+      {% if v.kind != "journal" %}<tr><td class="lbl">{% if v.kind == "receipt" %}{% translate "Received from" %}{% else %}{% translate "Paid to" %}{% endif %}</td><td>{{ v.party_name }}</td></tr>
+      <tr><td class="lbl">{% translate "Payment method" %}</td><td>{{ v.get_method_display }}{% if v.bank_account %} · {{ v.bank_account.name }}{% endif %}</td></tr>
+      {% if v.method == "cheque" %}<tr><td class="lbl">{% translate "Cheque" %}</td><td>#{{ v.cheque_number }} · {{ v.cheque_bank }} · {% translate "Due" %} {{ v.cheque_due_date }}</td></tr>{% endif %}{% endif %}
+      <tr><td class="lbl">{% translate "Amount" %}</td><td><b>{{ v.total|money:v.currency }}</b>{% if v.currency_id != company.base_currency_id %} · {{ v.amount_base|money:company.base_currency }} @ {{ v.rate|num:4 }}{% endif %}</td></tr>
+      <tr><td class="lbl">{% translate "In words" %}</td><td>{{ v.words_current }}</td></tr>
+      {% if v.description %}<tr><td class="lbl">{% translate "Description" %}</td><td>{{ v.description }}</td></tr>{% endif %}
+    </tbody></table>
+  </div>
+  <div class="panel">
+    <h2>{% translate "Electronic authorisation" %}</h2>
+    {% if not req %}<p class="lbl">{% if v.status == "draft" %}{% translate "Not submitted yet." %}{% else %}{% translate "No approval was required for this amount." %}{% endif %}</p>
+    {% else %}
+      {% if step %}<p>{% translate "Waiting for" %}: <b>{{ step.role.name }}</b> ({% blocktranslate with a=req.current_order b=req.total_steps %}level {{ a }} of {{ b }}{% endblocktranslate %})</p>{% endif %}
+      {% for t in trail %}<div class="row" style="grid-template-columns:auto minmax(0,1fr) auto">
+        <span class="pill {% if t.a.decision == 'approve' %}good{% else %}crit{% endif %}">{{ t.a.get_decision_display }}</span>
+        <div><div class="nm">{{ t.a.user }}</div><div class="sub">{{ t.a.signed_at|date:"Y-m-d H:i" }} · IP {{ t.a.ip|default:"—" }}{% if t.a.comment %} · “{{ t.a.comment }}”{% endif %}</div></div>
+        {% if t.valid %}<span class="pill good" title="{{ t.a.signature }}">{% translate "Signature valid" %}</span>{% else %}<span class="pill crit">{% translate "Signature does not match" %}</span>{% endif %}
+      </div>{% endfor %}
+      {% if can_decide %}
+      <form method="post" action="{% url 'vouchers:action' v.pk %}" class="form" style="margin-top:12px">{% csrf_token %}
+        {% with form=decision_form %}{% include "partials/form_fields.html" %}{% endwith %}
+        <div class="form-actions"><button class="btn primary" name="action" value="approve">{% translate "Approve and e-sign" %}</button><button class="btn danger" name="action" value="reject">{% translate "Reject" %}</button></div>
+      </form>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Account" %}</th><th>{% translate "Cost centre" %}</th><th>{% translate "Description" %}</th>
+    {% if v.kind == "journal" %}<th class="num">{% translate "Debit" %}</th><th class="num">{% translate "Credit" %}</th>{% else %}<th class="num">{% translate "Amount" %}</th>{% endif %}</tr></thead>
+  <tbody>{% for l in lines %}<tr><td>{{ l.account }}</td><td>{{ l.cost_center|default:"" }}</td><td>{{ l.description }}</td>
+    {% if v.kind == "journal" %}<td class="num">{% if l.debit %}{{ l.debit|num }}{% endif %}</td><td class="num">{% if l.credit %}{{ l.credit|num }}{% endif %}</td>{% else %}<td class="num">{{ l.amount|num }}</td>{% endif %}</tr>{% endfor %}</tbody>
+  <tfoot><tr><td colspan="3">{% translate "Total" %} ({{ v.currency_id }})</td>{% if v.kind == "journal" %}<td class="num">{{ v.total|num }}</td><td class="num">{{ v.total|num }}</td>{% else %}<td class="num">{{ v.total|num }}</td>{% endif %}</tr></tfoot>
+</table></div>
+{% endblock %}

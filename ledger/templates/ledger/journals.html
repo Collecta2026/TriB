@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Journal entries" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'ledger:accounts' %}">{% translate "Chart of accounts" %}</a></div><h1>{% translate "Journal entries" %}</h1>
+  <div class="sub">{% translate "Entries are created by vouchers and cheques. Corrections are made by reversing, never by editing." %}</div></div>
+  <form method="get" class="toolbar"><select name="source" onchange="this.form.submit()"><option value="">{% translate "All sources" %}</option>{% for k, label in sources %}<option value="{{ k }}" {% if k == source %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></form>
+</div>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Number" %}</th><th>{% translate "Date" %}</th><th>{% translate "Source" %}</th><th>{% translate "Reference" %}</th><th>{% translate "Memo" %}</th><th class="num">{% translate "Amount" %}</th></tr></thead>
+  <tbody>{% for e in page %}<tr>
+    <td><a href="{% url 'ledger:journal' e.pk %}">{{ e.number }}</a></td><td>{{ e.date }}</td><td>{{ e.get_source_display }}</td><td>{{ e.source_ref }}</td><td>{{ e.memo }}</td><td class="num">{{ e.total|num }}</td>
+  </tr>{% empty %}<tr><td colspan="6" class="lbl">{% translate "No entries yet." %}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% if page.has_other_pages %}<div class="toolbar">{% if page.has_previous %}<a class="btn sm" href="?page={{ page.previous_page_number }}&source={{ source|default:'' }}">‹</a>{% endif %}<span class="lbl">{{ page.number }} / {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a class="btn sm" href="?page={{ page.next_page_number }}&source={{ source|default:'' }}">›</a>{% endif %}</div>{% endif %}
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Users & roles" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Users & roles" %}</h1><div class="sub">{% translate "Who can do what: the authority matrix and approval limits." %}</div></div>
+  <div class="toolbar">
+    {% if can.users.create %}<a class="btn primary" href="{% url 'users:user_new' %}">{% translate "Add user" %}</a>{% endif %}
+    {% if can.users.edit %}<a class="btn" href="{% url 'users:role_new' %}">{% translate "New role" %}</a>{% endif %}
+  </div>
+</div>
+<div class="panel"><h2>{% translate "Users" %}</h2>
+  <div class="table-wrap"><table class="tbl">
+    <thead><tr><th>{% translate "Name" %}</th><th>{% translate "Email" %}</th><th>{% translate "Roles" %}</th><th>{% translate "Branches" %}</th><th>{% translate "Status" %}</th><th></th></tr></thead>
+    <tbody>{% for m in members %}<tr>
+      <td>{{ m.user }}{% if m.is_owner %} <span class="pill info">{% translate "Owner" %}</span>{% endif %}</td>
+      <td>{{ m.user.email }}</td>
+      <td>{% for r in m.roles.all %}{{ r.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</td>
+      <td>{% for b in m.branches.all %}{{ b.code }}{% if not forloop.last %}, {% endif %}{% empty %}{% translate "All" %}{% endfor %}</td>
+      <td>{% if m.is_active %}<span class="pill good">{% translate "Active" %}</span>{% else %}<span class="pill">{% translate "Inactive" %}</span>{% endif %}</td>
+      <td>{% if can.users.edit %}<a href="{% url 'users:user_edit' m.pk %}">{% translate "Edit" %}</a>{% endif %}</td>
+    </tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+<div class="panel"><h2>{% translate "Roles" %}</h2>
+  <div class="table-wrap"><table class="tbl">
+    <thead><tr><th>{% translate "Role" %}</th><th class="num">{% translate "Permissions" %}</th><th>{% translate "Approval limits" %}</th><th></th></tr></thead>
+    <tbody>{% for r in roles %}<tr>
+      <td>{{ r.name }}</td><td class="num">{{ r.permissions|length }}</td>
+      <td>{% for l in r.limits.all %}{{ l.get_doc_type_display }}: {{ l.max_amount|money:company.base_currency }}{% if not forloop.last %} · {% endif %}{% empty %}<span class="lbl">{% translate "Cannot approve" %}</span>{% endfor %}</td>
+      <td>{% if can.users.edit %}<a href="{% url 'users:role_edit' r.pk %}">{% translate "Edit" %}</a>{% endif %}</td>
+    </tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% endblock %}

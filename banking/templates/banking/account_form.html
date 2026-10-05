@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Add bank account or cash box" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'banking:accounts' %}">{% translate "Banks & cash" %}</a></div><h1>{% translate "Add bank account or cash box" %}</h1>
+  <div class="sub">{% translate "TriB creates the matching account in your chart under Banks or Cash on hand." %}</div></div></div>
+<div class="panel">
+  <form method="post" class="form">{% csrf_token %}
+    {% include "partials/form_fields.html" %}
+    <div class="form-actions"><button class="btn primary" type="submit">{% translate "Create" %}</button><a class="btn" href="{% url 'banking:accounts' %}">{% translate "Cancel" %}</a></div>
+  </form>
+</div>
+{% endblock %}

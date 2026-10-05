@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Banks" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'banking:accounts' %}">{% translate "Banks & cash" %}</a></div><h1>{% translate "Banks" %}</h1>
+  <div class="sub">{% translate "Egyptian and Gulf banks are listed. Add any bank you need." %}</div></div></div>
+<div class="cols">
+  <div class="table-wrap"><table class="tbl">
+    <thead><tr><th>{% translate "Country" %}</th><th>{% translate "Bank" %}</th><th>{% translate "Short name" %}</th><th>{% translate "SWIFT / BIC" %}</th></tr></thead>
+    <tbody>{% for b in banks %}<tr><td>{{ b.get_country_display }}</td><td>{{ b.name }}{% if b.company_id %} <span class="pill info">{% translate "Added by you" %}</span>{% endif %}</td><td>{{ b.short_name }}</td><td class="lbl">{{ b.swift }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% if can.banking.create %}<div class="panel"><h2>{% translate "Add a bank" %}</h2>
+    <form method="post" class="form">{% csrf_token %}{% include "partials/form_fields.html" %}
+      <div class="form-actions"><button class="btn primary" type="submit">{% translate "Add" %}</button></div></form>
+  </div>{% endif %}
+</div>
+{% endblock %}

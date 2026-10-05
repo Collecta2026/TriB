@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Cost centres" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'ledger:accounts' %}">{% translate "Chart of accounts" %}</a></div><h1>{% translate "Cost centres" %}</h1></div></div>
+<div class="cols">
+  <div class="table-wrap"><table class="tbl">
+    <thead><tr><th>{% translate "Code" %}</th><th>{% translate "Name" %}</th></tr></thead>
+    <tbody>{% for c in rows %}<tr><td>{{ c.code }}</td><td>{{ c.name }}</td></tr>{% empty %}<tr><td colspan="2" class="lbl">{% translate "No cost centres yet." %}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% if can.ledger.edit %}<div class="panel"><h2>{% translate "Add cost centre" %}</h2>
+    <form method="post" class="form">{% csrf_token %}{% include "partials/form_fields.html" %}
+      <div class="form-actions"><button class="btn primary" type="submit">{% translate "Add" %}</button></div></form>
+  </div>{% endif %}
+</div>
+{% endblock %}

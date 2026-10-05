@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% if role %}{{ role.name }}{% else %}{% translate "New role" %}{% endif %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'users:users' %}">{% translate "Users & roles" %}</a></div><h1>{% if role %}{{ role.name }}{% else %}{% translate "New role" %}{% endif %}</h1>
+  <div class="sub">{% translate "Tick what this role may do. Approval limits are in the company's base currency." %}</div></div></div>
+<form method="post" class="form">{% csrf_token %}
+  <div class="panel">{% include "partials/form_fields.html" %}</div>
+  <div class="panel"><h2>{% translate "Authority matrix" %}</h2>
+    <div class="table-wrap"><table class="tbl matrix">
+      <thead><tr><th>{% translate "Module" %}</th>{% for code, label in actions %}<th>{{ label }}</th>{% endfor %}</tr></thead>
+      <tbody>{% for row in rows %}<tr><td>{{ row.label }}</td>
+        {% for cell in row.cells %}<td>{% if cell %}<input type="checkbox" name="perm" value="{{ cell.code }}" aria-label="{{ cell.code }}" {% if cell.checked %}checked{% endif %}>{% else %}<span class="lbl">—</span>{% endif %}</td>{% endfor %}
+      </tr>{% endfor %}</tbody>
+    </table></div>
+  </div>
+  <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save role" %}</button><a class="btn" href="{% url 'users:users' %}">{% translate "Cancel" %}</a></div>
+</form>
+{% endblock %}

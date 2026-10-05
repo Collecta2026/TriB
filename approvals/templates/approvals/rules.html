@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Approval rules" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'core:settings' %}">{% translate "Company settings" %}</a></div><h1>{% translate "Approval rules" %}</h1>
+  <div class="sub">{% translate "When several rules match a document, the one with the highest starting amount applies. Approvers also need a high enough limit on their role." %}</div></div></div>
+<div class="cols">
+  <div class="table-wrap"><table class="tbl">
+    <thead><tr><th>{% translate "Document type" %}</th><th class="num">{% translate "From amount" %}</th><th>{% translate "Approvers in order" %}</th><th>{% translate "Status" %}</th><th></th></tr></thead>
+    <tbody>{% for r in rows %}<tr>
+      <td>{{ r.get_doc_type_display }}</td><td class="num">{{ r.min_amount|money:company.base_currency }}</td>
+      <td>{% for s in r.steps.all %}{{ s.order }}. {{ s.role.name }}{% if not forloop.last %} → {% endif %}{% endfor %}</td>
+      <td>{% if r.is_active %}<span class="pill good">{% translate "On" %}</span>{% else %}<span class="pill">{% translate "Off" %}</span>{% endif %}</td>
+      <td>{% if can.setup.edit %}<form method="post" action="{% url 'approvals:rule_toggle' r.pk %}">{% csrf_token %}<button class="btn sm" type="submit">{% if r.is_active %}{% translate "Switch off" %}{% else %}{% translate "Switch on" %}{% endif %}</button></form>{% endif %}</td>
+    </tr>{% empty %}<tr><td colspan="5" class="lbl">{% translate "No rules: every document is approved as soon as it is submitted." %}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% if can.setup.edit %}<div class="panel"><h2>{% translate "Add rule" %}</h2>
+    <form method="post" class="form">{% csrf_token %}{% include "partials/form_fields.html" %}
+      <div class="form-actions"><button class="btn primary" type="submit">{% translate "Add rule" %}</button></div></form>
+  </div>{% endif %}
+</div>
+{% endblock %}

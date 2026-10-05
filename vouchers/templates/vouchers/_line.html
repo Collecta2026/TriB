@@ -1,0 +1,8 @@
+{% load i18n %}<tr>
+  <td>{{ lf.id }}{{ lf.account }}{% if lf.account.errors %}<div class="err">{{ lf.account.errors|join:" " }}</div>{% endif %}</td>
+  <td>{{ lf.cost_center }}</td>
+  <td>{{ lf.description }}</td>
+  {% if lf.debit %}<td>{{ lf.debit }}</td><td>{{ lf.credit }}</td>{% else %}<td>{{ lf.amount }}</td>{% endif %}
+  <td class="del"><span hidden>{{ lf.DELETE }}</span><button class="btn sm danger" type="button" data-del-line aria-label="{% translate 'Remove line' %}">×</button></td>
+</tr>
+{% if lf.non_field_errors %}<tr><td colspan="6" class="err">{{ lf.non_field_errors|join:" " }}</td></tr>{% endif %}

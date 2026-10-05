@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'ledger:accounts' %}">{% translate "Chart of accounts" %}</a></div><h1>{{ title }}</h1></div></div>
+<div class="panel">
+  <form method="post" class="form">{% csrf_token %}
+    {% include "partials/form_fields.html" %}
+    <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button><a class="btn" href="{% url 'ledger:accounts' %}">{% translate "Cancel" %}</a></div>
+  </form>
+</div>
+{% endblock %}

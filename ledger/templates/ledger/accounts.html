@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Chart of accounts" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Chart of accounts" %}</h1><div class="sub">{% translate "Balances in" %} {{ company.base_currency_id }}</div></div>
+  <div class="toolbar">
+    <a class="btn" href="{% url 'ledger:journals' %}">{% translate "Journal entries" %}</a>
+    <a class="btn" href="{% url 'ledger:cost_centers' %}">{% translate "Cost centres" %}</a>
+    {% if can.ledger.create %}<a class="btn primary" href="{% url 'ledger:account_new' %}">{% translate "New account" %}</a>{% endif %}
+  </div>
+</div>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Code" %}</th><th>{% translate "Account" %}</th><th>{% translate "Type" %}</th><th>{% translate "Currency" %}</th><th class="num">{% translate "Balance" %}</th><th></th></tr></thead>
+  <tbody>{% for r in rows %}<tr class="{% if r.a.is_group %}grp{% endif %}">
+    <td>{{ r.a.code }}</td>
+    <td class="indent-{{ r.a.depth }}">{{ r.a.name }}{% if not r.a.is_active %} <span class="pill">{% translate "Inactive" %}</span>{% endif %}</td>
+    <td class="lbl">{{ r.a.get_type_display }}</td>
+    <td class="lbl">{{ r.a.currency_id|default:"" }}</td>
+    <td class="num">{% if can.reports.view and not r.a.is_group %}<a href="{% url 'reports:statement' %}?account={{ r.a.pk }}">{{ r.balance|num }}</a>{% else %}{{ r.balance|num }}{% endif %}</td>
+    <td>{% if can.ledger.edit %}<a href="{% url 'ledger:account_edit' r.a.pk %}">{% translate "Edit" %}</a>{% endif %}</td>
+  </tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

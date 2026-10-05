@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ v.number }}{% endblock %}
+{% block content %}
+<div class="toolbar no-print"><a class="btn" href="{% url 'vouchers:detail' v.pk %}">‹ {% translate "Back" %}</a><button class="btn primary" type="button" onclick="window.print()">{% include "partials/icon.html" with name="print" %} {% translate "Print" %}</button></div>
+<div class="voucher-doc">
+  <div class="vh">
+    <div><b>{{ company.name_en }}</b><div>{{ company.address|linebreaksbr }}</div>{% if company.tax_id %}<div>Tax reg. {{ company.tax_id }}</div>{% endif %}</div>
+    <div class="vt">
+      {% if v.kind == "receipt" %}<h1>Receipt Voucher</h1><h1 class="ar">سند قبض</h1>{% elif v.kind == "payment" %}<h1>Payment Voucher</h1><h1 class="ar">سند صرف</h1>{% else %}<h1>Journal Voucher</h1><h1 class="ar">قيد يومية</h1>{% endif %}
+      <div><b>{{ v.number }}</b></div>
+    </div>
+    <div class="ar" style="text-align:start"><b>{{ company.name_ar }}</b>{% if company.tax_id %}<div>رقم التسجيل الضريبي {{ company.tax_id }}</div>{% endif %}</div>
+  </div>
+
+  <div class="bi"><div>Date: <b>{{ v.date|date:"d/m/Y" }}</b></div><div class="ar">التاريخ: <b>{{ v.date|date:"d/m/Y" }}</b></div></div>
+  {% if v.kind != "journal" %}
+  <div class="bi"><div>{% if v.kind == "receipt" %}Received from{% else %}Paid to{% endif %}: <b>{{ v.party_name }}</b></div><div class="ar">{% if v.kind == "receipt" %}استلمنا من{% else %}صرفنا إلى{% endif %}: <b>{{ v.party_name }}</b></div></div>
+  <div class="bi"><div>Method: {{ v.method|title }}{% if v.method == "cheque" %} #{{ v.cheque_number }} · {{ v.cheque_bank }} · due {{ v.cheque_due_date|date:"d/m/Y" }}{% elif v.bank_account %} · {{ v.bank_account.name_en }}{% endif %}</div>
+    <div class="ar">طريقة الدفع: {% if v.method == "cash" %}نقدًا{% elif v.method == "bank" %}تحويل بنكي{% else %}شيك رقم {{ v.cheque_number }} · {{ v.cheque_bank }} · يستحق {{ v.cheque_due_date|date:"d/m/Y" }}{% endif %}</div></div>
+  {% endif %}
+
+  <table>
+    <thead><tr><th>Account / الحساب</th><th>Description / البيان</th>{% if v.kind == "journal" %}<th class="num">Debit / مدين</th><th class="num">Credit / دائن</th>{% else %}<th class="num">Amount / المبلغ</th>{% endif %}</tr></thead>
+    <tbody>{% for l in lines %}<tr><td>{{ l.account.code }} · {{ l.account.name_en }}<br><span class="ar">{{ l.account.name_ar }}</span></td><td>{{ l.description }}{% if l.cost_center %} ({{ l.cost_center.code }}){% endif %}</td>
+      {% if v.kind == "journal" %}<td class="num">{% if l.debit %}{{ l.debit|num }}{% endif %}</td><td class="num">{% if l.credit %}{{ l.credit|num }}{% endif %}</td>{% else %}<td class="num">{{ l.amount|num }}</td>{% endif %}</tr>{% endfor %}</tbody>
+    <tfoot><tr><th colspan="2">Total / الإجمالي ({{ v.currency_id }})</th>{% if v.kind == "journal" %}<th class="num">{{ v.total|num }}</th><th class="num">{{ v.total|num }}</th>{% else %}<th class="num">{{ v.total|num }}</th>{% endif %}</tr></tfoot>
+  </table>
+  {% if v.currency_id != company.base_currency_id %}<div>Rate {{ v.rate|num:4 }} · {{ company.base_currency_id }} {{ v.amount_base|num }}</div>{% endif %}
+  <div class="words">{{ words_en }}</div>
+  <div class="words ar">{{ words_ar }}</div>
+  {% if v.description %}<div>Description / البيان: {{ v.description }}</div>{% endif %}
+
+  <div class="sigs">
+    <div class="sig">Prepared by / إعداد<br><b>{{ v.created_by }}</b></div>
+    {% for s in signatures %}<div class="sig">Approved by / اعتماد<br><b>{{ s.user }}</b><br>e-signed {{ s.signed_at|date:"Y-m-d H:i" }}<br>Code {{ s.signature|slice:":12"|upper }}</div>{% endfor %}
+    {% if v.kind != "journal" %}<div class="sig">{% if v.kind == "receipt" %}Received by / المستلم{% else %}Recipient / المستفيد{% endif %}</div>{% endif %}
+  </div>
+</div>
+{% endblock %}

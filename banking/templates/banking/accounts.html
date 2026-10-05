@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Banks & cash" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Banks & cash" %}</h1><div class="sub">{% translate "Each account has its own account in the chart, in its own currency." %}</div></div>
+  <div class="toolbar">
+    {% if can.cheques.view %}<a class="btn" href="{% url 'banking:cheques' %}">{% translate "Cheques" %}</a>{% endif %}
+    <a class="btn" href="{% url 'banking:banks' %}">{% translate "Banks" %}</a>
+    {% if can.banking.create %}<a class="btn primary" href="{% url 'banking:account_new' %}">{% translate "Add bank account or cash box" %}</a>{% endif %}
+  </div>
+</div>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Account" %}</th><th>{% translate "Bank" %}</th><th>{% translate "Chart account" %}</th><th>{% translate "Number" %}</th><th class="num">{% translate "Balance" %}</th><th class="num">{% translate "In" %} {{ company.base_currency_id }}</th></tr></thead>
+  <tbody>{% for r in rows %}<tr>
+    <td><b>{{ r.acc.name }}</b> <span class="pill">{{ r.acc.currency_id }}</span>{% if r.acc.kind == "cash" %} <span class="pill info">{% translate "Cash box" %}</span>{% endif %}</td>
+    <td>{{ r.acc.bank.name|default:"—" }}</td>
+    <td>{% if can.reports.view %}<a href="{% url 'reports:statement' %}?account={{ r.acc.gl_account_id }}">{{ r.acc.gl_account.code }}</a>{% else %}{{ r.acc.gl_account.code }}{% endif %}</td>
+    <td class="lbl">{{ r.acc.masked_number }}</td>
+    <td class="num">{{ r.own|money:r.acc.currency }}</td>
+    <td class="num">{{ r.base|num }}</td>
+  </tr>{% empty %}<tr><td colspan="6" class="lbl">{% translate "No bank accounts yet." %}</td></tr>{% endfor %}</tbody>
+  <tfoot><tr><td colspan="5">{% translate "Total available" %}</td><td class="num">{{ total|money:company.base_currency }}</td></tr></tfoot>
+</table></div>
+{% endblock %}
