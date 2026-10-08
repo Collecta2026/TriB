@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Statement" %}{% endblock %}
+{% block content %}
+<div class="page-head no-print"><div><h1>{% if kind == "customer" %}{% translate "Customer statements" %}{% else %}{% translate "Supplier statements" %}{% endif %}</h1></div></div>
+<form method="get" class="panel form no-print">{% include "partials/form_fields.html" %}<div class="form-actions"><button class="btn primary" type="submit">{% translate "Show statement" %}</button>
+  {% if data %}<button class="btn" type="button" onclick="window.print()">{% translate "Print / save as PDF" %}</button>{% endif %}</div></form>
+{% if data %}
+<div class="voucher-doc">
+  <div class="vh">
+    <div><b>{{ company.name_en }}</b><div>{{ company.address|linebreaksbr }}</div></div>
+    <div class="vt"><h1>Statement of Account</h1><h1 class="ar">كشف حساب</h1><div>{{ data.date_from|date:"d/m/Y" }} – {{ data.date_to|date:"d/m/Y" }}</div></div>
+    <div class="ar" style="text-align:start"><b>{{ company.name_ar }}</b></div>
+  </div>
+  <div class="bi"><div><b>{{ data.contact.name_en }}</b> ({{ data.contact.code }})<div>{{ data.contact.address|linebreaksbr }}</div></div>
+    <div class="ar"><b>{{ data.contact.name_ar|default:data.contact.name_en }}</b><div>العملة: {{ data.contact.currency_id }}</div></div></div>
+  <table>
+    <thead><tr><th>Date / التاريخ</th><th>Document / المستند</th><th>Details / البيان</th><th class="num">Debit / مدين</th><th class="num">Credit / دائن</th><th class="num">Balance / الرصيد</th></tr></thead>
+    <tbody>
+      <tr><td>{{ data.date_from|date:"d/m/Y" }}</td><td></td><td>Opening balance / رصيد أول المدة</td><td></td><td></td><td class="num">{{ data.opening|num }}</td></tr>
+      {% for r in data.rows %}<tr><td>{{ r.date|date:"d/m/Y" }}</td><td>{{ r.number }}{% if r.ref %} ({{ r.ref }}){% endif %}</td><td>{{ r.kind }}{% if r.due %} · {% translate "due" %} {{ r.due|date:"d/m/Y" }}{% endif %}</td>
+        <td class="num">{% if r.debit %}{{ r.debit|num }}{% endif %}</td><td class="num">{% if r.credit %}{{ r.credit|num }}{% endif %}</td><td class="num">{{ r.balance|num }}</td></tr>{% endfor %}
+    </tbody>
+    <tfoot><tr><th colspan="5">Closing balance / رصيد آخر المدة ({{ data.contact.currency_id }})</th><th class="num">{{ data.closing|num }}</th></tr></tfoot>
+  </table>
+  <table><thead><tr>{% for days, label in buckets %}<th class="num">{{ label }}</th>{% endfor %}</tr></thead>
+    <tbody><tr>{% for v in data.aging %}<td class="num">{{ v|num }}</td>{% endfor %}</tr></tbody></table>
+  <p style="font-size:12px">Please let us know within 15 days if this statement does not agree with your records. / يرجى إخطارنا خلال 15 يومًا في حال عدم مطابقة هذا الكشف لسجلاتكم.</p>
+</div>
+{% endif %}
+{% endblock %}

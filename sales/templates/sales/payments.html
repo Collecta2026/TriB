@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Receive payments" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Payments received" %}</h1></div>
+  {% if can.sales.create %}<a class="btn primary" href="{% url 'sales:payment_new' %}">+ {% translate "Receive payment" %}</a>{% endif %}</div>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Number" %}</th><th>{% translate "Date" %}</th><th>{% translate "Customer" %}</th><th>{% translate "Payment method" %}</th><th class="num">{% translate "Amount" %}</th><th class="num">{% translate "Unallocated" %}</th><th>{% translate "Status" %}</th></tr></thead>
+  <tbody>{% for p in page %}<tr><td><a href="{% url 'sales:payment' p.pk %}">{{ p.number }}</a></td><td>{{ p.date|date:"d/m/Y" }}</td><td>{{ p.customer.name }}</td><td>{{ p.get_method_display }}</td>
+    <td class="num">{{ p.amount|money:p.currency }}</td><td class="num">{% if p.unallocated %}{{ p.unallocated|num }}{% endif %}</td><td><span class="pill {{ p.status|pill_class }}">{{ p.get_status_display }}</span></td></tr>
+  {% empty %}<tr><td colspan="7" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

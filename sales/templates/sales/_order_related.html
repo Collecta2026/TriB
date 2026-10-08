@@ -1,0 +1,5 @@
+{% load i18n trib %}<div class="panel"><h2>{% translate "Delivery & invoicing progress" %}</h2>
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Product / service" %}</th><th class="num">{% translate "Ordered" %}</th><th class="num">{% translate "Invoiced" %}</th><th class="num">{% translate "Still to invoice" %}</th></tr></thead>
+  <tbody>{% for l in doc.lines.all %}<tr><td>{{ l.label }}</td><td class="num">{{ l.qty|num:3 }}</td><td class="num">{{ l.qty_invoiced|num:3 }}</td><td class="num">{{ l.qty_open|num:3 }}</td></tr>{% endfor %}</tbody></table></div>
+  {% if doc.invoices.exists %}<p>{% translate "Invoices" %}: {% for i in doc.invoices.all %}<a href="{% url 'sales:invoice' i.pk %}">{{ i.number|default:_("Draft") }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+</div>

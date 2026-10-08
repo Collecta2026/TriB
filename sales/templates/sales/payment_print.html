@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ p.number }}{% endblock %}
+{% block content %}
+<div class="toolbar no-print"><a class="btn" href="{% url 'sales:payment' p.pk %}">‹ {% translate "Back" %}</a><button class="btn primary" type="button" onclick="window.print()">{% translate "Print / save as PDF" %}</button></div>
+<div class="voucher-doc">
+  <div class="vh">
+    <div><b>{{ company.name_en }}</b><div>{{ company.address|linebreaksbr }}</div></div>
+    <div class="vt"><h1>Payment Receipt</h1><h1 class="ar">إيصال استلام دفعة</h1><div><b>{{ p.number }}</b></div></div>
+    <div class="ar" style="text-align:start"><b>{{ company.name_ar }}</b></div>
+  </div>
+  <div class="bi"><div>Received from: <b>{{ p.customer.name_en }}</b></div><div class="ar">استلمنا من: <b>{{ p.customer.name_ar|default:p.customer.name_en }}</b></div></div>
+  <div class="bi"><div>Date: {{ p.date|date:"d/m/Y" }} · {{ p.get_method_display }}{% if p.cheque_number %} #{{ p.cheque_number }} due {{ p.cheque_due_date|date:"d/m/Y" }}{% endif %}</div><div class="ar">التاريخ: {{ p.date|date:"d/m/Y" }}</div></div>
+  <table><thead><tr><th>Invoice / الفاتورة</th><th>Date / التاريخ</th><th class="num">Invoice total / إجمالي الفاتورة</th><th class="num">Paid now / المسدد</th><th class="num">Still due / المتبقي</th></tr></thead>
+    <tbody>{% for a in allocs %}<tr><td>{{ a.invoice.number }}</td><td>{{ a.invoice.date|date:"d/m/Y" }}</td><td class="num">{{ a.invoice.total|num }}</td><td class="num">{{ a.amount|num }}</td><td class="num">{{ a.invoice.balance_due|num }}</td></tr>{% endfor %}
+      {% if p.unallocated %}<tr><td colspan="3">On account (credit) / رصيد دائن تحت الحساب</td><td class="num">{{ p.unallocated|num }}</td><td></td></tr>{% endif %}</tbody>
+    <tfoot><tr><th colspan="3">Total received / إجمالي المستلم ({{ p.currency_id }})</th><th class="num">{{ p.amount|num }}</th><th></th></tr></tfoot>
+  </table>
+  <div class="words">{{ words_en }}</div><div class="words ar">{{ words_ar }}</div>
+  <div class="bi" style="margin-top:8px"><div>Your account balance after this payment: <b>{{ balance|num }} {{ p.customer.currency_id }}</b></div><div class="ar">رصيد حسابكم بعد هذه الدفعة: <b>{{ balance|num }}</b></div></div>
+  <p style="font-size:12px">Thank you for your payment. / شكرًا لسدادكم.</p>
+  <div class="sigs"><div class="sig">Received by / المستلم<br><b>{{ p.created_by }}</b></div><div class="sig">Accountant / المحاسب</div><div class="sig">Stamp / الختم</div></div>
+</div>
+{% endblock %}

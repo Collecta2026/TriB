@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Receive payment" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'sales:payments' %}">{% translate "Payments received" %}</a></div><h1>{% translate "Receive payment" %}</h1>
+  <div class="sub">{% translate "Choose the customer, then share the amount across their open invoices." %}</div></div></div>
+<form method="post" class="form">{% csrf_token %}
+  <div class="panel">
+    {% if form.non_field_errors %}<div class="msg error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+    <div class="fields">{% for f in form.visible_fields %}
+      {% if f.name == "bank_account" %}{% include "partials/field.html" with method="cash bank cheque" %}
+      {% elif f.name == "cheque_number" or f.name == "cheque_bank" or f.name == "cheque_due_date" %}{% include "partials/field.html" with method="cheque" %}
+      {% else %}{% include "partials/field.html" %}{% endif %}{% endfor %}</div>
+    {% if not customer %}<div class="form-actions"><button class="btn" type="submit" name="load">{% translate "Show open invoices" %}</button></div>{% endif %}
+  </div>
+  {% if customer %}
+  <div class="panel"><div class="panel-h"><h2>{% translate "Open invoices" %} · {{ customer.name }}</h2><button class="btn sm" type="button" data-autoalloc>{% translate "Allocate oldest first" %}</button></div>
+    <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Invoice" %}</th><th>{% translate "Date" %}</th><th>{% translate "Due date" %}</th><th class="num">{% translate "Total" %}</th><th class="num">{% translate "Balance due" %}</th><th class="num">{% translate "Payment" %}</th></tr></thead>
+    <tbody>{% for i in open_invoices %}<tr><td>{{ i.number }}</td><td>{{ i.date|date:"d/m/Y" }}</td><td>{{ i.due_date|date:"d/m/Y" }}</td><td class="num">{{ i.total|num }}</td><td class="num" data-due="{{ i.balance_due }}">{{ i.balance_due|num }}</td>
+      <td><input type="number" step="0.01" min="0" name="alloc_{{ i.pk }}" data-alloc style="width:140px"></td></tr>
+    {% empty %}<tr><td colspan="6" class="lbl">{% translate "No open invoices. The payment will be kept as a credit on the customer's account." %}</td></tr>{% endfor %}</tbody></table></div>
+  </div>
+  <div class="form-actions"><button class="btn primary" type="submit" name="save">{% translate "Save payment" %}</button><a class="btn" href="{% url 'sales:payments' %}">{% translate "Cancel" %}</a></div>
+  {% endif %}
+</form>
+<script>
+(function () {
+  const btn = document.querySelector("[data-autoalloc]");
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    let left = parseFloat(document.getElementById("id_amount").value) || 0;
+    document.querySelectorAll("[data-alloc]").forEach((input) => {
+      const due = parseFloat(input.closest("tr").querySelector("[data-due]").dataset.due) || 0;
+      const take = Math.min(due, left);
+      input.value = take > 0 ? take.toFixed(2) : "";
+      left = Math.round((left - take) * 100) / 100;
+    });
+  });
+})();
+</script>
+{% endblock %}

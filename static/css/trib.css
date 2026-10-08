@@ -301,3 +301,47 @@ html[lang="ar"] .bh h3 { text-transform: none; letter-spacing: 0; font-size: 14.
 }
 @media (max-width: 700px) { .glance { grid-template-columns: minmax(0, 1fr); } .w2 { grid-column: span 1; } .blk { min-height: 0; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+
+/* Release 2: KPI cards, scan box, barcode labels */
+.kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr)); gap: 14px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; min-width: 0; color: var(--fg); }
+a.kpi:hover { border-color: var(--brand); text-decoration: none; }
+.kpi .n { font-family: var(--f-display); font-weight: 500; font-size: 22px; overflow-wrap: anywhere; }
+.kpi.crit .n { color: var(--crit); } .kpi.warn .n { color: var(--warn); }
+.scan { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.scan input[name=code] { flex: 1 1 260px; height: 44px; font-size: 17px; }
+.scan input[name=qty] { width: 90px; }
+.labels { display: grid; grid-template-columns: repeat(auto-fill, 63.5mm); gap: 3mm; justify-content: center; }
+.label { width: 63.5mm; height: 38.1mm; border: 1px dashed var(--line-strong); border-radius: 4px; padding: 2mm 3mm; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1mm; background: #fff; color: #111; overflow: hidden; break-inside: avoid; }
+.label .t { font-size: 10px; font-weight: 600; text-align: center; line-height: 1.2; max-height: 2.4em; overflow: hidden; }
+.label svg { max-width: 100%; height: 16mm; }
+.sel-col { width: 36px; }
+@media print { .label { border-color: transparent; } .labels { gap: 0; } }
+
+/* Rail flyouts (QuickBooks-style submenus on hover / keyboard focus) */
+.ri-wrap { position: relative; }
+.fly { display: none; position: fixed; inset-inline-start: 84px; top: 8px; min-width: 230px; max-height: 80vh; overflow-y: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--pop-shadow); padding: 10px; z-index: 80; }
+.ri-wrap:hover > .fly, .ri-wrap:focus-within > .fly { display: block; }
+.fly h3 { margin: 2px 8px 6px; font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+html[lang="ar"] .fly h3 { text-transform: none; letter-spacing: 0; font-size: 12.5px; }
+.fly a, .fly .soon { display: block; padding: 7px 8px; border-radius: 6px; color: var(--fg); font-size: 13.5px; }
+.fly .soon { color: var(--muted); }
+.fly a:hover { background: var(--surface-2); color: var(--brand); text-decoration: none; }
+.fly a.edit { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 9px; color: var(--brand); }
+.fly.wide { width: min(560px, calc(100vw - 110px)); }
+.fly-apps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 8px; }
+.fly-apps a { display: flex; align-items: center; gap: 10px; }
+.fly-apps svg { width: 18px; height: 18px; flex: none; }
+.iconbtn.on svg { fill: var(--sun); stroke: var(--sun); }
+@media (max-width: 900px) { .fly { display: none !important; } }
+
+/* Narrow dashboard blocks: amounts drop under the name instead of squeezing it */
+.blk { container-type: inline-size; }
+@container (max-width: 320px) {
+  .row { grid-template-columns: 34px minmax(0, 1fr); }
+  .row .amt { grid-column: 2; text-align: start; }
+  .exp { flex-direction: column; align-items: stretch; }
+  .exp .donut { align-self: center; }
+}
+a.tile { color: inherit; }
+a.tile:hover { text-decoration: none; outline: 1px solid var(--line-strong); }

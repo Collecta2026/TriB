@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load i18n static trib %}
+{% block title %}{{ spec.title }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{{ spec.url_list }}">{{ spec.plural }}</a></div>
+  <h1>{{ spec.title }}{% if doc.number %} · {{ doc.number }}{% endif %}</h1></div></div>
+<form method="post" class="form" data-doc-form="{{ spec.price_source }}">{% csrf_token %}
+  <div class="panel">
+    {% if form.non_field_errors %}<div class="msg error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+    <div class="fields">
+      {% for f in form.visible_fields %}{% if f.name == "notes" %}{% include "partials/field.html" with wide=1 %}{% else %}{% include "partials/field.html" %}{% endif %}{% endfor %}
+    </div>
+  </div>
+
+  <div class="panel" data-formset="lines">
+    <div class="panel-h"><h2>{% translate "Lines" %}</h2><button class="btn sm" type="button" data-add-line>+ {% translate "Add line" %}</button></div>
+    {{ formset.management_form }}
+    {% if formset.non_form_errors %}<div class="msg error">{{ formset.non_form_errors|join:" " }}</div>{% endif %}
+    <div class="table-wrap"><table class="tbl lines doc-lines">
+      <thead><tr>{% for f in formset.empty_form.visible_fields %}{% if f.name != "DELETE" %}<th class="{% if f.name == 'qty' or f.name == 'unit_price' or f.name == 'discount_pct' or f.name == 'unit_cost' %}num{% endif %}">{{ f.label }}</th>{% endif %}{% endfor %}<th class="num">{% translate "Amount" %}</th><th class="del"></th></tr></thead>
+      <tbody>{% for lf in formset %}{% include "docs/_line.html" %}{% endfor %}</tbody>
+      <tfoot>
+        <tr><td colspan="{{ formset.empty_form.visible_fields|length }}" class="num">{% translate "Subtotal" %}</td><td class="num" data-doc-total="subtotal">0.00</td><td></td></tr>
+        <tr><td colspan="{{ formset.empty_form.visible_fields|length }}" class="num">{% translate "VAT" %}</td><td class="num" data-doc-total="tax">0.00</td><td></td></tr>
+        <tr><td colspan="{{ formset.empty_form.visible_fields|length }}" class="num">{% translate "Total" %}</td><td class="num" data-doc-total="total">0.00</td><td></td></tr>
+      </tfoot>
+    </table></div>
+    <template>{% include "docs/_line.html" with lf=formset.empty_form %}</template>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn" type="submit" name="save">{% translate "Save" %}</button>
+    {% if can_post and post_label %}<button class="btn primary" type="submit" name="post">{{ post_label }}</button>{% endif %}
+    <a class="btn" href="{% if doc.pk %}{% url spec.ns|add:':'|add:spec.key doc.pk %}{% else %}{{ spec.url_list }}{% endif %}">{% translate "Cancel" %}</a>
+  </div>
+</form>
+{{ picker|json_script:"doc-picker" }}
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/docs.js' %}"></script>{% endblock %}

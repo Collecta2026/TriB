@@ -1,0 +1,6 @@
+{% load i18n %}
+{% if doc.status == "draft" and can.sales.post %}<form method="post" action="{% url 'sales:invoice_action' doc.pk %}" class="toolbar">{% csrf_token %}
+  <label class="check"><input type="checkbox" name="over_limit" value="1"> {% translate "Allow over credit limit" %}</label>
+  <button class="btn primary" name="action" value="post">{% translate "Post invoice" %}</button></form>{% endif %}
+{% if doc.status == "posted" and doc.balance_due > 0 and can.sales.create %}<a class="btn primary" href="{% url 'sales:payment_new' %}?customer={{ doc.customer_id }}">{% translate "Receive payment" %}</a>{% endif %}
+{% if doc.status == "posted" and not doc.amount_paid and can.sales.void %}<form method="post" action="{% url 'sales:invoice_action' doc.pk %}">{% csrf_token %}<button class="btn danger" name="action" value="void">{% translate "Void" %}</button></form>{% endif %}

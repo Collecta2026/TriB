@@ -5,10 +5,11 @@ from pathlib import Path
 from core.translations_ar import AR
 
 ROOT = Path(__file__).resolve().parent.parent
-APPS = ["core", "users", "ledger", "banking", "approvals", "vouchers", "reports", "dashboard", "templates", "config"]
+APPS = ["core", "users", "ledger", "banking", "approvals", "vouchers", "reports", "dashboard", "templates", "config",
+        "contacts", "sales", "purchases", "inventory", "assets", "team", "payroll"]
 
 TRANSLATE = re.compile(r"""{%\s*translate\s+(["'])(.+?)\1""")
-UNDERSCORE = re.compile(r"""(?<![\w.])_\(\s*(["'])((?:\\.|(?!\1).)+)\1\s*[,)%]""")
+UNDERSCORE = re.compile(r"""(?<![\w.])(?:_|gettext_lazy|gettext)\(\s*(["'])((?:\\.|(?!\1).)+)\1\s*[,)%]""")
 BLOCK = re.compile(r"{%\s*blocktranslate[^%]*%}(.*?){%\s*endblocktranslate\s*%}", re.S)
 
 

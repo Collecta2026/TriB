@@ -1,0 +1,5 @@
+{% load i18n trib %}{% if doc.allocations.exists or doc.sales_order %}<div class="panel"><h2>{% translate "Related" %}</h2>
+  {% if doc.sales_order %}<p>{% translate "Sales order" %}: <a href="{% url 'sales:order' doc.sales_order_id %}">{{ doc.sales_order.number }}</a></p>{% endif %}
+  {% if doc.allocations.exists %}<table class="tbl"><thead><tr><th>{% translate "Payment" %}</th><th>{% translate "Date" %}</th><th class="num">{% translate "Amount" %}</th></tr></thead>
+  <tbody>{% for a in doc.allocations.all %}<tr><td><a href="{% url 'sales:payment' a.payment_id %}">{{ a.payment.number }}</a></td><td>{{ a.payment.date|date:"d/m/Y" }}</td><td class="num">{{ a.amount|num }}</td></tr>{% endfor %}</tbody></table>{% endif %}
+</div>{% endif %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ p.number }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'sales:payments' %}">{% translate "Payments received" %}</a></div>
+  <h1>{{ p.number }} <span class="pill {{ p.status|pill_class }}">{{ p.get_status_display }}</span></h1>
+  <div class="sub">{{ p.date|date:"d/m/Y" }} · <a href="{% url 'contacts:customer' p.customer_id %}">{{ p.customer.name }}</a>{% if p.journal_entry_id %} · <a href="{% url 'ledger:journal' p.journal_entry_id %}">{{ p.journal_entry.number }}</a>{% endif %}</div></div>
+  <div class="toolbar"><a class="btn primary" href="{% url 'sales:payment_print' p.pk %}">{% include "partials/icon.html" with name="print" %} {% translate "Payment receipt" %}</a>
+    {% if p.status == "posted" and can.sales.void %}<form method="post" action="{% url 'sales:payment_void' p.pk %}">{% csrf_token %}<button class="btn danger" type="submit">{% translate "Void" %}</button></form>{% endif %}</div>
+</div>
+<div class="cols">
+  <div class="panel"><h2>{% translate "Details" %}</h2><table class="tbl"><tbody>
+    <tr><td class="lbl">{% translate "Amount received" %}</td><td><b>{{ p.amount|money:p.currency }}</b></td></tr>
+    <tr><td class="lbl">{% translate "Payment method" %}</td><td>{{ p.get_method_display }}{% if p.bank_account %} · {{ p.bank_account.name }}{% endif %}{% if p.cheque_number %} · #{{ p.cheque_number }} ({{ p.cheque_due_date|date:"d/m/Y" }}){% endif %}</td></tr>
+    <tr><td class="lbl">{% translate "Reference" %}</td><td>{{ p.reference|default:"—" }}</td></tr>
+    <tr><td class="lbl">{% translate "Unallocated" %}</td><td>{{ p.unallocated|num }}</td></tr>
+  </tbody></table></div>
+  <div class="panel"><h2>{% translate "Applied to" %}</h2><table class="tbl"><tbody>
+    {% for a in allocs %}<tr><td><a href="{% url 'sales:invoice' a.invoice_id %}">{{ a.invoice.number }}</a></td><td class="num">{{ a.amount|num }}</td></tr>{% empty %}<tr><td class="lbl">{% translate "Not applied to any invoice." %}</td></tr>{% endfor %}
+  </tbody></table></div>
+</div>
+{% attachments p %}
+{% endblock %}

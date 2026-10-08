@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Employee" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'team:employees' %}">{% translate "Employees" %}</a></div>
+  <h1>{% if employee.pk %}{{ employee.code }} · {{ employee.name }}{% else %}{% translate "New employee" %}{% endif %}</h1>
+  <div class="sub">{% translate "Use the fingerprint ID as the employee code so attendance imports match." %}</div></div></div>
+<div class="panel"><form method="post" class="form">{% csrf_token %}
+  {% include "partials/form_fields.html" %}
+  <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button><a class="btn" href="{% if employee.pk %}{% url 'team:employee' employee.pk %}{% else %}{% url 'team:employees' %}{% endif %}">{% translate "Cancel" %}</a></div>
+</form></div>
+{% endblock %}

@@ -1,0 +1,1 @@
+{% load trib %}{% if page.has_other_pages %}<div class="toolbar">{% if page.has_previous %}<a class="btn sm" href="{% page_url page.previous_page_number %}">‹</a>{% endif %}<span class="lbl">{{ page.number }} / {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a class="btn sm" href="{% page_url page.next_page_number %}">›</a>{% endif %}</div>{% endif %}

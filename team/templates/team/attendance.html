@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Attendance" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Attendance" %}</h1><div class="sub">{{ start|date:"F Y" }} · {% translate "Overtime and short hours feed the payroll run for the month." %}</div></div>
+  <div class="toolbar"><a class="btn" href="?year={{ prev.year }}&month={{ prev.month }}">‹ {{ prev|date:"M Y" }}</a><a class="btn" href="?year={{ next.year }}&month={{ next.month }}">{{ next|date:"M Y" }} ›</a></div></div>
+{% if can.team.edit %}<div class="panel"><h2>{% translate "Import from the fingerprint machine" %}</h2>
+  <form method="post" enctype="multipart/form-data" class="form">{% csrf_token %}{% include "partials/form_fields.html" %}
+    <div class="form-actions"><button class="btn primary" type="submit">{% translate "Import" %}</button></div></form></div>{% endif %}
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Code" %}</th><th>{% translate "Employee" %}</th><th class="num">{% translate "Days present" %}</th><th class="num">{% translate "Days absent" %}</th><th class="num">{% translate "Hours worked" %}</th><th class="num">{% translate "Expected hours" %}</th><th class="num">{% translate "Overtime" %}</th><th class="num">{% translate "Night / rest-day overtime" %}</th></tr></thead>
+  <tbody>{% for r in rows %}<tr><td>{{ r.employee__code }}</td><td><a href="{% url 'team:employee' r.employee_id %}">{{ r.employee__name_en }}</a></td><td class="num">{{ r.days }}</td><td class="num">{% if r.absent %}<span class="pill warn">{{ r.absent }}</span>{% else %}0{% endif %}</td>
+    <td class="num">{{ r.worked|num:1 }}</td><td class="num">{{ r.expected|num:1 }}</td><td class="num">{{ r.ot|num:1 }}</td><td class="num">{{ r.night|num:1 }}</td></tr>
+  {% empty %}<tr><td colspan="8" class="lbl">{% translate "No attendance imported for this month. Payroll pays the full monthly salary when there is none." %}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

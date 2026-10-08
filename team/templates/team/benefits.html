@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Medical plans" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'team:employees' %}">{% translate "Employees" %}</a></div><h1>{% translate "Medical plans" %}</h1>
+  <div class="sub">{% translate "The employee share is deducted in payroll unless the employee has their own amount." %}</div></div></div>
+<div class="cols">
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Plan" %}</th><th>{% translate "Provider" %}</th><th class="num">{% translate "Company share / month" %}</th><th class="num">{% translate "Employee share / month" %}</th><th class="num">{% translate "Members" %}</th><th></th></tr></thead>
+    <tbody>{% for b in rows %}<tr><td>{{ b.name }}{% if not b.is_active %} <span class="pill">{% translate "Inactive" %}</span>{% endif %}</td><td>{{ b.provider }}</td><td class="num">{{ b.employer_cost|num }}</td><td class="num">{{ b.employee_cost|num }}</td><td class="num">{{ b.n }}</td>
+      <td>{% if can.team.edit %}<a class="link" href="?edit={{ b.pk }}">{% translate "Edit" %}</a>{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="6" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody></table></div>
+  {% if form %}<div class="panel"><h2>{% if obj %}{% translate "Edit plan" %}{% else %}{% translate "Add plan" %}{% endif %}</h2>
+    <form method="post" class="form">{% csrf_token %}{% if obj %}<input type="hidden" name="pk" value="{{ obj.pk }}">{% endif %}
+      {% include "partials/form_fields.html" %}
+      <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button></div></form></div>{% endif %}
+</div>
+{% endblock %}

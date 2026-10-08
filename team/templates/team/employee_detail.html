@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ e.name }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'team:employees' %}">{% translate "Employees" %}</a></div>
+  <h1>{{ e.name }} <span class="pill {{ e.status|pill_class }}">{{ e.get_status_display }}</span></h1>
+  <div class="sub">{{ e.code }}{% if e.job_title %} · {{ e.job_title }}{% endif %}{% if e.department %} · {{ e.department.name }}{% endif %}{% if e.hire_date %} · {% translate "Joined" %} {{ e.hire_date|date:"d/m/Y" }} ({{ e.years_service }} {% translate "years" %}){% endif %}</div></div>
+  {% if can.team.edit %}<a class="btn" href="{% url 'team:employee_edit' e.pk %}">{% translate "Edit" %}</a>{% endif %}
+</div>
+<div class="cols">
+  <div class="panel"><h2>{% translate "Details" %}</h2><table class="tbl"><tbody>
+    {% if e.name_ar %}<tr><td class="lbl">{% translate "Name (Arabic)" %}</td><td>{{ e.name_ar }}</td></tr>{% endif %}
+    <tr><td class="lbl">{% translate "Contract" %}</td><td>{{ e.get_contract_type_display }}</td></tr>
+    {% if e.national_id %}<tr><td class="lbl">{% translate "National ID" %}</td><td>{{ e.national_id }}</td></tr>{% endif %}
+    {% if e.insurance_no %}<tr><td class="lbl">{% translate "Insurance number" %}</td><td>{{ e.insurance_no }}</td></tr>{% endif %}
+    {% if e.phone %}<tr><td class="lbl">{% translate "Mobile" %}</td><td>{{ e.phone }}</td></tr>{% endif %}
+    {% if e.email %}<tr><td class="lbl">{% translate "Email" %}</td><td>{{ e.email }}</td></tr>{% endif %}
+    {% if e.branch %}<tr><td class="lbl">{% translate "Branch" %}</td><td>{{ e.branch }}</td></tr>{% endif %}
+    {% if e.end_date %}<tr><td class="lbl">{% translate "Leaving date" %}</td><td>{{ e.end_date|date:"d/m/Y" }}</td></tr>{% endif %}
+  </tbody></table></div>
+  {% if show_pay %}<div class="panel"><h2>{% translate "Pay" %}</h2><table class="tbl"><tbody>
+    <tr><td class="lbl">{% translate "Basic salary / month" %}</td><td class="num">{{ e.basic_salary|num }}</td></tr>
+    <tr><td class="lbl">{% translate "Allowances / month" %}</td><td class="num">{{ e.allowances|num }}</td></tr>
+    <tr><td class="lbl">{% translate "Social insurance" %}</td><td class="num">{% if e.insured %}{% translate "Insured" %}{% if e.insurable_wage %} · {{ e.insurable_wage|num }}{% endif %}{% else %}{% translate "Not insured" %}{% endif %}</td></tr>
+    <tr><td class="lbl">{% translate "Salary tax" %}</td><td class="num">{% if e.taxable %}{% translate "Taxable" %}{% else %}{% translate "Not taxed" %}{% endif %}</td></tr>
+    <tr><td class="lbl">{% translate "Medical deduction / month" %}</td><td class="num">{{ e.medical_deduction|num }}</td></tr>
+    <tr><td class="lbl">{% translate "Paid by" %}</td><td class="num">{{ e.get_payment_method_display }}{% if e.bank_name %} · {{ e.bank_name }}{% endif %}</td></tr>
+  </tbody></table></div>{% endif %}
+</div>
+{% if show_pay %}
+<div class="panel"><h2>{% translate "Payslips" %}</h2>
+  <table class="tbl"><thead><tr><th>{% translate "Month" %}</th><th class="num">{% translate "Gross" %}</th><th class="num">{% translate "Deductions" %}</th><th class="num">{% translate "Net pay" %}</th><th></th></tr></thead>
+  <tbody>{% for p in payslips %}<tr><td><a href="{% url 'payroll:run' p.run_id %}">{{ p.run.period_label }}</a></td><td class="num">{{ p.gross|num }}</td><td class="num">{{ p.total_deductions|num }}</td><td class="num">{{ p.net_pay|num }}</td>
+    <td><a class="link" href="{% url 'payroll:payslip' p.pk %}">{% translate "Payslip" %}</a></td></tr>
+  {% empty %}<tr><td colspan="5" class="lbl">{% translate "No payslips yet." %}</td></tr>{% endfor %}</tbody></table></div>
+<div class="panel"><h2>{% translate "Loans & advances" %}</h2>
+  <table class="tbl"><thead><tr><th>{% translate "Issue date" %}</th><th>{% translate "Reason" %}</th><th class="num">{% translate "Amount" %}</th><th class="num">{% translate "Monthly deduction" %}</th><th class="num">{% translate "Outstanding" %}</th><th>{% translate "Status" %}</th></tr></thead>
+  <tbody>{% for l in loans %}<tr><td>{{ l.issue_date|date:"d/m/Y" }}</td><td>{{ l.reason }}</td><td class="num">{{ l.principal|num }}</td><td class="num">{{ l.monthly_deduction|num }}</td><td class="num">{{ l.outstanding|num }}</td><td><span class="pill {% if l.status == 'active' %}warn{% else %}good{% endif %}">{{ l.get_status_display }}</span></td></tr>
+  {% empty %}<tr><td colspan="6" class="lbl">{% translate "No loans." %}</td></tr>{% endfor %}</tbody></table></div>
+{% endif %}
+<div class="cols">
+  <div class="panel"><h2>{% translate "Leave this year" %}</h2>
+    <table class="tbl"><tbody>{% for l in leaves %}<tr><td>{{ l.get_leave_type_display }}</td><td>{{ l.start_date|date:"d/m" }} – {{ l.end_date|date:"d/m/Y" }}</td><td class="num">{{ l.days|num:1 }}</td></tr>
+    {% empty %}<tr><td class="lbl">{% translate "No leave recorded." %}</td></tr>{% endfor %}</tbody></table></div>
+  <div class="panel"><h2>{% translate "Attendance — last 31 days" %}</h2>
+    <table class="tbl"><tbody>{% for a in attendance %}<tr><td>{{ a.work_date|date:"D d/m" }}</td><td>{{ a.get_status_display }}</td><td class="num">{{ a.hours_worked|num:1 }} / {{ a.expected_hours|num:1 }}</td></tr>
+    {% empty %}<tr><td class="lbl">{% translate "No attendance imported." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% attachments e %}
+{% endblock %}

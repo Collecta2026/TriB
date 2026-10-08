@@ -21,6 +21,26 @@
     if (e.key === "Escape") $$("[data-popover]").forEach((p) => { p.hidden = true; });
   });
 
+  // Rail submenus: open level with their item, but never below the bottom of the window.
+  $$(".rail .ri-wrap").forEach((wrap) => {
+    const fly = $(".fly", wrap);
+    if (!fly) return;
+    const place = () => {
+      const top = wrap.getBoundingClientRect().top;
+      fly.style.top = "0px";
+      fly.style.display = "block";
+      const height = fly.offsetHeight;
+      fly.style.display = "";
+      fly.style.top = Math.max(8, Math.min(top, window.innerHeight - height - 8)) + "px";
+    };
+    wrap.addEventListener("mouseenter", place);
+    wrap.addEventListener("focusin", place);
+  });
+
+  // Bookmark star: name the bookmark after the page title.
+  const bmTitle = $("[data-bookmark-title]");
+  if (bmTitle && !bmTitle.value) bmTitle.value = document.title.split(" · ")[0];
+
   // Privacy: blur amounts on screen.
   const priv = $("#privBtn");
   if (priv) {

@@ -1,0 +1,17 @@
+{% load i18n trib %}<div class="panel no-print">
+  <div class="panel-h"><h2>{% translate "Attachments" %}</h2><span class="lbl">{% translate "PDF, photos, Excel or Word, up to 10 MB each" %}</span></div>
+  {% if saved %}
+  {% if files %}<div class="rows" style="max-height:none">{% for f in files %}<div class="row">
+    <div class="bico">{% include "partials/icon.html" with name="list" %}</div>
+    <div><a class="nm" href="{% url 'core:attachment' f.pk %}" target="_blank" rel="noopener">{{ f.filename }}</a>
+      <div class="sub">{{ f.size|filesize }} · {{ f.uploaded_by|default:"" }} · {{ f.uploaded_at|date:"Y-m-d H:i" }}</div></div>
+    <form method="post" action="{% url 'core:attachment_delete' f.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="btn sm danger" type="submit" aria-label="{% translate 'Remove' %}">×</button></form>
+  </div>{% endfor %}</div>{% else %}<p class="lbl">{% translate "No files attached yet." %}</p>{% endif %}
+  <form method="post" action="{% url 'core:attachment_upload' %}" enctype="multipart/form-data" class="toolbar" style="margin-top:10px">{% csrf_token %}
+    <input type="hidden" name="target" value="{{ target }}"><input type="hidden" name="target_id" value="{{ target_id }}">
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <input type="file" name="files" multiple required aria-label="{% translate 'Choose files' %}">
+    <button class="btn" type="submit">{% translate "Attach" %}</button>
+  </form>
+  {% else %}<p class="lbl">{% translate "Save the document first, then attach files." %}</p>{% endif %}
+</div>

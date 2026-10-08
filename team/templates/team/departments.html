@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Departments" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'team:employees' %}">{% translate "Employees" %}</a></div><h1>{% translate "Departments" %}</h1>
+  <div class="sub">{% translate "Link a department to a cost centre and its payroll cost posts there." %}</div></div></div>
+<div class="cols">
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Name" %}</th><th>{% translate "Cost centre" %}</th><th class="num">{% translate "Staff" %}</th><th></th></tr></thead>
+    <tbody>{% for d in rows %}<tr><td><a href="{% url 'team:employees' %}?department={{ d.pk }}">{{ d.name_en }}</a>{% if d.name_ar %}<div class="lbl">{{ d.name_ar }}</div>{% endif %}</td><td>{{ d.cost_center|default:"—" }}</td><td class="num">{{ d.n }}</td>
+      <td>{% if can.team.edit %}<a class="link" href="?edit={{ d.pk }}">{% translate "Edit" %}</a>{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="4" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody></table></div>
+  {% if form %}<div class="panel"><h2>{% if obj %}{% translate "Edit department" %}{% else %}{% translate "Add department" %}{% endif %}</h2>
+    <form method="post" class="form">{% csrf_token %}{% if obj %}<input type="hidden" name="pk" value="{{ obj.pk }}">{% endif %}
+      {% include "partials/form_fields.html" %}
+      <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button></div></form></div>{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Balance confirmations" %}{% endblock %}
+{% block head %}<style>.letter{page-break-after:always;margin-bottom:24px}.letter:last-child{page-break-after:auto}.slip{border:1px dashed #555;padding:12px;margin-top:18px}</style>{% endblock %}
+{% block content %}
+<div class="toolbar no-print"><a class="btn" href="{% url 'sales:confirmations' %}">‹ {% translate "Back" %}</a>
+  <button class="btn primary" type="button" onclick="window.print()">{% translate "Print / save as PDF" %}</button>
+  <span class="lbl">{{ letters|length }} {% translate "letters" %}</span></div>
+{% for l in letters %}
+<div class="voucher-doc letter">
+  <div class="vh"><div><b>{{ company.name_en }}</b><div>{{ company.address|linebreaksbr }}</div></div>
+    <div class="vt"><h1>Balance Confirmation</h1><h1 class="ar">مصادقة على رصيد</h1></div>
+    <div class="ar" style="text-align:start"><b>{{ company.name_ar }}</b></div></div>
+  <p><b>{{ l.contact.name_en }}</b> ({{ l.contact.code }})<br>{{ l.contact.address|linebreaksbr }}</p>
+  <p>Dear Sirs, for audit purposes please confirm that according to our books your account showed a balance
+    <b>due to us of {{ l.balance|num }} {{ l.contact.currency_id }}</b> as of <b>{{ as_of|date:"d/m/Y" }}</b>.
+    Please sign the slip below and return it by {{ reply_by|date:"d/m/Y" }}, noting any difference.</p>
+  <p class="ar">السادة / {{ l.contact.name_ar|default:l.contact.name_en }}، تحية طيبة وبعد،
+    لأغراض المراجعة نرجو التكرم بالمصادقة على أن رصيد حسابكم لدينا في {{ as_of|date:"d/m/Y" }}
+    هو <b>{{ l.balance|num }} {{ l.contact.currency_id }}</b> مستحق لنا، وإعادة الإيصال أدناه موقعًا قبل {{ reply_by|date:"d/m/Y" }} مع بيان أي اختلاف.</p>
+  <div class="sigs" style="grid-template-columns:1fr 1fr"><div class="sig">{{ company.name_en }}<br>Authorised signature / توقيع معتمد</div><div class="sig">Stamp / الختم</div></div>
+  <div class="slip">
+    <div class="bi"><div><b>Reply slip</b> — to {{ company.name_en }}</div><div class="ar"><b>إيصال الرد</b> — إلى {{ company.name_ar|default:company.name_en }}</div></div>
+    <p>☐ We confirm the balance of {{ l.balance|num }} {{ l.contact.currency_id }} as of {{ as_of|date:"d/m/Y" }}. / نصادق على الرصيد المذكور.</p>
+    <p>☐ We do not agree. Our records show a balance of ____________________ / لا نوافق، والرصيد طبقًا لسجلاتنا: ____________</p>
+    <div class="sigs" style="grid-template-columns:1fr 1fr 1fr"><div class="sig">Name / الاسم</div><div class="sig">Signature & stamp / التوقيع والختم</div><div class="sig">Date / التاريخ</div></div>
+  </div>
+</div>
+{% empty %}<div class="empty">{% translate "No customer has a balance on that date." %}</div>{% endfor %}
+{% endblock %}

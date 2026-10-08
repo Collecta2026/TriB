@@ -1,0 +1,5 @@
+{% load i18n %}{% if can.sales.edit %}<form method="post" action="{% url 'sales:quote_action' doc.pk %}" class="toolbar">{% csrf_token %}
+  {% if doc.status == "draft" %}<button class="btn" name="action" value="sent">{% translate "Mark as sent" %}</button>{% endif %}
+  {% if doc.status == "draft" or doc.status == "sent" %}<button class="btn" name="action" value="accepted">{% translate "Accepted" %}</button><button class="btn danger" name="action" value="declined">{% translate "Declined" %}</button>{% endif %}
+  {% if doc.status != "converted" and doc.status != "declined" %}<button class="btn primary" name="action" value="to_order">{% translate "Convert to sales order" %}</button><button class="btn" name="action" value="to_invoice">{% translate "Convert to invoice" %}</button>{% endif %}
+</form>{% endif %}

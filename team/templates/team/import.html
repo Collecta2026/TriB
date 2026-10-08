@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Import employees" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'team:employees' %}">{% translate "Employees" %}</a></div><h1>{% translate "Import employees from the payroll sheet" %}</h1>
+  <div class="sub">{% translate "Upload the monthly payroll workbook. TriB reads the main employee list on the first sheet, matches people by their SN code, and shows you everything before saving." %}</div></div></div>
+{% if not people %}
+<div class="panel"><form method="post" enctype="multipart/form-data" class="form">{% csrf_token %}
+  {% include "partials/form_fields.html" %}
+  <div class="lbl">{% translate "Headings read: Department, SN, Name, Title, Full Time (F / P / Contractor), Bank / Instapay, Joining Date, Net Basic Salary, Allowance, Monthly Employee Medical Due, Monthly Employee Social Due. Yellow rows are imported as On hold and red rows as Left." %}</div>
+  <div class="form-actions"><button class="btn primary" type="submit">{% translate "Preview" %}</button></div>
+</form></div>
+{% else %}
+<div class="kpis">
+  <div class="kpi"><span class="lbl">{% translate "New employees" %}</span><span class="n">{{ summary.new }}</span></div>
+  <div class="kpi"><span class="lbl">{% translate "Will be updated" %}</span><span class="n">{{ summary.update }}</span></div>
+  <div class="kpi {% if summary.hold %}warn{% endif %}"><span class="lbl">{% translate "On hold (yellow)" %}</span><span class="n">{{ summary.hold }}</span></div>
+  <div class="kpi {% if summary.left %}crit{% endif %}"><span class="lbl">{% translate "Left (red)" %}</span><span class="n">{{ summary.left }}</span></div>
+</div>
+<div class="msg warning">{% translate "Everyone is imported as subject to salary tax. Untick “Subject to salary tax” on any employee who is exempt before running payroll." %}</div>
+<form method="post" class="toolbar">{% csrf_token %}<button class="btn primary" name="confirm" value="1">{% translate "Import these employees" %}</button><button class="btn" name="cancel" value="1">{% translate "Cancel" %}</button></form>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Code" %}</th><th>{% translate "Name" %}</th><th>{% translate "Department" %}</th><th>{% translate "Job title" %}</th><th>{% translate "Contract" %}</th><th>{% translate "Paid by" %}</th><th>{% translate "Joining date" %}</th>
+    {% if show_pay %}<th class="num">{% translate "Basic" %}</th><th class="num">{% translate "Allowance" %}</th><th class="num">{% translate "Social insurance" %}</th><th class="num">{% translate "Medical" %}</th>{% endif %}<th>{% translate "Status" %}</th><th></th></tr></thead>
+  <tbody>{% for p in people %}<tr><td>{{ p.code }}</td><td>{{ p.name }}</td><td>{{ p.department }}</td><td>{{ p.title }}</td><td>{{ p.full_time|upper }}</td><td>{{ p.channel }}</td><td>{{ p.joined|date:"d/m/Y" }}</td>
+    {% if show_pay %}<td class="num">{{ p.basic|num }}</td><td class="num">{{ p.allowance|num }}</td><td class="num">{{ p.social|num }}</td><td class="num">{{ p.medical|num }}</td>{% endif %}
+    <td><span class="pill {{ p.status|pill_class }}">{% if p.status == "hold" %}{% translate "On hold" %}{% elif p.status == "left" %}{% translate "Left" %}{% else %}{% translate "Active" %}{% endif %}</span></td>
+    <td>{% if p.exists %}<span class="pill info">{% translate "Update" %}</span>{% else %}<span class="pill good">{% translate "New" %}</span>{% endif %}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endif %}
+{% endblock %}

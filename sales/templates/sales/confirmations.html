@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Balance confirmations" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Balance confirmations" %}</h1>
+  <div class="sub">{% translate "Year-end letters asking each customer to confirm the balance they owe, with a reply slip for your auditors." %}</div></div></div>
+<form method="get" class="panel form">{% include "partials/form_fields.html" %}
+  <div class="form-actions"><button class="btn primary" type="submit">{% translate "Prepare letters" %}</button></div></form>
+{% endblock %}

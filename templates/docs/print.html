@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ doc.number }}{% endblock %}
+{% block content %}
+<div class="toolbar no-print"><a class="btn" href="javascript:history.back()">‹ {% translate "Back" %}</a>
+  <button class="btn primary" type="button" onclick="window.print()">{% include "partials/icon.html" with name="print" %} {% translate "Print / save as PDF" %}</button></div>
+<div class="voucher-doc">
+  <div class="vh">
+    <div><b>{{ company.name_en }}</b><div>{{ company.address|linebreaksbr }}</div>
+      {% if company.tax_id %}<div>Tax reg. {{ company.tax_id }}</div>{% endif %}{% if company.commercial_register %}<div>C.R. {{ company.commercial_register }}</div>{% endif %}</div>
+    <div class="vt"><h1>{{ spec.print_en }}</h1><h1 class="ar">{{ spec.print_ar }}</h1><div><b>{{ doc.number }}</b></div></div>
+    <div class="ar" style="text-align:start"><b>{{ company.name_ar }}</b>
+      {% if company.tax_id %}<div>رقم التسجيل الضريبي {{ company.tax_id }}</div>{% endif %}{% if company.commercial_register %}<div>سجل تجاري {{ company.commercial_register }}</div>{% endif %}</div>
+  </div>
+  <div class="bi">
+    <div>{% if party %}<b>{{ party.name_en }}</b>{% if party.address %}<div>{{ party.address|linebreaksbr }}</div>{% endif %}{% if party.tax_id %}<div>Tax reg. {{ party.tax_id }}</div>{% endif %}{% endif %}</div>
+    <div style="text-align:end">
+      <div>Date / التاريخ: <b>{{ doc.date|date:"d/m/Y" }}</b></div>
+      {% if doc.due_date %}<div>Due / الاستحقاق: <b>{{ doc.due_date|date:"d/m/Y" }}</b></div>{% endif %}
+      {% if doc.valid_until %}<div>Valid until / صالح حتى: <b>{{ doc.valid_until|date:"d/m/Y" }}</b></div>{% endif %}
+      {% if doc.expected_date %}<div>Expected / التاريخ المتوقع: <b>{{ doc.expected_date|date:"d/m/Y" }}</b></div>{% endif %}
+      {% if doc.reference %}<div>Ref / المرجع: {{ doc.reference }}</div>{% endif %}
+      {% if doc.supplier_invoice_no %}<div>Supplier inv. / فاتورة المورد: {{ doc.supplier_invoice_no }}</div>{% endif %}
+      <div>Currency / العملة: {{ doc.currency_id }}</div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>#</th><th>Item / الصنف</th><th>Description / البيان</th><th class="num">Qty / الكمية</th><th class="num">Rate / السعر</th><th class="num">Disc. / خصم</th><th class="num">VAT / الضريبة</th><th class="num">Amount / القيمة</th></tr></thead>
+    <tbody>{% for l in lines %}<tr><td>{{ forloop.counter }}</td><td>{{ l.item.sku|default:"" }}</td>
+      <td>{{ l.description|default:l.item.name_en }}{% if l.item.name_ar %}<div class="ar">{{ l.item.name_ar }}</div>{% endif %}{% if l.serials %}<div>S/N: {{ l.serials|linebreaksbr }}</div>{% endif %}</td>
+      <td class="num">{{ l.qty|num:3 }}</td><td class="num">{{ l.unit_price|num }}</td><td class="num">{% if l.discount_pct %}{{ l.discount_pct|num }}%{% endif %}</td>
+      <td class="num">{{ l.tax|num }}</td><td class="num">{{ l.net|num }}</td></tr>{% endfor %}</tbody>
+    <tfoot>
+      <tr><th colspan="7" class="num">Subtotal / الإجمالي قبل الضريبة</th><th class="num">{{ doc.subtotal|num }}</th></tr>
+      {% for rate, amount in doc.tax_breakdown %}<tr><th colspan="7" class="num">{{ rate.name_en }} / {{ rate.name_ar }}</th><th class="num">{{ amount|num }}</th></tr>{% endfor %}
+      <tr><th colspan="7" class="num">Total / الإجمالي ({{ doc.currency_id }})</th><th class="num">{{ doc.total|num }}</th></tr>
+      {% if doc.amount_paid %}<tr><th colspan="7" class="num">Paid / المدفوع</th><th class="num">{{ doc.amount_paid|num }}</th></tr>
+      <tr><th colspan="7" class="num">Balance due / المتبقي</th><th class="num">{{ doc.balance_due|num }}</th></tr>{% endif %}
+    </tfoot>
+  </table>
+  <div class="words">{{ words_en }}</div>
+  <div class="words ar">{{ words_ar }}</div>
+  {% if doc.notes %}<div style="margin-top:8px">{{ doc.notes|linebreaksbr }}</div>{% endif %}
+  {% if bank_details %}<div style="margin-top:10px;font-size:12px">{{ bank_details|linebreaksbr }}</div>{% endif %}
+  <div class="sigs">
+    <div class="sig">Prepared by / إعداد<br><b>{{ doc.created_by }}</b></div>
+    <div class="sig">Approved by / اعتماد{% if doc.approved_by %}<br><b>{{ doc.approved_by }}</b>{% endif %}</div>
+    <div class="sig">{% if spec.party == "customer" %}Received by / استلام العميل{% else %}Supplier / المورد{% endif %}</div>
+  </div>
+</div>
+{% endblock %}

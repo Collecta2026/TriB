@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ spec.title }} {{ doc.number }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{{ spec.url_list }}">{{ spec.plural }}</a></div>
+  <h1>{{ spec.title }} · {{ doc.number|default:_("Draft") }}
+    <span class="pill {{ doc.status|pill_class }}">{{ doc.get_status_display }}</span>
+    {% if doc.payment_state and doc.status == "posted" %}<span class="pill {{ doc.payment_state|pill_class }}">{{ doc.payment_state|state_label }}</span>{% endif %}</h1>
+  <div class="sub">{{ doc.date|date:"d/m/Y" }}{% if party %} · <a href="{{ party_url }}">{{ party }}</a>{% endif %}{% if doc.created_by %} · {% translate "Created by" %} {{ doc.created_by }}{% endif %}
+    {% if doc.journal_entry_id %} · <a href="{% url 'ledger:journal' doc.journal_entry_id %}">{{ doc.journal_entry.number }}</a>{% endif %}</div></div>
+  <div class="toolbar">
+    {% if doc.number %}<a class="btn" href="{% url spec.ns|add:':'|add:spec.key|add:'_print' doc.pk %}">{% include "partials/icon.html" with name="print" %} {% translate "Print / PDF" %}</a>{% endif %}
+    {% if editable %}<a class="btn" href="{% url spec.ns|add:':'|add:spec.key|add:'_edit' doc.pk %}">{% translate "Edit" %}</a>{% endif %}
+    {% if spec.actions_template %}{% include spec.actions_template %}{% endif %}
+  </div>
+</div>
+
+<div class="cols">
+  <div class="panel"><h2>{% translate "Details" %}</h2>
+    <table class="tbl"><tbody>
+      {% for label, value in info %}<tr><td class="lbl">{{ label }}</td><td>{{ value|default:"—" }}</td></tr>{% endfor %}
+      {% if doc.currency_id != company.base_currency_id %}<tr><td class="lbl">{% translate "Exchange rate" %}</td><td>{{ doc.rate|num:4 }} · {{ doc.total_base|money:company.base_currency }}</td></tr>{% endif %}
+      {% if doc.notes %}<tr><td class="lbl">{% translate "Notes" %}</td><td>{{ doc.notes|linebreaksbr }}</td></tr>{% endif %}
+    </tbody></table>
+  </div>
+  <div class="panel"><h2>{% translate "Amounts" %}</h2>
+    <table class="tbl"><tbody>
+      <tr><td class="lbl">{% translate "Subtotal" %}</td><td class="num">{{ doc.subtotal|money:doc.currency }}</td></tr>
+      {% for rate, amount in doc.tax_breakdown %}<tr><td class="lbl">{{ rate.name }}</td><td class="num">{{ amount|money:doc.currency }}</td></tr>{% endfor %}
+      <tr class="grp"><td>{% translate "Total" %}</td><td class="num">{{ doc.total|money:doc.currency }}</td></tr>
+      {% if doc.amount_paid %}<tr><td class="lbl">{% translate "Paid" %}</td><td class="num">{{ doc.amount_paid|money:doc.currency }}</td></tr>
+      <tr class="grp"><td>{% translate "Balance due" %}</td><td class="num">{{ doc.balance_due|money:doc.currency }}</td></tr>{% endif %}
+      <tr><td class="lbl">{% translate "In words" %}</td><td>{{ doc.words_current }}</td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Product / service" %}</th><th>{% translate "Description" %}</th><th class="num">{% translate "Qty" %}</th><th class="num">{% translate "Rate" %}</th><th class="num">{% translate "Disc. %" %}</th><th>{% translate "VAT" %}</th><th class="num">{% translate "Amount" %}</th></tr></thead>
+  <tbody>{% for l in lines %}<tr>
+    <td>{% if l.item %}{{ l.item.sku }}<div class="lbl">{{ l.item.name }}</div>{% elif l.account %}{{ l.account }}{% endif %}</td>
+    <td>{{ l.description }}{% if l.project %}<div class="lbl">{{ l.project }}</div>{% endif %}{% if l.serials %}<div class="lbl">{% translate "Serial numbers" %}: {{ l.serials|linebreaksbr }}</div>{% endif %}</td>
+    <td class="num">{{ l.qty|num:3 }}</td><td class="num">{{ l.unit_price|num }}</td><td class="num">{% if l.discount_pct %}{{ l.discount_pct|num }}{% endif %}</td>
+    <td>{{ l.tax_rate.name|default:"" }}</td><td class="num">{{ l.net|num }}</td></tr>{% endfor %}</tbody>
+</table></div>
+
+{% if spec.related_template %}{% include spec.related_template %}{% endif %}
+{% attachments doc %}
+{% endblock %}
