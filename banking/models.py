@@ -56,6 +56,7 @@ class Cheque(models.Model):
         ("bounced", _("Bounced")),
         ("issued", _("Issued")),
         ("cancelled", _("Cancelled")),
+        ("settled", _("Settled by cash or transfer")),
     ]
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="cheques")
@@ -75,6 +76,13 @@ class Cheque(models.Model):
     counter_account = models.ForeignKey(Account, on_delete=models.PROTECT, null=True, blank=True, related_name="+")
     source_ref = models.CharField(max_length=40, blank=True)
     notes = models.CharField(_("Notes"), max_length=300, blank=True)
+    # The customer whose account a bounced cheque goes back to (set for customer payments by cheque).
+    customer = models.ForeignKey("contacts.Customer", on_delete=models.PROTECT, null=True, blank=True,
+                                 related_name="cheques", verbose_name=_("Customer"))
+    cleared_on = models.DateField(_("Cleared on"), null=True, blank=True)
+    bounced_on = models.DateField(_("Bounced on"), null=True, blank=True)
+    bounce_reason = models.CharField(_("Reason returned"), max_length=200, blank=True)
+    bounce_count = models.PositiveSmallIntegerField(_("Times returned"), default=0)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, related_name="+")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -87,3 +95,86 @@ class Cheque(models.Model):
     @property
     def base_amount(self):
         return q2(self.amount * self.rate)
+
+
+class ChequeEvent(models.Model):
+    """The life of a cheque: deposited, cleared (from the bank statement or by hand), returned by the bank,
+    resubmitted, settled in cash or by transfer, cancelled. Each event that moves money carries its journal."""
+
+    ACTIONS = [("deposited", _("Deposited for collection")), ("cleared", _("Cleared")), ("bounced", _("Returned unpaid")),
+               ("resubmitted", _("Resubmitted to the bank")), ("settled", _("Settled by cash or transfer")),
+               ("cancelled", _("Cancelled"))]
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="+")
+    cheque = models.ForeignKey(Cheque, on_delete=models.CASCADE, related_name="events")
+    action = models.CharField(_("Action"), max_length=12, choices=ACTIONS)
+    date = models.DateField(_("Date"))
+    amount = models.DecimalField(_("Amount"), max_digits=19, decimal_places=2)
+    bank_account = models.ForeignKey(BankAccount, on_delete=models.PROTECT, null=True, blank=True, related_name="+")
+    journal_entry = models.ForeignKey("ledger.JournalEntry", on_delete=models.PROTECT, null=True, blank=True, related_name="+")
+    statement_line = models.ForeignKey("banking.StatementLine", on_delete=models.SET_NULL, null=True, blank=True,
+                                       related_name="+")
+    reference = models.CharField(_("Reference"), max_length=80, blank=True)
+    note = models.CharField(_("Note"), max_length=300, blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["date", "id"]
+
+
+class BankRule(models.Model):
+    """If a statement line's description contains `contains`, suggest (or apply) this account."""
+
+    DIRECTIONS = [("any", _("Money in or out")), ("in", _("Money in")), ("out", _("Money out"))]
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="bank_rules")
+    name = models.CharField(_("Rule name"), max_length=120)
+    contains = models.CharField(_("Description contains"), max_length=120)
+    direction = models.CharField(_("Applies to"), max_length=3, choices=DIRECTIONS, default="any")
+    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name="+", verbose_name=_("Categorise as"))
+    memo = models.CharField(_("Memo"), max_length=200, blank=True)
+    auto_post = models.BooleanField(_("Post automatically when imported"), default=False)
+    priority = models.PositiveSmallIntegerField(_("Priority"), default=10)
+    is_active = models.BooleanField(_("Active"), default=True)
+
+    class Meta:
+        ordering = ["priority", "id"]
+
+    def matches(self, line):
+        if not self.is_active or self.contains.lower() not in (line.description or "").lower():
+            return False
+        return self.direction == "any" or (self.direction == "in") == (line.amount > 0)
+
+
+class StatementLine(models.Model):
+    STATUSES = [("new", _("For review")), ("matched", _("Matched")), ("posted", _("Categorised")),
+                ("excluded", _("Excluded"))]
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="+")
+    bank_account = models.ForeignKey(BankAccount, on_delete=models.CASCADE, related_name="statement_lines")
+    date = models.DateField(_("Date"), db_index=True)
+    description = models.CharField(_("Description"), max_length=300)
+    reference = models.CharField(_("Reference"), max_length=80, blank=True)
+    amount = models.DecimalField(_("Amount"), max_digits=19, decimal_places=2)  # + money in, − money out
+    status = models.CharField(_("Status"), max_length=8, choices=STATUSES, default="new", db_index=True)
+    journal_line = models.ForeignKey("ledger.JournalLine", on_delete=models.SET_NULL, null=True, blank=True, related_name="+")
+    rule = models.ForeignKey(BankRule, on_delete=models.SET_NULL, null=True, blank=True, related_name="+")
+    import_batch = models.CharField(max_length=40, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-id"]
+
+
+class Reconciliation(models.Model):
+    STATUSES = [("open", _("In progress")), ("done", _("Reconciled"))]
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="+")
+    bank_account = models.ForeignKey(BankAccount, on_delete=models.PROTECT, related_name="reconciliations")
+    statement_date = models.DateField(_("Statement end date"))
+    statement_balance = models.DecimalField(_("Statement ending balance"), max_digits=19, decimal_places=2)
+    opening_balance = models.DecimalField(max_digits=19, decimal_places=2, default=0)
+    status = models.CharField(_("Status"), max_length=4, choices=STATUSES, default="open")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-statement_date", "-id"]

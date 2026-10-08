@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Returned cheques" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'banking:cheques' %}">{% translate "Cheques" %}</a></div><h1>{% translate "Returned cheques" %}</h1>
+  <div class="sub">{% translate "Record the list of returned cheques the bank sends you. Each one goes back on the customer's account until you resubmit it to the bank or the customer pays in cash or by transfer." %}</div></div>
+  <a class="btn" href="{% url 'banking:cheque_reconciliation' %}">{% translate "Cheque reconciliation" %}</a></div>
+
+{% if preview is not None %}
+<div class="panel"><h2>{% translate "Check the bank's list" %}</h2>
+  <form method="post">{% csrf_token %}
+  <div class="table-wrap"><table class="tbl">
+    <thead><tr><th class="sel-col">✓</th><th>{% translate "Cheque" %}</th><th>{% translate "Customer" %}</th><th>{% translate "Status in TriB" %}</th><th>{% translate "Reason returned" %}</th><th class="num">{% translate "Amount" %}</th></tr></thead>
+    <tbody>{% for r in preview %}<tr>
+      <td>{% if r.state == "ok" %}<input type="checkbox" name="cheque" value="{{ r.cheque.pk }}" checked>{% endif %}</td>
+      <td>#{{ r.number }}</td>
+      <td>{% if r.cheque %}{{ r.cheque.party_name }}{% elif r.matches %}{% for c in r.matches %}{{ c.party_name }}{% if not forloop.last %} / {% endif %}{% endfor %}{% endif %}</td>
+      <td>{% if r.state == "ok" %}<span class="pill info">{{ r.cheque.get_status_display }}</span>
+        {% elif r.state == "several" %}<span class="pill warn">{% translate "Several cheques have this number: record it from Cheques" %}</span>
+        {% elif r.state == "closed" %}<span class="pill warn">{{ r.cheque.get_status_display }} — {% translate "cannot be returned" %}</span>
+        {% else %}<span class="pill crit">{% translate "Not found in TriB" %}</span>{% endif %}</td>
+      <td>{{ r.reason }}</td><td class="num">{% if r.cheque %}{{ r.cheque.amount|money:r.cheque.currency }}{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="6" class="lbl">{% translate "No cheque numbers were found in the list." %}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <div class="form-actions" style="margin-top:12px"><button class="btn primary" type="submit" name="confirm" value="1">{% translate "Record the ticked cheques as returned" %}</button><a class="btn" href="{% url 'banking:bounced' %}">{% translate "Cancel" %}</a></div>
+  </form></div>
+{% elif can.cheques.post %}
+<div class="panel"><h2>{% translate "Record the bank's list" %}</h2>
+  <form method="post" enctype="multipart/form-data" class="form">{% csrf_token %}{% include "partials/form_fields.html" %}
+    <div class="form-actions"><button class="btn primary" type="submit" name="preview" value="1">{% translate "Check against our cheques" %}</button></div></form></div>
+{% endif %}
+
+<div class="panel"><div class="panel-h"><h2>{% translate "Waiting to be resolved" %}</h2><span class="lbl">{{ returned|length }} · {{ total|num }}</span></div>
+  <div class="table-wrap"><table class="tbl">
+    <thead><tr><th>{% translate "Cheque" %}</th><th>{% translate "Customer" %}</th><th>{% translate "Returned on" %}</th><th>{% translate "Reason returned" %}</th><th class="num">{% translate "Times returned" %}</th><th class="num">{% translate "Amount" %}</th><th>{% translate "Next step" %}</th></tr></thead>
+    <tbody>{% for c in returned %}<tr>
+      <td>#{{ c.number }}<div class="lbl">{{ c.drawee_bank }} · {{ c.source_ref }}</div></td>
+      <td>{% if c.customer %}<a href="{% url 'contacts:customer' c.customer_id %}">{{ c.customer.name }}</a>{% else %}{{ c.party_name }}{% endif %}</td>
+      <td>{{ c.bounced_on|date:"d/m/Y" }}<div class="lbl">{% blocktranslate with d=c.bounced_on|timesince:today %}{{ d }} ago{% endblocktranslate %}</div></td>
+      <td>{{ c.bounce_reason|default:"—" }}</td><td class="num">{% if c.bounce_count > 1 %}<span class="pill crit">{{ c.bounce_count }}</span>{% else %}{{ c.bounce_count }}{% endif %}</td>
+      <td class="num">{{ c.amount|money:c.currency }}</td>
+      <td>{% if can.cheques.post %}
+        <form method="post" action="{% url 'banking:returned_action' c.pk %}" class="toolbar" style="margin-bottom:6px">{% csrf_token %}<input type="hidden" name="action" value="resubmit">
+          <select name="bank_account" style="width:auto" aria-label="{% translate 'Bank' %}">{% for b in banks %}<option value="{{ b.pk }}" {% if b.pk == c.bank_account_id %}selected{% endif %}>{{ b.name }}</option>{% endfor %}</select>
+          <input type="date" name="date" value="{{ today|date:'Y-m-d' }}" style="width:auto" aria-label="{% translate 'Date' %}">
+          <button class="btn sm" type="submit">{% translate "Resubmit to bank" %}</button></form>
+        <form method="post" action="{% url 'banking:returned_action' c.pk %}" class="toolbar">{% csrf_token %}<input type="hidden" name="action" value="settle">
+          <select name="bank_account" style="width:auto" aria-label="{% translate 'Received into' %}">{% for b in money_accounts %}{% if b.currency_id == c.currency_id %}<option value="{{ b.pk }}">{{ b.name }}</option>{% endif %}{% endfor %}</select>
+          <input type="date" name="date" value="{{ today|date:'Y-m-d' }}" style="width:auto" aria-label="{% translate 'Date' %}">
+          <input type="text" name="reference" placeholder="{% translate 'Receipt / transfer ref.' %}" style="width:150px">
+          <button class="btn sm primary" type="submit">{% translate "Collected in cash / transfer" %}</button></form>
+      {% endif %}</td></tr>
+    {% empty %}<tr><td colspan="7" class="lbl">{% translate "No returned cheques are waiting." %}</td></tr>{% endfor %}</tbody>
+  </table></div></div>
+
+<div class="panel"><h2>{% translate "History" %}</h2>
+  <table class="tbl"><thead><tr><th>{% translate "Date" %}</th><th>{% translate "Cheque" %}</th><th>{% translate "Customer / supplier" %}</th><th>{% translate "Action" %}</th><th>{% translate "Reference" %}</th><th>{% translate "Journal entry" %}</th><th class="num">{% translate "Amount" %}</th></tr></thead>
+  <tbody>{% for e in history %}<tr><td>{{ e.date|date:"d/m/Y" }}</td><td>#{{ e.cheque.number }}</td><td>{{ e.cheque.party_name }}</td><td>{{ e.get_action_display }}{% if e.note %}<div class="lbl">{{ e.note }}</div>{% endif %}</td>
+    <td>{{ e.reference }}</td><td>{% if e.journal_entry_id %}<a href="{% url 'ledger:journal' e.journal_entry_id %}">{{ e.journal_entry.number }}</a>{% endif %}</td><td class="num">{{ e.amount|num }}</td></tr>
+  {% empty %}<tr><td colspan="7" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody></table></div>
+{% endblock %}

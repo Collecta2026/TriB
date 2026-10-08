@@ -7,6 +7,8 @@
   <div class="toolbar">
     <a class="btn {% if direction == 'in' %}primary{% endif %}" href="?direction=in">{% translate "Received" %}</a>
     <a class="btn {% if direction == 'out' %}primary{% endif %}" href="?direction=out">{% translate "Issued" %}</a>
+    <a class="btn" href="{% url 'banking:bounced' %}">{% translate "Returned cheques" %}</a>
+    <a class="btn" href="{% url 'banking:cheque_reconciliation' %}">{% translate "Cheque reconciliation" %}</a>
   </div>
 </div>
 <div class="tiles" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr))">
@@ -19,7 +21,7 @@
     <td>#{{ c.number }}<div class="lbl">{{ c.source_ref }}</div></td><td>{{ c.party_name }}</td><td>{{ c.drawee_bank|default:c.bank_account.name|default:"" }}</td>
     <td>{{ c.due_date }}</td><td class="num">{{ c.amount|money:c.currency }}</td>
     <td><span class="pill {{ c.status }}">{{ c.get_status_display }}</span></td>
-    <td>{% if can.cheques.post %}{% if c.status == "in_safe" or c.status == "under_collection" or c.status == "issued" %}
+    <td>{% if c.status == "bounced" %}<a class="btn sm" href="{% url 'banking:bounced' %}">{% translate "Resubmit or settle" %}</a>{% endif %}{% if can.cheques.post %}{% if c.status == "in_safe" or c.status == "under_collection" or c.status == "issued" %}
       <form method="post" action="{% url 'banking:cheque_action' c.pk %}" class="toolbar" style="flex-wrap:nowrap">{% csrf_token %}
         <select name="action" aria-label="{% translate 'Action' %}" style="width:auto">
           {% if c.status == "in_safe" %}<option value="deposit">{% translate "Deposit for collection" %}</option>{% endif %}

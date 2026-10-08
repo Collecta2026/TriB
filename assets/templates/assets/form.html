@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Asset" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'assets:list' %}">{% translate "Asset register" %}</a></div>
+  <h1>{% if asset.pk %}{{ asset.number }} · {{ asset.name }}{% else %}{% translate "New asset" %}{% endif %}</h1>
+  <div class="sub">{% translate "Straight-line depreciation from the month it is put in use, down to the residual value." %}</div></div></div>
+{% if not has_categories %}<div class="msg warning">{% translate "Add an asset category first, so TriB knows which accounts to post to." %} <a href="{% url 'assets:categories' %}">{% translate "Asset categories" %}</a></div>{% endif %}
+<div class="panel"><form method="post" class="form">{% csrf_token %}
+  {% include "partials/form_fields.html" %}
+  <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button><a class="btn" href="{% if asset.pk %}{% url 'assets:detail' asset.pk %}{% else %}{% url 'assets:list' %}{% endif %}">{% translate "Cancel" %}</a></div>
+</form></div>
+{% endblock %}

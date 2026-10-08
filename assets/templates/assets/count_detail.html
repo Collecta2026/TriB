@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ count.number }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'assets:counts' %}">{% translate "Asset count" %}</a></div>
+  <h1>{% translate "Asset count" %} · {{ count.number }} <span class="pill {% if count.status == 'open' %}info{% else %}good{% endif %}">{{ count.get_status_display }}</span></h1>
+  <div class="sub">{{ count.date|date:"d/m/Y" }} · {% blocktranslate with a=found|length b=missing|length %}{{ a }} found, {{ b }} not yet found{% endblocktranslate %}</div></div>
+  {% if count.status == "open" and can.assets.post %}<form method="post" action="{% url 'assets:count_close' count.pk %}" class="toolbar">{% csrf_token %}
+    <label class="check"><input type="checkbox" name="mark_missing" value="1" checked> {% translate "Mark assets not found as missing" %}</label>
+    <button class="btn primary" type="submit">{% translate "Close count" %}</button></form>{% endif %}
+</div>
+{% if count.status == "open" and can.assets.edit %}
+<div class="panel" id="scan"><h2>{% translate "Scan" %}</h2>
+  <form method="post" class="scan">{% csrf_token %}<input type="text" name="code" autofocus autocomplete="off" placeholder="{% translate 'Scan or type the asset number' %}">
+    <button class="btn primary" type="submit">{% translate "Found" %}</button></form></div>
+{% endif %}
+<div class="cols">
+  <div class="panel"><h2>{% translate "Not yet found" %} ({{ missing|length }})</h2>
+    <table class="tbl"><tbody>{% for l in missing %}<tr><td><a href="{% url 'assets:detail' l.asset_id %}">{{ l.asset.number }}</a></td><td>{{ l.asset.name }}</td><td class="lbl">{{ l.asset.warehouse.code|default:"" }} {{ l.asset.location_detail }} {{ l.asset.custodian }}</td></tr>
+    {% empty %}<tr><td class="lbl">{% translate "Every asset has been found." %}</td></tr>{% endfor %}</tbody></table></div>
+  <div class="panel"><h2>{% translate "Found" %} ({{ found|length }})</h2>
+    <table class="tbl"><tbody>{% for l in found %}<tr><td><a href="{% url 'assets:detail' l.asset_id %}">{{ l.asset.number }}</a></td><td>{{ l.asset.name }}</td><td class="lbl">{{ l.scanned_at|date:"d/m H:i" }}</td></tr>
+    {% empty %}<tr><td class="lbl">{% translate "Nothing scanned yet." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% endblock %}

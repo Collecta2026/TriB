@@ -5,3 +5,4 @@ whitenoise>=6.7
 gunicorn>=23,<24
 polib>=1.2
 python-dotenv>=1.0
+openpyxl>=3.1

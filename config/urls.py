@@ -18,4 +18,12 @@ urlpatterns = [
     path("vouchers/", include("vouchers.urls")),
     path("approvals/", include("approvals.urls")),
     path("reports/", include("reports.urls")),
+    path("contacts/", include("contacts.urls")),
+    path("sales/", include("sales.urls")),
+    path("purchases/", include("purchases.urls")),
+    path("inventory/", include("inventory.urls")),
+    path("assets/", include("assets.urls")),
+    path("team/", include("team.urls")),
+    path("payroll/", include("payroll.urls")),
+    path("projects/", include("ledger.project_urls")),
 ]

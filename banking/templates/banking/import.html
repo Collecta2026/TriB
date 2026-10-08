@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Upload statement" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'banking:transactions' %}">{% translate "Bank transactions" %}</a></div><h1>{% translate "Upload statement" %}</h1>
+  <div class="sub">{% translate "Download the statement from your bank's online banking as CSV or Excel. Any bank works: next you tell TriB which column is which." %}</div></div></div>
+<div class="panel"><form method="post" enctype="multipart/form-data" class="form">{% csrf_token %}
+  <div class="fields">
+    <div class="field"><label for="id_bank_account">{% translate "Account" %}</label><select name="bank_account" id="id_bank_account" required>{% for a in accounts %}<option value="{{ a.pk }}" {% if request.GET.account == a.pk|stringformat:"s" %}selected{% endif %}>{{ a.name }} · {{ a.currency_id }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="id_file">{% translate "Statement file (.csv or .xlsx)" %}</label><input type="file" name="file" id="id_file" accept=".csv,.xlsx,.txt" required></div>
+  </div>
+  <div class="form-actions"><button class="btn primary" type="submit">{% translate "Next" %}</button></div>
+</form></div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ asset.number }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'assets:list' %}">{% translate "Asset register" %}</a></div>
+  <h1>{{ asset.number }} · {{ asset.name }} <span class="pill {{ asset.status|pill_class }}">{{ asset.get_status_display }}</span></h1>
+  <div class="sub">{{ asset.category.name }}{% if asset.serial_no %} · S/N {{ asset.serial_no }}{% endif %}{% if asset.custodian %} · {{ asset.custodian }}{% endif %}</div></div>
+  <div class="toolbar"><a class="btn" href="{% url 'assets:labels' %}?asset={{ asset.pk }}">{% translate "Print label" %}</a>
+    {% if asset.status != "disposed" and can.assets.edit %}<a class="btn" href="{% url 'assets:edit' asset.pk %}">{% translate "Edit" %}</a>{% endif %}</div>
+</div>
+<div class="kpis">
+  <div class="kpi"><span class="lbl">{% translate "Cost" %}</span><span class="n">{{ asset.cost|num }}</span></div>
+  <div class="kpi"><span class="lbl">{% translate "Accumulated depreciation" %}</span><span class="n">{{ asset.accumulated|num }}</span></div>
+  <div class="kpi"><span class="lbl">{% translate "Book value" %}</span><span class="n">{{ asset.book_value|num }}</span></div>
+  <div class="kpi"><span class="lbl">{% translate "Monthly depreciation" %}</span><span class="n">{{ asset.monthly_charge|num }}</span><span class="lbl">{{ asset.useful_life_months }} {% translate "months" %}</span></div>
+</div>
+<div class="cols">
+  <div class="panel"><h2>{% translate "Details" %}</h2><table class="tbl"><tbody>
+    <tr><td class="lbl">{% translate "Purchase date" %}</td><td>{{ asset.purchase_date|date:"d/m/Y" }}{% if asset.supplier %} · {{ asset.supplier.name }}{% endif %}</td></tr>
+    <tr><td class="lbl">{% translate "Depreciation starts" %}</td><td>{{ asset.in_service_date|date:"d/m/Y" }}</td></tr>
+    <tr><td class="lbl">{% translate "Residual value" %}</td><td>{{ asset.salvage_value|num }}</td></tr>
+    {% if asset.opening_depreciation %}<tr><td class="lbl">{% translate "Depreciation before TriB" %}</td><td>{{ asset.opening_depreciation|num }}</td></tr>{% endif %}
+    <tr><td class="lbl">{% translate "Location" %}</td><td>{{ asset.branch|default:"" }} {{ asset.warehouse|default:"" }} {{ asset.location_detail }}</td></tr>
+    {% if asset.cost_center %}<tr><td class="lbl">{% translate "Cost centre" %}</td><td>{{ asset.cost_center }}</td></tr>{% endif %}
+    {% if asset.disposed_on %}<tr><td class="lbl">{% translate "Disposal date" %}</td><td>{{ asset.disposed_on|date:"d/m/Y" }} · {{ asset.disposal_proceeds|num }}{% if asset.disposal_entry_id %} · <a href="{% url 'ledger:journal' asset.disposal_entry_id %}">{{ asset.disposal_entry.number }}</a>{% endif %}</td></tr>{% endif %}
+    {% if asset.notes %}<tr><td class="lbl">{% translate "Notes" %}</td><td>{{ asset.notes|linebreaksbr }}</td></tr>{% endif %}
+  </tbody></table></div>
+  <div class="panel"><h2>{% translate "Barcode" %}</h2><div style="text-align:center">{% barcode asset.number 2 60 %}</div>
+    {% if asset.status != "disposed" and can.assets.post %}
+    <h2 style="margin-top:18px">{% translate "Dispose or sell" %}</h2>
+    <form method="post" action="{% url 'assets:dispose' asset.pk %}" class="form" onsubmit="return confirm('{% translate "Dispose of this asset and post the gain or loss?" %}')">{% csrf_token %}
+      {% include "partials/form_fields.html" with form=dispose_form %}
+      <div class="form-actions"><button class="btn danger" type="submit">{% translate "Dispose" %}</button></div></form>{% endif %}
+  </div>
+</div>
+<div class="panel"><h2>{% translate "Depreciation posted" %}</h2>
+  <table class="tbl"><thead><tr><th>{% translate "Month" %}</th><th>{% translate "Journal entry" %}</th><th class="num">{% translate "Amount" %}</th></tr></thead>
+  <tbody>{% for l in lines %}<tr><td>{{ l.run.period|date:"m/Y" }}</td><td>{% if l.run.journal_entry_id %}<a href="{% url 'ledger:journal' l.run.journal_entry_id %}">{{ l.run.journal_entry.number }}</a>{% endif %}</td><td class="num">{{ l.amount|num }}</td></tr>
+  {% empty %}<tr><td colspan="3" class="lbl">{% translate "No depreciation posted yet." %}</td></tr>{% endfor %}</tbody></table></div>
+{% attachments asset %}
+{% endblock %}

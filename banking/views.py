@@ -77,7 +77,7 @@ def cheque_list(request):
     form = ChequeActionForm(company=company, initial={"date": timezone.localdate()})
     return render(request, "banking/cheques.html", {
         "cheques": cheques, "direction": direction, "status": status, "summary": summary, "form": form,
-        "statuses": [s for s in Cheque.STATUSES if (s[0] in ("in_safe", "under_collection", "cleared", "bounced")) == (direction == "in")],
+        "statuses": [s for s in Cheque.STATUSES if (s[0] in ("in_safe", "under_collection", "cleared", "bounced", "settled")) == (direction == "in")],
     })
 
 

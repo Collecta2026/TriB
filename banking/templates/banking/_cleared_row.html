@@ -1,0 +1,3 @@
+{% load trib %}<tr><td>#{{ e.cheque.number }}<div class="lbl">{{ e.cheque.source_ref }}</div></td><td>{{ e.cheque.get_direction_display }}</td><td>{{ e.cheque.party_name }}</td><td>{{ e.cheque.issue_date|date:"d/m/Y" }}</td>
+  <td>{{ e.date|date:"d/m/Y" }}{% if e.journal_entry_id %}<div class="lbl"><a href="{% url 'ledger:journal' e.journal_entry_id %}">{{ e.journal_entry.number }}</a></div>{% endif %}</td>
+  <td>{{ e.statement_line.reference|default:"" }}{% if not e.statement_line_id %}<span class="lbl">—</span>{% endif %}</td><td class="num">{{ e.amount|num }}</td></tr>

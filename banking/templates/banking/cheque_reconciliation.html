@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Cheque reconciliation" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'banking:cheques' %}">{% translate "Cheques" %}</a></div><h1>{% translate "Cheque reconciliation" %}</h1>
+  <div class="sub">{% if account %}{{ account.name }} · {{ account.currency_id }} · {{ from|date:"d/m/Y" }} – {{ to|date:"d/m/Y" }}{% endif %}</div></div>
+  <div class="toolbar no-print">{% if account %}<a class="btn" href="?account={{ account.pk }}&from={{ from|date:'Y-m-d' }}&to={{ to|date:'Y-m-d' }}&statement_balance={{ raw_balance }}&format=xlsx">{% translate "Export to Excel" %}</a>{% endif %}
+    <button class="btn" type="button" onclick="window.print()">{% translate "Print / save as PDF" %}</button>
+    {% if can.banking.post %}<a class="btn primary" href="{% url 'banking:transactions_import' %}{% if account %}?account={{ account.pk }}{% endif %}">{% translate "Upload bank statement" %}</a>{% endif %}</div></div>
+{% if not account %}<div class="empty">{% translate "Add a bank account first." %}</div>{% else %}
+<form method="get" class="toolbar no-print">
+  <select name="account" style="width:auto">{% for a in accounts %}<option value="{{ a.pk }}" {% if a.pk == account.pk %}selected{% endif %}>{{ a.name }} · {{ a.currency_id }}</option>{% endfor %}</select>
+  <label class="lbl">{% translate "From" %} <input type="date" name="from" value="{{ from|date:'Y-m-d' }}" style="width:auto"></label>
+  <label class="lbl">{% translate "To" %} <input type="date" name="to" value="{{ to|date:'Y-m-d' }}" style="width:auto"></label>
+  <label class="lbl">{% translate "Statement ending balance" %} <input type="text" inputmode="decimal" name="statement_balance" value="{{ raw_balance }}" style="width:150px"></label>
+  <button class="btn" type="submit">{% translate "Run report" %}</button></form>
+
+<div class="cols">
+  <div class="panel"><h2>{% translate "Bank against books" %}</h2><table class="tbl"><tbody>
+    <tr><td>{% translate "Balance per bank statement" %}</td><td class="num">{% if s.statement is not None %}{{ s.statement|num }}{% else %}<span class="lbl">{% translate "Enter it above" %}</span>{% endif %}</td></tr>
+    <tr><td>{% translate "Less: statement lines not yet in the books" %}</td><td class="num">{{ s.unbooked|num }}</td></tr>
+    <tr><td>{% translate "Balance per books" %}</td><td class="num">{{ s.book|num }}</td></tr>
+  </tbody><tfoot><tr><td>{% translate "Difference" %}</td><td class="num">{% if s.difference is not None %}{% if s.difference %}<span class="pill crit">{{ s.difference|num }}</span>{% else %}<span class="pill good">0.00</span>{% endif %}{% else %}—{% endif %}</td></tr></tfoot></table>
+    <p class="lbl">{% translate "Cleared cheques are already in both balances. Uncleared cheques sit in Cheques payable and Cheques under collection, not in the bank account, so they are not a difference." %}</p></div>
+  <div class="panel"><h2>{% translate "Cheque position" %}</h2><table class="tbl"><tbody>
+    <tr><td>{% translate "Issued cheques cleared in the period" %}</td><td class="num">{{ s.cleared_out|num }}</td></tr>
+    <tr><td>{% translate "Received cheques cleared in the period" %}</td><td class="num">{{ s.cleared_in|num }}</td></tr>
+    <tr><td>{% translate "Outstanding issued cheques" %}</td><td class="num">{{ s.outstanding|num }}</td></tr>
+    <tr><td>{% translate "Received cheques under collection" %}</td><td class="num">{{ s.collection|num }}</td></tr>
+    <tr><td>{% translate "Received cheques in the safe, not deposited" %}</td><td class="num">{{ s.in_safe|num }}</td></tr>
+    <tr><td>{% translate "Cheques returned unpaid in the period" %}</td><td class="num">{{ s.returned|num }}</td></tr>
+  </tbody><tfoot><tr><td>{% translate "Projected balance after outstanding cheques" %}</td><td class="num">{{ s.projected|num }}</td></tr></tfoot></table></div>
+</div>
+
+<div class="panel"><h2>{% translate "Cleared cheques" %}</h2>
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Cheque" %}</th><th>{% translate "Type" %}</th><th>{% translate "Customer / supplier" %}</th><th>{% translate "Cheque date" %}</th><th>{% translate "Cleared on" %}</th><th>{% translate "Statement reference" %}</th><th class="num">{% translate "Amount" %}</th></tr></thead>
+  <tbody>{% for e in cleared_out %}{% include "banking/_cleared_row.html" %}{% endfor %}{% for e in cleared_in %}{% include "banking/_cleared_row.html" %}{% endfor %}
+  {% if not cleared_out and not cleared_in %}<tr><td colspan="7" class="lbl">{% translate "No cheques cleared in this period." %}</td></tr>{% endif %}</tbody></table></div></div>
+
+<div class="panel"><h2>{% translate "Outstanding issued cheques" %} <span class="lbl">· {% translate "not yet presented to the bank" %}</span></h2>
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Cheque" %}</th><th>{% translate "Payee" %}</th><th>{% translate "Cheque date" %}</th><th>{% translate "Due date" %}</th><th class="num">{% translate "Outstanding for" %}</th><th class="num">{% translate "Amount" %}</th></tr></thead>
+  <tbody>{% for c in outstanding %}<tr><td>#{{ c.number }}<div class="lbl">{{ c.source_ref }}</div></td><td>{{ c.party_name }}</td><td>{{ c.issue_date|date:"d/m/Y" }}</td><td>{{ c.due_date|date:"d/m/Y" }}</td>
+    <td class="num">{{ c.issue_date|timesince:to }}</td><td class="num">{{ c.amount|num }}</td></tr>
+  {% empty %}<tr><td colspan="6" class="lbl">{% translate "Every issued cheque has cleared." %}</td></tr>{% endfor %}</tbody></table></div></div>
+
+<div class="cols">
+  <div class="panel"><h2>{% translate "Under collection" %} <span class="lbl">· {% translate "deposited, not yet paid" %}</span></h2>
+    <table class="tbl"><tbody>{% for c in collection %}<tr><td>#{{ c.number }}</td><td>{{ c.party_name }}</td><td>{{ c.due_date|date:"d/m/Y" }}</td><td class="num">{{ c.amount|num }}</td></tr>
+    {% empty %}<tr><td class="lbl">{% translate "Nothing under collection." %}</td></tr>{% endfor %}</tbody></table></div>
+  <div class="panel"><h2>{% translate "In the safe" %} <span class="lbl">· {% translate "received, not yet deposited" %}</span></h2>
+    <table class="tbl"><tbody>{% for c in in_safe %}<tr><td>#{{ c.number }}</td><td>{{ c.party_name }}</td><td>{% if c.due_date <= today %}<span class="pill warn">{{ c.due_date|date:"d/m/Y" }}</span>{% else %}{{ c.due_date|date:"d/m/Y" }}{% endif %}</td><td class="num">{{ c.amount|num }}</td></tr>
+    {% empty %}<tr><td class="lbl">{% translate "No cheques waiting in the safe." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+
+<div class="cols">
+  <div class="panel"><div class="panel-h"><h2>{% translate "Returned unpaid in the period" %}</h2><a class="link no-print" href="{% url 'banking:bounced' %}">{% translate "Returned cheques" %}</a></div>
+    <table class="tbl"><tbody>{% for e in returned %}<tr><td>#{{ e.cheque.number }}</td><td>{{ e.cheque.party_name }}</td><td>{{ e.date|date:"d/m/Y" }}</td><td>{{ e.note }}</td><td class="num">{{ e.amount|num }}</td></tr>
+    {% empty %}<tr><td class="lbl">{% translate "No cheques were returned." %}</td></tr>{% endfor %}</tbody></table></div>
+  <div class="panel"><div class="panel-h"><h2>{% translate "On the statement, not yet in the books" %}</h2><a class="link no-print" href="{% url 'banking:transactions' %}?account={{ account.pk }}">{% translate "Bank transactions" %}</a></div>
+    <table class="tbl"><tbody>{% for l in unbooked %}<tr><td>{{ l.date|date:"d/m/Y" }}</td><td>{{ l.description|truncatechars:40 }}{% if l.reference %}<div class="lbl">{{ l.reference }}</div>{% endif %}</td><td class="num">{{ l.amount|num }}</td></tr>
+    {% empty %}<tr><td class="lbl">{% translate "Everything on the statement is in the books." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% endif %}
+{% endblock %}

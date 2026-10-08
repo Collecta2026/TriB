@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Bank transactions" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Bank transactions" %}</h1>
+  <div class="sub">{% translate "Import your bank statement, then match each line to what is already in TriB or add it to the books." %}</div></div>
+  <div class="toolbar"><a class="btn" href="{% url 'banking:rules' %}">{% translate "Rules" %}</a><a class="btn" href="{% url 'banking:reconcile' %}">{% translate "Reconcile" %}</a>
+    {% if can.banking.post %}<a class="btn primary" href="{% url 'banking:transactions_import' %}">{% translate "Upload statement" %}</a>{% endif %}</div></div>
+{% if not account %}<div class="empty">{% translate "Add a bank account first." %} <a href="{% url 'banking:account_new' %}">{% translate "Add bank account" %}</a></div>{% else %}
+<div class="apps" style="justify-content:flex-start">{% for a in accounts %}<a class="app-p" style="{% if a.pk == account.pk %}border-color:var(--brand){% endif %}" href="?account={{ a.pk }}"><span class="c">{% include "partials/icon.html" with name="bank" %}</span>{{ a.name }} · {{ a.currency_id }}</a>{% endfor %}</div>
+<div class="toolbar">
+  <a class="btn {% if tab == 'new' %}primary{% endif %}" href="?account={{ account.pk }}&tab=new">{% translate "For review" %} ({{ counts.new|default:0 }})</a>
+  <a class="btn {% if tab == 'done' %}primary{% endif %}" href="?account={{ account.pk }}&tab=done">{% translate "Categorised" %} ({{ counts.matched|default:0|add:counts.posted }})</a>
+  <a class="btn {% if tab == 'excluded' %}primary{% endif %}" href="?account={{ account.pk }}&tab=excluded">{% translate "Excluded" %} ({{ counts.excluded|default:0 }})</a></div>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Date" %}</th><th>{% translate "Description" %}</th><th class="num">{% translate "Spent" %}</th><th class="num">{% translate "Received" %}</th><th>{% if tab == "new" %}{% translate "Action" %}{% else %}{% translate "In the books" %}{% endif %}</th></tr></thead>
+  <tbody>{% for r in rows %}{% with l=r.line %}<tr>
+    <td>{{ l.date|date:"d/m/Y" }}</td><td>{{ l.description }}{% if l.reference %}<div class="lbl">{{ l.reference }}</div>{% endif %}</td>
+    <td class="num">{% if l.amount < 0 %}{{ l.amount|absval|num }}{% endif %}</td><td class="num">{% if l.amount > 0 %}{{ l.amount|num }}{% endif %}</td>
+    <td>{% if l.status == "new" and can.banking.post %}
+      {% for c, how in r.cheques %}<form method="post" action="{% url 'banking:transaction_action' l.pk %}" style="margin-bottom:4px">{% csrf_token %}<input type="hidden" name="action" value="cheque"><input type="hidden" name="cheque" value="{{ c.pk }}">
+        <button class="btn sm primary" type="submit">{% translate "Clear cheque" %} #{{ c.number }}</button> <span class="lbl">{{ c.party_name }} · {{ c.amount|num }}</span>
+        {% if how == "number" %}<span class="pill warn">{% translate "Amount differs" %}</span>{% elif how == "amount" %}<span class="pill info">{% translate "Same amount, no cheque number" %}</span>{% endif %}</form>{% endfor %}
+      {% for s in r.suggestions %}<form method="post" action="{% url 'banking:transaction_action' l.pk %}" style="margin-bottom:4px">{% csrf_token %}<input type="hidden" name="action" value="match"><input type="hidden" name="journal_line" value="{{ s.pk }}">
+        <button class="btn sm primary" type="submit">{% translate "Match" %}</button> <span class="lbl">{{ s.entry.number }} · {{ s.entry.date|date:"d/m" }} · {{ s.entry.memo|truncatechars:40 }}</span></form>{% endfor %}
+      <form method="post" action="{% url 'banking:transaction_action' l.pk %}" class="toolbar">{% csrf_token %}<input type="hidden" name="action" value="add">
+        <select name="account" style="width:auto;max-width:240px" required><option value="">{% translate "Categorise as…" %}</option>{% for a in post_accounts %}<option value="{{ a.pk }}" {% if l.rule and l.rule.account_id == a.pk %}selected{% endif %}>{{ a.code }} · {{ a.name }}</option>{% endfor %}</select>
+        <input type="text" name="memo" value="{{ l.rule.memo|default:'' }}" placeholder="{% translate 'Memo' %}" style="width:140px">
+        <button class="btn sm" type="submit">{% translate "Add" %}</button></form>
+      <form method="post" action="{% url 'banking:transaction_action' l.pk %}" style="display:inline">{% csrf_token %}<button class="btn sm danger" name="action" value="exclude">{% translate "Exclude" %}</button></form>
+      {% if l.rule %}<span class="pill info">{% translate "Rule" %}: {{ l.rule.name }}</span>{% endif %}
+    {% elif l.status == "excluded" %}{% if can.banking.post %}<form method="post" action="{% url 'banking:transaction_action' l.pk %}">{% csrf_token %}<button class="btn sm" name="action" value="restore">{% translate "Undo" %}</button></form>{% endif %}
+    {% elif l.journal_line %}<span class="pill good">{{ l.get_status_display }}</span> <a href="{% url 'ledger:journal' l.journal_line.entry_id %}">{{ l.journal_line.entry.number }}</a>{% endif %}</td>
+  </tr>{% endwith %}{% empty %}<tr><td colspan="5" class="lbl">{% translate "Nothing here. Upload a statement to start." %}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% include "partials/pager.html" %}
+{% endif %}
+{% endblock %}

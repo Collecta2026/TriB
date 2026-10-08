@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ cfg.title }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% if kind == 'customer' %}{% url 'contacts:customers' %}{% else %}{% url 'contacts:suppliers' %}{% endif %}">{{ cfg.plural }}</a></div>
+  <h1>{% if obj.pk %}{{ obj.name }}{% else %}{{ cfg.title }}{% endif %}</h1><div class="sub">{% translate "Leave the code empty to number it automatically." %}</div></div></div>
+<div class="panel"><form method="post" class="form">{% csrf_token %}
+  {% include "partials/form_fields.html" %}
+  <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button></div>
+</form></div>
+{% endblock %}

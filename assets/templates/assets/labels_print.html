@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Asset labels" %}{% endblock %}
+{% block content %}
+<div class="toolbar no-print"><a class="btn" href="{% url 'assets:labels' %}">‹ {% translate "Back" %}</a><button class="btn primary" type="button" onclick="window.print()">{% translate "Print" %}</button></div>
+<div class="labels">{% for a in assets %}<div class="label"><div class="t">{{ company.name_en }} · {{ a.name_en }}</div>{% barcode a.number 1 50 %}</div>{% endfor %}</div>
+{% endblock %}

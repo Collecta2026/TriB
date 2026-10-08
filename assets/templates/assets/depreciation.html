@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Depreciation" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'assets:list' %}">{% translate "Asset register" %}</a></div><h1>{% translate "Depreciation" %}</h1>
+  <div class="sub">{% translate "Post one month at a time, in order. Each run posts one journal entry per category." %}</div></div></div>
+<div class="cols">
+  <div class="panel"><div class="panel-h"><h2>{% blocktranslate with m=month|date:"m/Y" %}Preview for {{ m }}{% endblocktranslate %}</h2></div>
+    <div class="toolbar"><form method="get" class="toolbar"><input type="month" name="month" value="{{ month|date:'Y-m' }}" style="width:auto" aria-label="{% translate 'Month' %}">
+      <button class="btn" type="submit">{% translate "Preview" %}</button></form>
+      {% if can.assets.post %}<form method="post">{% csrf_token %}<input type="hidden" name="month" value="{{ month|date:'Y-m' }}">
+        <button class="btn primary" type="submit">{% blocktranslate with m=month|date:"m/Y" %}Post depreciation for {{ m }}{% endblocktranslate %}</button></form>{% endif %}</div>
+    <table class="tbl" style="margin-top:12px"><thead><tr><th>{% translate "Asset" %}</th><th>{% translate "Category" %}</th><th class="num">{% translate "Amount" %}</th></tr></thead>
+    <tbody>{% for a, c in preview %}<tr><td><a href="{% url 'assets:detail' a.pk %}">{{ a.number }}</a> {{ a.name }}</td><td>{{ a.category.name }}</td><td class="num">{{ c|num }}</td></tr>
+    {% empty %}<tr><td colspan="3" class="lbl">{% translate "Nothing to depreciate for this month." %}</td></tr>{% endfor %}</tbody>
+    <tfoot><tr><td colspan="2">{% translate "Total" %}</td><td class="num">{{ preview_total|num }}</td></tr></tfoot></table></div>
+  <div class="panel"><h2>{% translate "Posted months" %}</h2>
+    <table class="tbl"><thead><tr><th>{% translate "Month" %}</th><th>{% translate "Journal entry" %}</th><th class="num">{% translate "Amount" %}</th></tr></thead>
+    <tbody>{% for r, total in runs %}<tr><td>{{ r.period|date:"m/Y" }}</td><td>{% if r.journal_entry_id %}<a href="{% url 'ledger:journal' r.journal_entry_id %}">{{ r.journal_entry.number }}</a>{% endif %}</td><td class="num">{{ total|num }}</td></tr>
+    {% empty %}<tr><td colspan="3" class="lbl">{% translate "No depreciation posted yet." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% endblock %}

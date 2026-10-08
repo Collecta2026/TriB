@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Reconcile" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'banking:reconcile' %}">{% translate "Reconcile" %}</a></div>
+  <h1>{{ rec.bank_account.name }} <span class="pill {% if rec.status == 'done' %}good{% else %}info{% endif %}">{{ rec.get_status_display }}</span></h1>
+  <div class="sub">{% translate "Statement end date" %} {{ rec.statement_date|date:"d/m/Y" }} · {{ rec.bank_account.currency_id }}</div></div></div>
+<div class="kpis">
+  <div class="kpi"><span class="lbl">{% translate "Statement ending balance" %}</span><span class="n">{{ rec.statement_balance|num }}</span></div>
+  <div class="kpi"><span class="lbl">{% translate "Beginning balance" %}</span><span class="n">{{ rec.opening_balance|num }}</span></div>
+  <div class="kpi"><span class="lbl">{% translate "Cleared" %}</span><span class="n">{{ cleared|num }}</span></div>
+  <div class="kpi {% if difference %}crit{% endif %}"><span class="lbl">{% translate "Difference" %}</span><span class="n">{{ difference|num }}</span></div>
+</div>
+<form method="post">{% csrf_token %}
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th class="sel-col">✓</th><th>{% translate "Date" %}</th><th>{% translate "Entry" %}</th><th>{% translate "Description" %}</th><th class="num">{% translate "Payment" %}</th><th class="num">{% translate "Deposit" %}</th></tr></thead>
+  <tbody>{% for r in lines %}<tr><td><input type="checkbox" name="cleared" value="{{ r.l.pk }}" {% if r.cleared %}checked{% endif %} {% if rec.status != "open" %}disabled{% endif %}></td>
+    <td>{{ r.l.entry.date|date:"d/m/Y" }}</td><td><a href="{% url 'ledger:journal' r.l.entry_id %}">{{ r.l.entry.number }}</a></td><td>{{ r.l.description|default:r.l.entry.memo }}</td>
+    <td class="num">{% if r.amount < 0 %}{{ r.amount|absval|num }}{% endif %}</td><td class="num">{% if r.amount > 0 %}{{ r.amount|num }}{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="6" class="lbl">{% translate "No transactions up to the statement date." %}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% if rec.status == "open" and can.banking.post %}<div class="form-actions" style="margin-top:12px"><button class="btn" type="submit">{% translate "Save for later" %}</button><button class="btn primary" type="submit" name="finish" value="1">{% translate "Finish now" %}</button></div>{% endif %}
+</form>
+{% endblock %}

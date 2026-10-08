@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Upload statement" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'banking:transactions_import' %}">{% translate "Upload statement" %}</a></div><h1>{% translate "Match the columns" %}</h1>
+  <div class="sub">{{ account.name }} · {% blocktranslate %}{{ total }} rows in the file{% endblocktranslate %}</div></div></div>
+<form method="post" class="form">{% csrf_token %}
+  <div class="panel"><div class="fields">
+    {% for key, label in fields %}<div class="field"><label for="f_{{ key }}">{{ label }}</label><select name="{{ key }}" id="f_{{ key }}"><option value="">—</option>
+      {% for c in columns %}<option value="{{ c }}" {% if guess|get:key == c %}selected{% endif %}>{% translate "Column" %} {{ c|add:1 }}{% with h=preview.0|index:c %}{% if h %} · {{ h|truncatechars:30 }}{% endif %}{% endwith %}</option>{% endfor %}</select></div>{% endfor %}
+  </div>
+  <label class="check" style="margin-top:12px"><input type="checkbox" name="header" value="1" checked> {% translate "The first row is a heading" %}</label></div>
+  <div class="table-wrap"><table class="tbl"><thead><tr>{% for c in columns %}<th>{% translate "Column" %} {{ c|add:1 }}</th>{% endfor %}</tr></thead>
+    <tbody>{% for row in preview %}<tr>{% for v in row %}<td>{{ v }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>
+  <div class="form-actions"><button class="btn primary" type="submit">{% translate "Import" %}</button><a class="btn" href="{% url 'banking:transactions_import' %}">{% translate "Cancel" %}</a></div>
+</form>
+{% endblock %}

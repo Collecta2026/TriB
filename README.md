@@ -34,8 +34,34 @@ icon rail, top bar with search, greeting, business feed, create actions and "Bus
 - **Add-ons switch.** Egypt tax & ETA, Trading & imports, GCC pack, Payroll and Planning can be switched on or off
   per company in Settings (the modules themselves arrive in later releases).
 
-Coming next: sales and supplier invoices, VAT and withholding tax, ETA e-invoicing (Release 1b), then inventory,
-imports and landed cost (Release 2), planning and cash forecast (Release 3), GCC pack (Release 4).
+## What Release 2 adds
+
+- **QuickBooks menu.** Create, Bookmarks (star any page), Home, Reports, All apps with submenus, pinned apps you
+  choose under Customise. Apps: Accounting, Expenses & Bills, Sales & Get Paid, Customer Hub, Payroll, Team,
+  Projects, Inventory, Fixed assets, Banking, VAT, Approvals.
+- **Dashboard blocks.** Sales of the last 90 days by category (machines, supplies) and best sellers, invoices,
+  accounts receivable ageing, bank balances, open customer orders, accounts payable, stock and expiry alerts.
+- **Sales.** Quotations → sales orders → invoices (credit limits, serial numbers), customer payments with receipts,
+  customer statements, year-end balance confirmation letters.
+- **Purchasing.** Purchase orders with approval → item receipts (GRN) → bills. Goods not yet received are tracked;
+  price differences go to purchase price variance; remittance advice for every supplier payment.
+- **Inventory.** Unique SKUs per category, FIFO costing, serial numbers for machines, batch and **expiry date**
+  recorded on every receipt and stock movement (required for batch items; expired stock can't be invoiced),
+  multiple warehouses, transfers, adjustments, barcode stock take, Code 128 labels.
+- **Fixed assets.** Asset numbers, straight-line depreciation by month, disposals, barcode asset count, labels.
+- **Team & payroll.** Import staff from the monthly payroll workbook; Egyptian social insurance and salary tax;
+  HR → Finance Manager → Managing Director sign-off; the run posts its journal by department cost centre;
+  salary payment, NOSI / tax / medical pay-overs, payslips, and a deductions extract to Excel.
+- **Banking.** Statement upload (CSV or Excel, any bank), match or categorise each line, bank rules, reconciliation.
+- **Cheques.** Cheques on the uploaded statement are found by number and amount and cleared automatically
+  (issued: Dr Cheques payable / Cr Bank; received: Dr Bank / Cr Cheques under collection); near matches wait for
+  you. Returned cheques are recorded from the bank's list, go back on the customer's account, and are then
+  resubmitted to the bank or settled in cash or by transfer. A cheque reconciliation report (print and Excel)
+  shows cleared, outstanding, under collection, in the safe and returned cheques against the bank balance.
+- **More.** Attachments on documents, receipts inbox, recurring transactions, projects with profit, VAT rates and
+  the monthly VAT return, AR/AP ageing, sales by product, stock valuation.
+
+Coming next: ETA e-invoicing, imports and landed cost, planning and cash forecast (Release 3), GCC pack (Release 4).
 
 ## Run it on your PC
 
@@ -70,11 +96,17 @@ cheques. It only runs when `DEBUG=1`.
 
 **Without Git (upload in the browser)**
 
-1. On github.com, create a new **private** repository called `trib`. Don't add a README.
-2. On the empty repository page, click **uploading an existing file**.
-3. Unzip `trib-github.zip`, open the `trib` folder inside it, select everything (including `.github`,
-   `.gitignore` and `.python-version`) and drag it onto the upload page. Then click **Commit changes**.
-4. Check that `config`, `core`, `templates`, `render.yaml` and `manage.py` sit at the top level of the repository.
+GitHub's upload page takes at most 100 files at a time, so the code comes in numbered parts
+(`trib-upload-part1.zip`, `part2`, …). In Render, turn **Auto-Deploy** off first so it doesn't build half-uploaded code.
+
+1. On github.com, create a new **private** repository called `trib` (once). Don't add a README.
+2. For each part in order: unzip it, open **Add file → Upload files** on the repository page, select everything
+   inside the unzipped folder (including hidden items such as `.github`) and drag it in. Click **Commit changes**.
+3. Check that `config`, `core`, `templates`, `render.yaml` and `manage.py` sit at the top level of the repository.
+4. Turn Auto-Deploy back on in Render, or click **Manual Deploy → Deploy latest commit**.
+
+**With GitHub Desktop** (no command line): install it from desktop.github.com, clone your `trib` repository,
+copy the contents of the `trib` folder from `trib-github.zip` into it, then **Commit to main** and **Push origin**.
 
 **With Git** (`winget install --id Git.Git -e`, then reopen the terminal):
 

@@ -47,12 +47,21 @@ INSTALLED_APPS = [
     "core",
     "users",
     "ledger",
+    "contacts",
     "banking",
     "approvals",
     "vouchers",
+    "inventory",
+    "sales",
+    "purchases",
+    "assets",
+    "team",
+    "payroll",
     "reports",
     "dashboard",
 ]
+DATA_UPLOAD_MAX_MEMORY_SIZE = 12 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 12 * 1024 * 1024
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

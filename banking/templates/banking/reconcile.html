@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Reconcile" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Reconcile" %}</h1><div class="sub">{% translate "Tick off each transaction that appears on the bank statement until the difference is zero." %}</div></div></div>
+<div class="cols">
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Account" %}</th><th>{% translate "Statement end date" %}</th><th class="num">{% translate "Statement ending balance" %}</th><th>{% translate "Status" %}</th></tr></thead>
+    <tbody>{% for r in rows %}<tr><td><a href="{% url 'banking:reconciliation' r.pk %}">{{ r.bank_account.name }}</a></td><td>{{ r.statement_date|date:"d/m/Y" }}</td><td class="num">{{ r.statement_balance|num }}</td><td><span class="pill {% if r.status == 'done' %}good{% else %}info{% endif %}">{{ r.get_status_display }}</span></td></tr>
+    {% empty %}<tr><td colspan="4" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody></table></div>
+  {% if can.banking.post %}<div class="panel"><h2>{% translate "Start reconciling" %}</h2>
+    <form method="post" class="form">{% csrf_token %}{% include "partials/form_fields.html" %}
+      <div class="form-actions"><button class="btn primary" type="submit">{% translate "Start" %}</button></div></form></div>{% endif %}
+</div>
+{% endblock %}

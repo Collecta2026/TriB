@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Rules" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'banking:transactions' %}">{% translate "Bank transactions" %}</a></div><h1>{% translate "Bank rules" %}</h1>
+  <div class="sub">{% translate "When a statement line's description contains the text, TriB suggests the account — or posts it straight away if you tick automatic." %}</div></div></div>
+<div class="cols">
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Priority" %}</th><th>{% translate "Rule name" %}</th><th>{% translate "Description contains" %}</th><th>{% translate "Categorise as" %}</th><th>{% translate "Automatic" %}</th><th></th></tr></thead>
+    <tbody>{% for r in rows %}<tr><td>{{ r.priority }}</td><td>{{ r.name }}{% if not r.is_active %} <span class="pill">{% translate "Inactive" %}</span>{% endif %}</td><td>“{{ r.contains }}” · {{ r.get_direction_display }}</td><td>{{ r.account.code }} · {{ r.account.name }}</td><td>{% if r.auto_post %}✓{% endif %}</td>
+      <td>{% if can.banking.edit %}<a class="link" href="?edit={{ r.pk }}">{% translate "Edit" %}</a>{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="6" class="lbl">{% translate "No rules yet. Bank charges and card fees are good first rules." %}</td></tr>{% endfor %}</tbody></table></div>
+  {% if form %}<div class="panel"><h2>{% if obj %}{% translate "Edit rule" %}{% else %}{% translate "New rule" %}{% endif %}</h2>
+    <form method="post" class="form">{% csrf_token %}{% if obj %}<input type="hidden" name="pk" value="{{ obj.pk }}">{% endif %}
+      {% include "partials/form_fields.html" %}
+      <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button></div></form></div>{% endif %}
+</div>
+{% endblock %}

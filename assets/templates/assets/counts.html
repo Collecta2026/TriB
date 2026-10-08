@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Asset count" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'assets:list' %}">{% translate "Asset register" %}</a></div><h1>{% translate "Asset count" %}</h1>
+  <div class="sub">{% translate "Walk the site and scan each asset label. Anything not scanned shows as missing." %}</div></div></div>
+<div class="cols">
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Number" %}</th><th>{% translate "Date" %}</th><th>{% translate "Location" %}</th><th>{% translate "Status" %}</th></tr></thead>
+    <tbody>{% for c in rows %}<tr><td><a href="{% url 'assets:count' c.pk %}">{{ c.number }}</a></td><td>{{ c.date|date:"d/m/Y" }}</td><td>{{ c.branch|default:"" }} {{ c.warehouse|default:"" }}{% if not c.branch and not c.warehouse %}{% translate "All assets" %}{% endif %}</td>
+      <td><span class="pill {% if c.status == 'open' %}info{% else %}good{% endif %}">{{ c.get_status_display }}</span></td></tr>
+    {% empty %}<tr><td colspan="4" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody></table></div>
+  {% if can.assets.create %}<div class="panel"><h2>{% translate "Start an asset count" %}</h2>
+    <form method="post" class="form">{% csrf_token %}{% include "partials/form_fields.html" %}
+      <div class="form-actions"><button class="btn primary" type="submit">{% translate "Start counting" %}</button></div></form></div>{% endif %}
+</div>
+{% endblock %}
