@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ count.number }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'inventory:counts' %}">{% translate "Stock take" %}</a></div>
+  <h1>{% translate "Stock take" %} · {{ count.number }} <span class="pill {{ count.status|pill_class }}">{% if count.status == "draft" %}{% translate "Counting" %}{% else %}{{ count.get_status_display }}{% endif %}</span></h1>
+  <div class="sub">{{ count.date|date:"d/m/Y" }} · {{ count.warehouse }} · {% blocktranslate with a=counted b=lines|length %}{{ a }} of {{ b }} counted{% endblocktranslate %}
+    {% if count.adjustment_id %} · <a href="{% url 'inventory:adjustment' count.adjustment_id %}">{{ count.adjustment.number }}</a>{% endif %}</div></div>
+  <div class="toolbar"><a class="btn" href="{% url 'inventory:count_sheet' count.pk %}">{% translate "Count sheet" %}</a>
+    {% if count.status == "draft" and can.inventory.post %}<form method="post" action="{% url 'inventory:count_post' count.pk %}" onsubmit="return confirm('{% translate "Post the differences to stock and the ledger?" %}')">{% csrf_token %}<button class="btn primary">{% translate "Post differences" %}</button></form>{% endif %}</div>
+</div>
+{% if count.status == "draft" and can.inventory.edit %}
+<div class="panel" id="scan"><h2>{% translate "Scan" %}</h2>
+  <form method="post" class="scan">{% csrf_token %}
+    <input type="text" name="code" autofocus autocomplete="off" placeholder="{% translate 'Scan or type a barcode or SKU' %}">
+    <input type="number" name="qty" value="1" step="any" min="0" aria-label="{% translate 'Quantity' %}">
+    <button class="btn primary" type="submit">{% translate "Add" %}</button></form>
+  <p class="lbl">{% translate "Each scan adds the quantity to the item's count. Scanners that send Enter after the code work without touching the keyboard." %}</p>
+</div>
+{% endif %}
+<form method="post">{% csrf_token %}
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "SKU" %}</th><th>{% translate "Product" %}</th><th class="num">{% translate "Expected" %}</th><th class="num">{% translate "Counted" %}</th><th class="num">{% translate "Difference" %}</th></tr></thead>
+  <tbody>{% for l in lines %}<tr><td>{{ l.item.sku }}</td><td>{{ l.item.name }}</td><td class="num">{{ l.expected_qty|num:3 }}</td>
+    <td class="num">{% if count.status == "draft" and can.inventory.edit %}<input type="number" step="any" min="0" name="counted_{{ l.pk }}" value="{{ l.counted_qty|default_if_none:'' }}" style="width:120px">{% else %}{{ l.counted_qty|default_if_none:"—" }}{% endif %}</td>
+    <td class="num">{% if l.difference %}<span class="pill {% if l.difference < 0 %}crit{% else %}warn{% endif %}">{{ l.difference|num:3 }}</span>{% elif l.counted_qty is not None %}<span class="pill good">✓</span>{% endif %}</td></tr>
+  {% endfor %}</tbody>
+</table></div>
+{% if count.status == "draft" and can.inventory.edit %}<div class="form-actions" style="margin-top:12px"><button class="btn" type="submit">{% translate "Save counts" %}</button></div>{% endif %}
+</form>
+{% endblock %}

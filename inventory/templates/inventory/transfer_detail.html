@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ doc }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'inventory:transfers' %}">{% translate "Stock transfers" %}</a></div>
+  <h1>{% translate "Stock transfer" %} · {{ doc.number|default:_("Draft") }} <span class="pill {{ doc.status|pill_class }}">{{ doc.get_status_display }}</span></h1>
+  <div class="sub">{{ doc.date|date:"d/m/Y" }} · {{ doc.from_warehouse }} → {{ doc.to_warehouse }}{% if doc.notes %} · {{ doc.notes }}{% endif %}</div></div>
+  {% if doc.status == "draft" %}<div class="toolbar">{% if can.inventory.edit %}<a class="btn" href="{% url 'inventory:transfer_edit' doc.pk %}">{% translate "Edit" %}</a>{% endif %}
+    {% if can.inventory.post %}<form method="post" action="{% url 'inventory:transfer_post' doc.pk %}">{% csrf_token %}<button class="btn primary">{% translate "Post transfer" %}</button></form>{% endif %}</div>{% endif %}
+</div>
+<div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Product" %}</th><th class="num">{% translate "Quantity" %}</th><th>{% translate "Serial numbers" %}</th></tr></thead>
+  <tbody>{% for l in lines %}<tr><td><a href="{% url 'inventory:item' l.item_id %}">{{ l.item.sku }}</a> {{ l.item.name }}</td><td class="num">{{ l.qty|num:3 }}</td><td>{{ l.serials }}</td></tr>{% endfor %}</tbody></table></div>
+{% include "inventory/_moves.html" %}
+{% attachments doc %}
+{% endblock %}

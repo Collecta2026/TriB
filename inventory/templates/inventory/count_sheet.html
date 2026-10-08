@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ count.number }}{% endblock %}
+{% block content %}
+<div class="toolbar no-print"><a class="btn" href="{% url 'inventory:count' count.pk %}">‹ {% translate "Back" %}</a><button class="btn primary" type="button" onclick="window.print()">{% translate "Print / save as PDF" %}</button></div>
+<div class="voucher-doc">
+  <div class="vh"><div><b>{{ company.name_en }}</b></div>
+    <div class="vt"><h1>Stock Count Sheet</h1><h1 class="ar">كشف جرد المخزون</h1><div><b>{{ count.number }}</b></div></div>
+    <div class="ar" style="text-align:start"><b>{{ company.name_ar }}</b></div></div>
+  <div class="bi"><div>Warehouse / المخزن: <b>{{ count.warehouse.name_en }}</b></div><div>Date / التاريخ: {{ count.date|date:"d/m/Y" }}</div></div>
+  <table><thead><tr><th>#</th><th>SKU</th><th>Item / الصنف</th><th>Barcode</th><th class="num">Counted / المعدود</th></tr></thead>
+    <tbody>{% for l in lines %}<tr><td>{{ forloop.counter }}</td><td>{{ l.item.sku }}</td><td>{{ l.item.name_en }}<div class="ar">{{ l.item.name_ar }}</div></td><td style="width:180px">{% barcode l.item.scan_code 1 30 %}</td><td style="width:110px"></td></tr>{% endfor %}</tbody></table>
+  <div class="sigs"><div class="sig">Counted by / القائم بالجرد</div><div class="sig">Checked by / المراجع</div><div class="sig">Storekeeper / أمين المخزن</div></div>
+</div>
+{% endblock %}

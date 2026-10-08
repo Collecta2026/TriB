@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Recurring transactions" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Recurring transactions" %}</h1><div class="sub">{% translate "Rent, subscriptions, service contracts: TriB copies the document as a draft on each date for you to check and post." %}</div></div>
+  <form method="post">{% csrf_token %}<button class="btn primary" name="run" value="1">{% translate "Create due drafts now" %}{% if due %} ({{ due }}){% endif %}</button></form></div>
+<div class="cols">
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Name" %}</th><th>{% translate "Type" %}</th><th>{% translate "Copies" %}</th><th>{% translate "Repeat" %}</th><th>{% translate "Next date" %}</th><th></th></tr></thead>
+    <tbody>{% for t, src in rows %}<tr><td>{{ t.name }}{% if not t.is_active %} <span class="pill">{% translate "Stopped" %}</span>{% endif %}</td><td>{{ t.get_kind_display }}</td><td>{{ src.number|default:"—" }}</td><td>{{ t.get_frequency_display }}</td>
+      <td>{% if t.is_active and t.next_date <= today %}<span class="pill warn">{{ t.next_date|date:"d/m/Y" }}</span>{% else %}{{ t.next_date|date:"d/m/Y" }}{% endif %}</td>
+      <td><form method="post">{% csrf_token %}<button class="btn sm" name="stop" value="{{ t.pk }}">{% if t.is_active %}{% translate "Stop" %}{% else %}{% translate "Restart" %}{% endif %}</button></form></td></tr>
+    {% empty %}<tr><td colspan="6" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody></table></div>
+  <div class="panel"><h2>{% translate "New recurring transaction" %}</h2>
+    <form method="post" class="form">{% csrf_token %}{% include "partials/form_fields.html" %}
+      <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button></div></form></div>
+</div>
+{% endblock %}

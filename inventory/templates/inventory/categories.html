@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Categories" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'inventory:items' %}">{% translate "Products & services" %}</a></div><h1>{% translate "Categories" %}</h1>
+  <div class="sub">{% translate "The prefix starts every new SKU in the category, for example MCH-00001 for machines and SUP-00001 for supplies." %}</div></div></div>
+<div class="cols">
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "SKU prefix" %}</th><th>{% translate "Name" %}</th><th></th></tr></thead>
+    <tbody>{% for c in rows %}<tr><td><b>{{ c.prefix }}</b></td><td>{{ c.name_en }}{% if c.name_ar %}<div class="lbl">{{ c.name_ar }}</div>{% endif %}</td>
+      <td>{% if can.inventory.edit %}<a class="link" href="?edit={{ c.pk }}">{% translate "Edit" %}</a>{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="3" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody></table></div>
+  {% if form %}<div class="panel"><h2>{% if obj %}{% translate "Edit category" %}{% else %}{% translate "Add category" %}{% endif %}</h2>
+    <form method="post" class="form">{% csrf_token %}{% if obj %}<input type="hidden" name="pk" value="{{ obj.pk }}">{% endif %}
+      {% include "partials/form_fields.html" %}
+      <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button>{% if obj %}<a class="btn" href="{% url 'inventory:categories' %}">{% translate "Cancel" %}</a>{% endif %}</div></form></div>{% endif %}
+</div>
+{% endblock %}

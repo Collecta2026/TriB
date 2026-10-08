@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Receipts" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Receipts" %}</h1>
+  <div class="sub">{% translate "Upload photos or PDFs of receipts and supplier invoices as they come in. Record each one as a payment voucher or bill, then attach the receipt to it." %}</div></div></div>
+<div class="panel"><form method="post" enctype="multipart/form-data" class="toolbar">{% csrf_token %}
+  <input type="file" name="files" multiple accept=".pdf,.png,.jpg,.jpeg,.heic,.webp" required>
+  <button class="btn primary" type="submit">{% translate "Upload" %}</button></form></div>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "File" %}</th><th>{% translate "Uploaded" %}</th><th>{% translate "Record" %}</th><th>{% translate "Attach to" %}</th></tr></thead>
+  <tbody>{% for a in rows %}<tr><td><a href="{% url 'core:attachment' a.pk %}" target="_blank" rel="noopener">{{ a.filename }}</a><div class="lbl">{{ a.size|filesize }}</div></td>
+    <td>{{ a.uploaded_at|date:"d/m/Y H:i" }}<div class="lbl">{{ a.uploaded_by|default:"" }}</div></td>
+    <td><a class="btn sm" href="{% url 'vouchers:new' 'payment' %}" target="_blank" rel="noopener">{% translate "Payment voucher" %}</a> {% if can.purchases.create %}<a class="btn sm" href="{% url 'purchases:bill_new' %}" target="_blank" rel="noopener">{% translate "Bill" %}</a>{% endif %}</td>
+    <td><form method="post" action="{% url 'core:receipt_attach' a.pk %}" class="toolbar">{% csrf_token %}{{ form.kind }}<input type="text" name="number" placeholder="{% translate 'Number, e.g. PV-2026-00012' %}" style="width:190px">
+      <button class="btn sm primary" type="submit">{% translate "Attach" %}</button><button class="btn sm danger" type="submit" name="discard" value="1">{% translate "Remove" %}</button></form></td></tr>
+  {% empty %}<tr><td colspan="4" class="lbl">{% translate "No receipts waiting." %}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

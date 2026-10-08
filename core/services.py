@@ -41,6 +41,8 @@ def bootstrap_company(*, name_en, name_ar, base_currency="EGP", owner, extra_cur
     create_bank_account(company, kind="cash", currency=base_currency, name_en="Main cash box",
                         name_ar="الخزينة الرئيسية", user=owner)
     install_default_rules(company, roles)
+    from inventory.models import Warehouse
+    Warehouse.objects.create(company=company, code="MAIN", name_en="Main warehouse", name_ar="المخزن الرئيسي")
     membership = Membership.objects.create(user=owner, company=company, is_owner=True)
     membership.roles.add(roles["admin"])
     AuditLog.record(company, owner, "company.created", company, name_en)

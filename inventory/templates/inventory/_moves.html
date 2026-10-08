@@ -1,0 +1,5 @@
+{% load i18n trib %}{% if moves %}<div class="panel"><h2>{% translate "Stock movements" %}</h2>
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Product" %}</th><th>{% translate "Warehouse" %}</th><th>{% translate "Type" %}</th><th>{% translate "Serial / batch" %}</th><th>{% translate "Expiry date" %}</th><th class="num">{% translate "Qty" %}</th><th class="num">{% translate "Unit cost" %}</th><th class="num">{% translate "Value" %}</th></tr></thead>
+  <tbody>{% for m in moves %}<tr><td><a href="{% url 'inventory:item' m.item_id %}">{{ m.item.sku }}</a> {{ m.item.name }}</td><td>{{ m.warehouse.code }}</td><td>{{ m.get_kind_display }}</td><td>{{ m.serial_no|default:m.batch_no }}</td><td>{{ m.expiry_date|date:"d/m/Y" }}</td>
+    <td class="num">{{ m.qty|num:3 }}</td><td class="num">{{ m.unit_cost|num }}</td><td class="num">{{ m.value|num }}</td></tr>{% endfor %}</tbody></table></div>
+</div>{% endif %}

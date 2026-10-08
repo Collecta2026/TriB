@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Barcode labels" %}{% endblock %}
+{% block content %}
+<div class="toolbar no-print"><a class="btn" href="{% url 'inventory:labels' %}">‹ {% translate "Back" %}</a><button class="btn primary" type="button" onclick="window.print()">{% translate "Print" %}</button>
+  <span class="lbl">{% blocktranslate count n=labels|length %}{{ n }} label{% plural %}{{ n }} labels{% endblocktranslate %}</span></div>
+<div class="labels">{% for i in labels %}<div class="label"><div class="t">{{ i.name_en }}</div>{% barcode i.scan_code 1 50 %}{% if i.scan_code != i.sku %}<div class="t">{{ i.sku }}</div>{% endif %}</div>{% endfor %}</div>
+{% endblock %}

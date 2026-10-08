@@ -1,0 +1,5 @@
+{% load i18n %}<tr>
+  {% for f in lf.visible_fields %}{% if f.name != "DELETE" %}<td data-field="{{ f.name }}">{% if forloop.first %}{% for h in lf.hidden_fields %}{{ h }}{% endfor %}{% endif %}{{ f }}{% if f.errors %}<div class="err">{{ f.errors|join:" " }}</div>{% endif %}</td>{% endif %}{% endfor %}
+  <td class="del"><span hidden>{{ lf.DELETE }}</span><button class="btn sm danger" type="button" data-del-line aria-label="{% translate 'Remove line' %}">×</button></td>
+</tr>
+{% if lf.non_field_errors %}<tr><td colspan="12" class="err">{{ lf.non_field_errors|join:" " }}</td></tr>{% endif %}

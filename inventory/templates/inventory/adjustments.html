@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Stock adjustments" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Stock adjustments" %}</h1><div class="sub">{% translate "Opening stock, damaged or expired goods, and stock take differences." %}</div></div>
+  {% if can.inventory.create %}<div class="toolbar"><a class="btn" href="{% url 'inventory:adjustment_new' %}?reason=opening">{% translate "Opening stock" %}</a><a class="btn primary" href="{% url 'inventory:adjustment_new' %}">+ {% translate "Stock adjustment" %}</a></div>{% endif %}</div>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Number" %}</th><th>{% translate "Date" %}</th><th>{% translate "Warehouse" %}</th><th>{% translate "Reason" %}</th><th>{% translate "Notes" %}</th><th>{% translate "Status" %}</th></tr></thead>
+  <tbody>{% for d in page %}<tr><td><a href="{% url 'inventory:adjustment' d.pk %}">{{ d.number|default:_("Draft") }}</a></td><td>{{ d.date|date:"d/m/Y" }}</td><td>{{ d.warehouse.code }}</td><td>{{ d.get_reason_display }}</td><td>{{ d.notes }}</td><td><span class="pill {{ d.status|pill_class }}">{{ d.get_status_display }}</span></td></tr>
+  {% empty %}<tr><td colspan="6" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% include "partials/pager.html" %}
+{% endblock %}

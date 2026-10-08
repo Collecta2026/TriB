@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Customise menu" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Customise your menu" %}</h1><div class="sub">{% translate "Pin the apps you use most. They appear on the left menu under Pinned." %}</div></div>
+  <a class="btn" href="?reset=1">{% translate "Reset to default" %}</a></div>
+<form method="post" class="form">{% csrf_token %}
+  <div class="glance">{% for a in apps %}
+    <label class="blk" style="min-height:0;cursor:pointer"><div class="bh"><h3>{% include "partials/icon.html" with name=a.icon %} {{ a.label }}</h3><input type="checkbox" name="pinned" value="{{ a.key }}" {% if a.key in pinned %}checked{% endif %} style="width:18px;height:18px"></div>
+      <div class="lbl">{% for i in a.items %}{{ i.label }}{% if not forloop.last %} · {% endif %}{% endfor %}</div></label>{% endfor %}</div>
+  <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button></div>
+</form>
+{% endblock %}

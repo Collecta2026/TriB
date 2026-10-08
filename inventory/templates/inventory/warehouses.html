@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Warehouses" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Warehouses" %}</h1><div class="sub">{% translate "Each warehouse keeps its own stock, serial numbers and batches." %}</div></div></div>
+<div class="cols">
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Code" %}</th><th>{% translate "Name" %}</th><th>{% translate "Branch" %}</th><th>{% translate "Status" %}</th><th></th></tr></thead>
+    <tbody>{% for w in rows %}<tr><td><b>{{ w.code }}</b></td><td><a href="{% url 'inventory:stock' %}?warehouse={{ w.pk }}">{{ w.name_en }}</a>{% if w.name_ar %}<div class="lbl">{{ w.name_ar }}</div>{% endif %}{% if w.address %}<div class="lbl">{{ w.address }}</div>{% endif %}</td>
+      <td>{{ w.branch|default:"" }}</td><td>{% if w.is_active %}<span class="pill good">{% translate "Active" %}</span>{% else %}<span class="pill">{% translate "Inactive" %}</span>{% endif %}</td>
+      <td>{% if can.inventory.edit %}<a class="link" href="?edit={{ w.pk }}">{% translate "Edit" %}</a>{% endif %}</td></tr>
+    {% endfor %}</tbody></table></div>
+  {% if form %}<div class="panel"><h2>{% if obj %}{% translate "Edit warehouse" %}{% else %}{% translate "Add warehouse" %}{% endif %}</h2>
+    <form method="post" class="form">{% csrf_token %}{% if obj %}<input type="hidden" name="pk" value="{{ obj.pk }}">{% endif %}
+      {% include "partials/form_fields.html" %}
+      <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button>{% if obj %}<a class="btn" href="{% url 'inventory:warehouses' %}">{% translate "Cancel" %}</a>{% endif %}</div></form></div>{% endif %}
+</div>
+{% endblock %}

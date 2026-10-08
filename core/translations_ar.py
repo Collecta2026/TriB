@@ -499,3 +499,13 @@ AR = {
     "Your company is ready. Approval rules are switched on, so documents you create need a second person to approve them. Add a Finance manager in Users & roles, or switch the rule off in Settings while you test.":
         "شركتك جاهزة. قواعد الاعتماد مفعّلة، لذا تحتاج المستندات التي تنشئها إلى شخص آخر لاعتمادها. أضف مديرًا ماليًا من المستخدمين والأدوار، أو أوقف القاعدة من الإعدادات أثناء التجربة.",
 }
+
+# Release 2 strings live in their own modules to keep this file readable.
+from .translations_ar_r2 import AR2  # noqa: E402
+from .translations_ar_r2b import AR2B  # noqa: E402
+
+AR.update(AR2)
+AR.update(AR2B)
+from .translations_ar_r2c import AR2C  # noqa: E402
+
+AR.update(AR2C)

@@ -128,15 +128,24 @@ class NumberSeries(models.Model):
         constraints = [models.UniqueConstraint(fields=["company", "key"], name="uniq_series_key")]
 
     @classmethod
-    def next(cls, company, prefix, date):
-        key = f"{prefix}-{date.year}"
+    def _take(cls, company, key):
         with transaction.atomic():
             cls.objects.get_or_create(company=company, key=key)
             row = cls.objects.select_for_update().get(company=company, key=key)
             number = row.next_number
             row.next_number = number + 1
             row.save(update_fields=["next_number"])
-        return f"{key}-{number:05d}"
+        return number
+
+    @classmethod
+    def next(cls, company, prefix, date):
+        key = f"{prefix}-{date.year}"
+        return f"{key}-{cls._take(company, key):05d}"
+
+    @classmethod
+    def next_plain(cls, company, prefix, width=5):
+        """Numbers that never restart, e.g. SKUs (MCH-00012) and asset numbers (FA-00007)."""
+        return f"{prefix}-{cls._take(company, prefix):0{width}d}"
 
 
 class AuditLog(models.Model):
@@ -165,6 +174,77 @@ class AuditLog(models.Model):
             data=data or {},
             ip=ip,
         )
+
+
+class Attachment(models.Model):
+    """A file attached to any document. Stored in the database so it survives redeploys."""
+
+    MAX_BYTES = 10 * 1024 * 1024
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="+")
+    target = models.CharField(max_length=60)  # e.g. "sales.invoice"
+    target_id = models.PositiveBigIntegerField()
+    filename = models.CharField(max_length=200)
+    content_type = models.CharField(max_length=100)
+    size = models.PositiveIntegerField()
+    data = models.BinaryField()
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="+")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["uploaded_at"]
+        indexes = [models.Index(fields=["company", "target", "target_id"])]
+
+
+class Bookmark(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="bookmarks")
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="+")
+    title = models.CharField(_("Name"), max_length=120)
+    url = models.CharField(max_length=300)
+    position = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["position", "id"]
+
+
+class UserPreference(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="preferences")
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="+")
+    pinned_apps = models.JSONField(default=list, blank=True)
+    bookmarks_seeded = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "company"], name="uniq_pref")]
+
+    @classmethod
+    def for_user(cls, user, company):
+        pref, _created = cls.objects.get_or_create(
+            user=user, company=company, defaults={"pinned_apps": ["accounting", "expenses", "sales"]}
+        )
+        return pref
+
+
+class RecurringTemplate(models.Model):
+    """Re-creates a document (voucher, invoice or bill) as a draft on a schedule."""
+
+    KINDS = [("voucher", _("Voucher")), ("invoice", _("Sales invoice")), ("bill", _("Supplier bill"))]
+    FREQUENCIES = [("weekly", _("Weekly")), ("monthly", _("Monthly")), ("quarterly", _("Quarterly")),
+                   ("yearly", _("Yearly"))]
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="+")
+    name = models.CharField(_("Name"), max_length=120)
+    kind = models.CharField(_("Type"), max_length=8, choices=KINDS)
+    source_id = models.PositiveBigIntegerField()
+    frequency = models.CharField(_("Repeat"), max_length=10, choices=FREQUENCIES, default="monthly")
+    next_date = models.DateField(_("Next date"))
+    end_date = models.DateField(_("End date"), null=True, blank=True)
+    is_active = models.BooleanField(_("Active"), default=True)
+    last_created = models.CharField(max_length=40, blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["next_date", "name"]
 
 
 def client_ip(request):

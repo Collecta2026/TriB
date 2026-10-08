@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Inventory" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Inventory overview" %}</h1><div class="sub">{% translate "Stock is valued first in, first out. Consumables are issued soonest expiry first." %}</div></div>
+  <div class="toolbar">
+    {% if can.inventory.create %}<a class="btn" href="{% url 'inventory:transfer_new' %}">{% translate "Transfer stock" %}</a><a class="btn" href="{% url 'inventory:adjustment_new' %}">{% translate "Adjust stock" %}</a>{% endif %}
+    {% if can.purchases.create %}<a class="btn" href="{% url 'purchases:order_new' %}">{% translate "Purchase order" %}</a>{% endif %}
+    {% if can.inventory.create %}<a class="btn primary" href="{% url 'inventory:item_new' %}">+ {% translate "Product" %}</a>{% endif %}
+  </div></div>
+<div class="kpis">
+  <a class="kpi" href="{% url 'inventory:stock' %}"><span class="lbl">{% translate "Stock value (FIFO)" %}</span><span class="n">{{ value|money:company.base_currency }}</span><span class="lbl">{% blocktranslate count n=lines %}{{ n }} item in stock{% plural %}{{ n }} items in stock{% endblocktranslate %}</span></a>
+  <a class="kpi {% if low_count %}warn{% endif %}" href="#low"><span class="lbl">{% translate "At or below reorder level" %}</span><span class="n">{{ low_count }}</span></a>
+  <a class="kpi {% if expired_count %}crit{% endif %}" href="{% url 'inventory:expiry' %}?within=expired"><span class="lbl">{% translate "Expired batches" %}</span><span class="n">{{ expired_count }}</span></a>
+  <a class="kpi {% if soon_count %}warn{% endif %}" href="{% url 'inventory:expiry' %}?within=90"><span class="lbl">{% translate "Expiring within 90 days" %}</span><span class="n">{{ soon_count }}</span></a>
+  <a class="kpi" href="{% url 'purchases:not_received' %}"><span class="lbl">{% translate "Order lines not yet received" %}</span><span class="n">{{ not_received }}</span><span class="lbl">{% blocktranslate count n=open_pos %}{{ n }} open purchase order{% plural %}{{ n }} open purchase orders{% endblocktranslate %}</span></a>
+  <a class="kpi" href="{% url 'sales:orders' %}"><span class="lbl">{% translate "Open sales orders" %}</span><span class="n">{{ open_sos }}</span></a>
+</div>
+<div class="cols">
+  <div class="panel" id="low"><div class="panel-h"><h2>{% translate "Reorder" %}</h2>{% if can.purchases.create %}<a class="link" href="{% url 'purchases:order_new' %}">{% translate "Create purchase order" %}</a>{% endif %}</div>
+    <table class="tbl"><thead><tr><th>{% translate "Product" %}</th><th class="num">{% translate "On hand" %}</th><th class="num">{% translate "Reorder level" %}</th></tr></thead>
+    <tbody>{% for i, q in low %}<tr><td><a href="{% url 'inventory:item' i.pk %}">{{ i.sku }}</a> {{ i.name }}</td><td class="num">{{ q|num:3 }}</td><td class="num">{{ i.reorder_level|num:3 }}</td></tr>
+    {% empty %}<tr><td colspan="3" class="lbl">{% translate "Nothing needs reordering." %}</td></tr>{% endfor %}</tbody></table></div>
+  <div class="panel"><div class="panel-h"><h2>{% translate "Expiry watch" %}</h2><a class="link" href="{% url 'inventory:expiry' %}">{% translate "Batches & expiry" %}</a></div>
+    <table class="tbl"><thead><tr><th>{% translate "Product" %}</th><th>{% translate "Batch" %}</th><th>{% translate "Expiry date" %}</th><th class="num">{% translate "Qty" %}</th></tr></thead>
+    <tbody>{% for r in expiring %}<tr><td><a href="{% url 'inventory:item' r.item.pk %}">{{ r.item.sku }}</a> {{ r.item.name }}<div class="lbl">{{ r.warehouse.code }}</div></td><td>{{ r.batch_no }}</td>
+      <td><span class="pill {{ r.state|pill_class }}">{{ r.expiry_date|date:"d/m/Y" }}</span></td><td class="num">{{ r.qty|num:3 }}</td></tr>
+    {% empty %}<tr><td colspan="4" class="lbl">{% translate "Nothing expires in the next 90 days." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+<div class="panel"><h2>{% translate "Latest stock movements" %}</h2>
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Date" %}</th><th>{% translate "Type" %}</th><th>{% translate "Reference" %}</th><th>{% translate "Product" %}</th><th>{% translate "Warehouse" %}</th><th>{% translate "Serial / batch" %}</th><th>{% translate "Expiry date" %}</th><th class="num">{% translate "Qty" %}</th><th class="num">{% translate "Value" %}</th></tr></thead>
+  <tbody>{% for m in moves %}<tr><td>{{ m.date|date:"d/m/Y" }}</td><td>{{ m.get_kind_display }}</td><td>{{ m.ref }}</td><td><a href="{% url 'inventory:item' m.item_id %}">{{ m.item.sku }}</a></td><td>{{ m.warehouse.code }}</td>
+    <td>{{ m.serial_no|default:m.batch_no }}</td><td>{{ m.expiry_date|date:"d/m/Y" }}</td><td class="num">{{ m.qty|num:3 }}</td><td class="num">{{ m.value|num }}</td></tr>
+  {% empty %}<tr><td colspan="9" class="lbl">{% translate "No stock has moved yet." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% endblock %}

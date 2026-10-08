@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% if kind == "transfer" %}{% translate "Stock transfer" %}{% else %}{% translate "Stock adjustment" %}{% endif %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url list_url %}">{% if kind == "transfer" %}{% translate "Stock transfers" %}{% else %}{% translate "Stock adjustments" %}{% endif %}</a></div>
+  <h1>{% if kind == "transfer" %}{% translate "Stock transfer" %}{% else %}{% translate "Stock adjustment" %}{% endif %}{% if doc.number %} · {{ doc.number }}{% endif %}</h1>
+  <div class="sub">{% if kind == "transfer" %}{% translate "Stock moves at its FIFO cost, keeping serial numbers, batches and expiry dates." %}{% else %}{% translate "Positive quantities add stock (enter cost, and batch and expiry for consumables). Negative quantities remove stock at FIFO cost." %}{% endif %}</div></div></div>
+<form method="post" class="form">{% csrf_token %}
+  <div class="panel">{% include "partials/form_fields.html" %}</div>
+  <div class="panel" data-formset="lines">
+    <div class="panel-h"><h2>{% translate "Lines" %}</h2><button class="btn sm" type="button" data-add-line>+ {% translate "Add line" %}</button></div>
+    {{ formset.management_form }}
+    {% if formset.non_form_errors %}<div class="msg error">{{ formset.non_form_errors|join:" " }}</div>{% endif %}
+    <div class="table-wrap"><table class="tbl lines">
+      <thead><tr>{% for f in formset.empty_form.visible_fields %}{% if f.name != "DELETE" %}<th>{{ f.label }}</th>{% endif %}{% endfor %}<th class="del"></th></tr></thead>
+      <tbody>{% for lf in formset %}{% include "inventory/_line.html" %}{% endfor %}</tbody>
+    </table></div>
+    <template>{% include "inventory/_line.html" with lf=formset.empty_form %}</template>
+  </div>
+  <div class="form-actions"><button class="btn" type="submit" name="save">{% translate "Save draft" %}</button>
+    {% if can.inventory.post %}<button class="btn primary" type="submit" name="post">{% translate "Save and post" %}</button>{% endif %}</div>
+</form>
+{% endblock %}

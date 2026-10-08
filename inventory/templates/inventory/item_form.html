@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Product or service" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'inventory:items' %}">{% translate "Products & services" %}</a></div>
+  <h1>{% if item.pk %}{{ item.sku }} · {{ item.name }}{% else %}{% translate "New product or service" %}{% endif %}</h1>
+  <div class="sub">{% translate "Machines: track serial numbers. Consumables: track batch and expiry date." %}</div></div></div>
+<div class="panel"><form method="post" class="form">{% csrf_token %}
+  {% include "partials/form_fields.html" %}
+  <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button><a class="btn" href="{% if item.pk %}{% url 'inventory:item' item.pk %}{% else %}{% url 'inventory:items' %}{% endif %}">{% translate "Cancel" %}</a></div>
+</form></div>
+{% endblock %}

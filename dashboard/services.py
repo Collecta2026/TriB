@@ -86,7 +86,7 @@ def cheques_block(company, today):
         ("in_safe", _("In the safe"), open_.filter(status="in_safe").aggregate(n=Count("id"), a=Sum("amount")), ""),
         ("under_collection", _("Under collection"), open_.filter(status="under_collection").aggregate(n=Count("id"), a=Sum("amount")), ""),
         ("week", _("Due this week"), open_.filter(due_date__lte=today + timedelta(days=7)).aggregate(n=Count("id"), a=Sum("amount")), "warn"),
-        ("bounced", _("Bounced this month"), received.filter(status="bounced", due_date__gte=month_start).aggregate(n=Count("id"), a=Sum("amount")), "crit"),
+        ("bounced", _("Bounced this month"), received.filter(status="bounced", bounced_on__gte=month_start).aggregate(n=Count("id"), a=Sum("amount")), "crit"),
     ]
     return {
         "tiles": [{"key": k, "label": label, "n": agg["n"] or 0, "a": agg["a"] or ZERO, "cls": cls} for k, label, agg, cls in tiles],
@@ -96,8 +96,83 @@ def cheques_block(company, today):
     }
 
 
-def feed(company, user, today, approvals, cheques):
-    items = []
+def sales_block(company, today, days=90):
+    """Sales of the last 90 days by category (machines, supplies…) and the best-selling products — a list, not a graph."""
+    from reports.services import sales_by_item
+
+    groups = sales_by_item(company, today - timedelta(days=days), today)
+    items = sorted((r for g in groups for r in g["items"]), key=lambda r: -r["revenue"])[:6]
+    total = sum((g["revenue"] for g in groups), ZERO)
+    return {"groups": groups[:6], "top": items, "total": total,
+            "margin": sum((g["margin"] for g in groups), ZERO), "days": days}
+
+
+def invoices_block(company, today):
+    from sales.models import Invoice
+
+    unpaid = overdue = paid30 = ZERO
+    n_overdue = 0
+    for inv in Invoice.objects.filter(company=company, status="posted", date__gte=today - timedelta(days=365)):
+        due = inv.balance_due * inv.rate
+        unpaid += due
+        if due > 0 and inv.due_date < today:
+            overdue += due
+            n_overdue += 1
+    from sales.models import CustomerPayment
+    for p in CustomerPayment.objects.filter(company=company, status="posted", date__gte=today - timedelta(days=29)):
+        paid30 += p.amount * p.rate
+    return {"unpaid": unpaid, "overdue": overdue, "not_due": unpaid - overdue, "n_overdue": n_overdue, "paid30": paid30,
+            "overdue_pct": float(overdue / unpaid * 100) if unpaid else 0}
+
+
+def receivables_block(company, today):
+    from sales.services import AGING_BUCKETS, ar_aging
+
+    rows = ar_aging(company, today)
+    buckets = [sum((r["buckets"][i] for r in rows), ZERO) for i in range(5)]
+    total = sum(buckets, ZERO)
+    colors = ["var(--good)", "var(--c2)", "var(--warn)", "var(--c4)", "var(--crit)"]
+    return {"total": total, "customers": len(rows), "top": rows[:4],
+            "buckets": [{"label": label, "amount": amt, "color": colors[i],
+                         "pct": float(amt / total * 100) if total > 0 and amt > 0 else 0}
+                        for i, ((_d, label), amt) in enumerate(zip(AGING_BUCKETS, buckets))]}
+
+
+def payables_block(company, today):
+    from purchases.services import ap_aging
+
+    rows = ap_aging(company, today)
+    total = sum((r["total"] for r in rows), ZERO)
+    overdue = sum((sum(r["buckets"][1:], ZERO) for r in rows), ZERO)
+    return {"total": total, "overdue": overdue, "top": rows[:4]}
+
+
+def orders_block(company):
+    from sales.models import SalesOrder
+
+    orders = list(SalesOrder.objects.filter(company=company, status__in=("open", "partial"))
+                  .select_related("customer").order_by("date")[:6])
+    total = SalesOrder.objects.filter(company=company, status__in=("open", "partial")).count()
+    return {"rows": [{"o": o, "open": sum((l.qty_open * l.unit_price * (1 - l.discount_pct / 100) for l in o.lines.all()),
+                                          ZERO)} for o in orders], "count": total}
+
+
+def stock_block(company, today):
+    from inventory.models import Item
+    from inventory.services import batches_on_hand, stock_summary
+
+    summary = stock_summary(company)
+    on_hand = {i.id: q for i, q, _v in summary}
+    low = [(i, on_hand.get(i.id, ZERO)) for i in Item.objects.filter(company=company, type="inventory", is_active=True,
+                                                                         reorder_level__gt=0)
+           if on_hand.get(i.id, ZERO) <= i.reorder_level]
+    batches = batches_on_hand(company, expiring_within=90, today=today)
+    return {"value": sum((v for _i, _q, v in summary), ZERO), "low": low[:4], "low_count": len(low),
+            "expired": [b for b in batches if b["state"] == "expired"], "soon": [b for b in batches if b["state"] == "soon"]}
+
+
+def feed(company, user, today, approvals, cheques, extra=None):
+    items = list(extra or [])
     if approvals:
         items.append(("var(--crit)", _("%(n)s documents are waiting for your approval") % {"n": len(approvals)}, "approvals:inbox", _("Review")))
     if cheques["due_week"]:
@@ -118,11 +193,14 @@ def feed(company, user, today, approvals, cheques):
 
 
 def build(company, user, membership):
+    from core.models import RecurringTemplate
+
     today = timezone.localdate()
-    approvals = pending_for(user, company) if membership.has_perm("vouchers.approve") else []
+    can = membership.has_perm
+    approvals = pending_for(user, company) if can("vouchers.approve") else []
     cheques = cheques_block(company, today)
     hour = timezone.localtime().hour
-    return {
+    data = {
         "greeting": _("Good morning") if hour < 12 else _("Good afternoon") if hour < 17 else _("Good evening"),
         "pl": profit_block(company, today),
         "exp": expenses_block(company, today),
@@ -131,6 +209,34 @@ def build(company, user, membership):
         "approvals": approvals[:5],
         "approvals_count": len(approvals),
         "cheques": cheques,
-        "feed": feed(company, user, today, approvals, cheques),
         "year": today.year,
     }
+    extra = []
+    if can("sales.view"):
+        data.update(sales=sales_block(company, today), invoices=invoices_block(company, today),
+                    ar=receivables_block(company, today), orders=orders_block(company))
+        if data["invoices"]["n_overdue"]:
+            extra.append(("var(--crit)", _("%(n)s invoices are overdue") % {"n": data["invoices"]["n_overdue"]},
+                          "reports:ar_aging", _("Chase")))
+    if can("purchases.view"):
+        data["ap"] = payables_block(company, today)
+    if can("inventory.view"):
+        data["stock"] = stock_block(company, today)
+        if data["stock"]["expired"]:
+            extra.append(("var(--crit)", _("%(n)s batches in stock have expired") % {"n": len(data["stock"]["expired"])},
+                          "inventory:expiry", _("Write off")))
+        if data["stock"]["low_count"]:
+            extra.append(("var(--warn)", _("%(n)s products are at or below their reorder level") % {
+                "n": data["stock"]["low_count"]}, "inventory:overview", _("Reorder")))
+    if can("payroll.approve") or can("payroll.authorise"):
+        from payroll.models import PayrollRun
+        waiting = PayrollRun.objects.filter(company=company, status__in=(
+            ["prepared"] if can("payroll.approve") else []) + (["approved"] if can("payroll.authorise") else [])).count()
+        if waiting:
+            extra.append(("var(--crit)", _("A payroll run is waiting for your sign-off"), "payroll:runs", _("Review")))
+    if can("vouchers.create"):
+        due = RecurringTemplate.objects.filter(company=company, is_active=True, next_date__lte=today).count()
+        if due:
+            extra.append(("var(--brand)", _("%(n)s recurring transactions are due") % {"n": due}, "core:recurring", _("Create")))
+    data["feed"] = feed(company, user, today, approvals, cheques, extra)
+    return data

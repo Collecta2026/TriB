@@ -35,8 +35,17 @@ class Command(BaseCommand):
         password = os.environ.get("TRIB_DEMO_PASSWORD", "")
         if len(password) < 10:
             raise CommandError("Set TRIB_DEMO_PASSWORD (10+ characters) in your local .env first.")
-        if Company.objects.filter(name_en=DEMO_NAME).exists():
-            self.stdout.write("The demo company already exists.")
+        existing = Company.objects.filter(name_en=DEMO_NAME).first()
+        if existing:
+            from inventory.models import Item
+            if Item.objects.filter(company=existing).exists():
+                self.stdout.write("The demo company already exists.")
+                return
+            from . import _demo_r2
+            owner = existing.memberships.filter(is_owner=True).first().user
+            with transaction.atomic():
+                _demo_r2.build(existing, owner, existing.bank_accounts.filter(currency_id="EGP", kind="bank").first())
+            self.stdout.write(self.style.SUCCESS("Release 2 demo data added (products, stock, sales, staff, assets)."))
             return
         seed_currencies()
         seed_banks()
@@ -150,3 +159,5 @@ class Command(BaseCommand):
         # A small cash sale to the cash box.
         voucher("receipt", owner, today, [{"account": acc("4200"), "amount": Decimal("38500"), "description": "Service visit"}],
                 party_name="Walk-in clinic", method="cash", bank_account=cash, description="Maintenance service")
+        from . import _demo_r2
+        _demo_r2.build(company, owner, cib)
