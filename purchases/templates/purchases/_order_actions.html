@@ -1,0 +1,12 @@
+{% load i18n %}<form method="post" action="{% url 'purchases:order_action' doc.pk %}" class="toolbar">{% csrf_token %}
+  {% if doc.status == "draft" and can.purchases.create %}<button class="btn primary" name="action" value="submit">{% translate "Submit for approval" %}</button>{% endif %}
+  {% if doc.status == "submitted" and can.purchases.approve %}<button class="btn primary" name="action" value="approve">{% translate "Approve" %}</button>
+    <input type="text" name="reason" placeholder="{% translate 'Reason for returning' %}" style="width:auto"><button class="btn danger" name="action" value="reject">{% translate "Return" %}</button>{% endif %}
+  {% if doc.status == "open" or doc.status == "partial" %}
+    {% if can.inventory.post %}<button class="btn primary" name="action" value="receive">{% translate "Receive goods" %}</button>{% endif %}
+    {% if can.purchases.create %}<button class="btn" name="action" value="bill">{% translate "Create bill" %}</button>{% endif %}
+  {% endif %}
+  {% if doc.status == "received" and can.purchases.create %}<button class="btn" name="action" value="bill">{% translate "Create bill" %}</button>{% endif %}
+  {% if doc.status == "partial" or doc.status == "received" or doc.status == "open" %}{% if can.purchases.edit %}<button class="btn" name="action" value="close">{% translate "Close order" %}</button>{% endif %}{% endif %}
+  {% if doc.status == "draft" or doc.status == "submitted" or doc.status == "open" %}{% if can.purchases.edit %}<button class="btn danger" name="action" value="cancel">{% translate "Cancel order" %}</button>{% endif %}{% endif %}
+</form>

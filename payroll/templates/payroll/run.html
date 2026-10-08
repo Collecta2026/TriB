@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Payroll" %} {{ run.period_label }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'payroll:runs' %}">{% translate "Payroll runs" %}</a></div>
+  <h1>{% translate "Payroll" %} {{ run.period_label }} <span class="pill {{ run.status|pill_class }}">{{ run.get_status_display }}</span></h1>
+  <div class="sub">{% blocktranslate count n=payslips|length %}{{ n }} employee{% plural %}{{ n }} employees{% endblocktranslate %}
+    {% if run.prepared_by %} · {% translate "Prepared by" %} {{ run.prepared_by }}{% endif %}{% if run.approved_by %} · {% translate "Approved by" %} {{ run.approved_by }}{% endif %}{% if run.authorised_by %} · {% translate "Authorised by" %} {{ run.authorised_by }}{% endif %}
+    {% if run.journal_entry_id %} · <a href="{% url 'ledger:journal' run.journal_entry_id %}">{{ run.journal_entry.number }}</a>{% endif %}{% if run.payment_entry_id %} · <a href="{% url 'ledger:journal' run.payment_entry_id %}">{{ run.payment_entry.number }}</a>{% endif %}</div></div>
+  <div class="toolbar"><a class="btn" href="{% url 'payroll:deductions' run.pk %}">{% translate "Deductions & journal" %}</a><a class="btn" href="{% url 'payroll:payslips_print' run.pk %}">{% translate "Print payslips" %}</a></div>
+</div>
+{% if run.reject_reason and run.status == "draft" %}<div class="msg warning">{% translate "Returned" %}: {{ run.reject_reason }}</div>{% endif %}
+
+<div class="panel"><div class="panel-h"><h2>{% translate "Approval" %}</h2>
+  <span class="lbl">{% if signoffs.band %}{{ signoffs.band.name }}: {% endif %}{% if signoffs.fm %}{% translate "Finance Manager" %}{% endif %}{% if signoffs.md %} + {% translate "Managing Director" %}{% endif %}</span></div>
+  <form method="post" action="{% url 'payroll:run_action' run.pk %}" class="toolbar">{% csrf_token %}
+    {% if run.status == "draft" and can.payroll.create %}<button class="btn" name="action" value="recompute">{% translate "Recalculate" %}</button><button class="btn primary" name="action" value="submit">{% translate "Submit for approval" %}</button>{% endif %}
+    {% if run.status == "prepared" and can.payroll.approve %}<button class="btn primary" name="action" value="approve">{% translate "Approve" %}</button>{% endif %}
+    {% if run.status == "approved" and can.payroll.authorise %}<button class="btn primary" name="action" value="authorise">{% translate "Authorise & post" %}</button>{% endif %}
+    {% if run.status == "prepared" or run.status == "approved" %}{% if can.payroll.approve %}<input type="text" name="reason" placeholder="{% translate 'Reason for returning' %}" style="width:auto"><button class="btn danger" name="action" value="reject">{% translate "Return to HR" %}</button>{% endif %}{% endif %}
+    {% if run.status == "draft" and can.payroll.edit %}<button class="btn danger" name="action" value="delete" onclick="return confirm('{% translate "Delete this draft run?" %}')">{% translate "Delete draft" %}</button>{% endif %}
+    {% if run.status == "authorised" or run.status == "paid" %}<span class="lbl">{% translate "Posted to the ledger. Changes now need a new run or a journal." %}</span>{% endif %}
+  </form>
+</div>
+
+<div class="kpis">
+  <div class="kpi"><span class="lbl">{% translate "Gross pay" %}</span><span class="n">{{ t.gross|num }}</span></div>
+  <div class="kpi"><span class="lbl">{% translate "Employee deductions" %}</span><span class="n">{{ t.total_deductions|num }}</span></div>
+  <div class="kpi"><span class="lbl">{% translate "Net pay" %}</span><span class="n">{{ t.net_pay|num }}</span>{% if cash_total %}<span class="lbl">{% translate "of which cash" %} {{ cash_total|num }}</span>{% endif %}</div>
+  <div class="kpi"><span class="lbl">{% translate "Employer social insurance" %}</span><span class="n">{{ t.si_employer|add:t.emergency_fund|num }}</span></div>
+  <div class="kpi"><span class="lbl">{% translate "Total employer cost" %}</span><span class="n">{{ t.employer_cost|num }}</span></div>
+</div>
+
+{% if run.status == "authorised" and can.payroll.post %}
+<div class="panel"><h2>{% translate "Pay salaries" %}</h2>
+  <form method="post" action="{% url 'payroll:run_action' run.pk %}" class="form">{% csrf_token %}<input type="hidden" name="action" value="pay">
+    {% include "partials/form_fields.html" with form=pay_form %}
+    <div class="form-actions"><button class="btn primary" type="submit">{% translate "Mark paid and post" %}</button></div></form></div>
+{% endif %}
+
+{% if run.status == "authorised" or run.status == "paid" %}
+<div class="panel"><h2>{% translate "Pay over deductions" %}</h2>
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Deduction" %}</th><th class="num">{% translate "Amount" %}</th><th>{% translate "Paid over" %}</th></tr></thead>
+  <tbody>{% for kind, label, amount, done, form in remit_rows %}<tr><td>{{ label }}</td><td class="num">{{ amount|num }}</td>
+    <td>{% if done %}<span class="pill good">{{ done.date|date:"d/m/Y" }}</span> {{ done.bank_account.name }} {{ done.reference }} · <a href="{% url 'ledger:journal' done.journal_entry_id %}">{{ done.journal_entry.number }}</a>
+      {% elif amount and can.payroll.post %}<form method="post" action="{% url 'payroll:run_action' run.pk %}" class="toolbar">{% csrf_token %}<input type="hidden" name="action" value="remit">{{ form.kind }}
+        {{ form.pay_date }} {{ form.bank_account }} <input type="text" name="reference" placeholder="{% translate 'Reference' %}" style="width:140px"><button class="btn sm primary" type="submit">{% translate "Pay over" %}</button></form>
+      {% else %}—{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% endif %}
+
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Code" %}</th><th>{% translate "Employee" %}</th><th class="num">{% translate "Basic" %}</th><th class="num">{% translate "Allowances" %}</th><th class="num">{% translate "Overtime" %}</th><th class="num">{% translate "Gross" %}</th>
+    <th class="num">{% translate "Insurance" %}</th><th class="num">{% translate "Tax" %}</th><th class="num">{% translate "Loan" %}</th><th class="num">{% translate "Medical & other" %}</th><th class="num">{% translate "Absence" %}</th><th class="num">{% translate "Net pay" %}</th><th></th></tr></thead>
+  <tbody>{% for p in payslips %}<tr><td>{{ p.employee.code }}</td><td><a href="{% url 'team:employee' p.employee_id %}">{{ p.employee.name }}</a><div class="lbl">{{ p.employee.department.name|default:"" }} · {{ p.employee.get_payment_method_display }}</div></td>
+    <td class="num">{{ p.basic|num }}</td><td class="num">{{ p.allowances|num }}</td><td class="num">{{ p.overtime|num }}</td><td class="num">{{ p.gross|num }}</td>
+    <td class="num">{{ p.si_employee|num }}</td><td class="num">{{ p.income_tax|num }}</td><td class="num">{{ p.loan_deduction|num }}</td><td class="num">{{ p.other_deductions|num }}</td><td class="num">{{ p.absence_deduction|num }}</td>
+    <td class="num"><b>{{ p.net_pay|num }}</b></td><td><a class="link" href="{% url 'payroll:payslip' p.pk %}">{% translate "Payslip" %}</a></td></tr>
+  {% empty %}<tr><td colspan="13" class="lbl">{% translate "No employees were active in this month." %}</td></tr>{% endfor %}</tbody>
+  <tfoot><tr><td colspan="2">{% translate "Total" %}</td><td class="num">{{ t.basic|num }}</td><td class="num">{{ t.allowances|num }}</td><td class="num">{{ t.overtime|num }}</td><td class="num">{{ t.gross|num }}</td>
+    <td class="num">{{ t.si_employee|num }}</td><td class="num">{{ t.income_tax|num }}</td><td class="num">{{ t.loan_deduction|num }}</td><td class="num">{{ t.other_deductions|num }}</td><td class="num">{{ t.absence_deduction|num }}</td><td class="num">{{ t.net_pay|num }}</td><td></td></tr></tfoot>
+</table></div>
+{% endblock %}

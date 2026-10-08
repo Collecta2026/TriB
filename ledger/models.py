@@ -33,6 +33,24 @@ SUBTYPES = [
     ("retained_earnings", _("Retained earnings")),
     ("fx_gain", _("Exchange gains")),
     ("fx_loss", _("Exchange losses")),
+    ("grni", _("Goods received not invoiced")),
+    ("sales", _("Sales revenue")),
+    ("cogs", _("Cost of goods sold")),
+    ("stock_adjustment", _("Stock adjustments")),
+    ("price_variance", _("Purchase price variance")),
+    ("fixed_assets", _("Fixed assets")),
+    ("accum_depreciation", _("Accumulated depreciation")),
+    ("depreciation", _("Depreciation expense")),
+    ("disposal_gain", _("Gain on disposal")),
+    ("disposal_loss", _("Loss on disposal")),
+    ("salaries_payable", _("Salaries payable")),
+    ("social_insurance", _("Social insurance payable")),
+    ("payroll_tax", _("Salary tax payable")),
+    ("employee_deductions", _("Employee deductions payable")),
+    ("overtime", _("Overtime")),
+    ("salaries", _("Salaries & wages")),
+    ("employer_si", _("Employer social insurance")),
+    ("opening_equity", _("Opening balance equity")),
 ]
 
 DEBIT_NATURE = {"asset", "expense"}
@@ -83,6 +101,44 @@ class CostCenter(Bilingual):
         return f"{self.code} · {self.name}"
 
 
+class TaxRate(Bilingual):
+    KINDS = [("standard", _("Standard rated")), ("zero", _("Zero rated")), ("exempt", _("Exempt")),
+             ("out_of_scope", _("Out of scope"))]
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="tax_rates")
+    rate = models.DecimalField(_("Rate %"), max_digits=6, decimal_places=2, default=0)
+    kind = models.CharField(_("Type"), max_length=14, choices=KINDS, default="standard")
+    is_default = models.BooleanField(_("Default"), default=False)
+    is_active = models.BooleanField(_("Active"), default=True)
+
+    class Meta:
+        ordering = ["-is_default", "-rate", "name_en"]
+
+    def __str__(self):
+        return self.name
+
+
+class Project(Bilingual):
+    STATUSES = [("active", _("Active")), ("completed", _("Completed")), ("on_hold", _("On hold"))]
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="projects")
+    code = models.CharField(_("Code"), max_length=20)
+    customer = models.ForeignKey("contacts.Customer", on_delete=models.PROTECT, null=True, blank=True,
+                                 related_name="projects", verbose_name=_("Customer"))
+    status = models.CharField(_("Status"), max_length=10, choices=STATUSES, default="active")
+    start_date = models.DateField(_("Start date"), null=True, blank=True)
+    end_date = models.DateField(_("End date"), null=True, blank=True)
+    budget = models.DecimalField(_("Budget"), max_digits=19, decimal_places=2, default=0)
+    notes = models.TextField(_("Notes"), blank=True)
+
+    class Meta:
+        ordering = ["code"]
+        constraints = [models.UniqueConstraint(fields=["company", "code"], name="uniq_project_code")]
+
+    def __str__(self):
+        return f"{self.code} · {self.name}"
+
+
 class JournalEntry(models.Model):
     SOURCES = [
         ("manual", _("Manual journal")),
@@ -92,13 +148,23 @@ class JournalEntry(models.Model):
         ("cheque", _("Cheque")),
         ("opening", _("Opening balance")),
         ("reversal", _("Reversal")),
+        ("invoice", _("Sales invoice")),
+        ("customer_payment", _("Customer payment")),
+        ("bill", _("Supplier bill")),
+        ("supplier_payment", _("Supplier payment")),
+        ("receipt_goods", _("Item receipt")),
+        ("stock", _("Stock adjustment")),
+        ("depreciation", _("Depreciation")),
+        ("asset", _("Asset disposal")),
+        ("bank", _("Bank transaction")),
+        ("payroll", _("Payroll")),
     ]
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="entries")
     branch = models.ForeignKey(Branch, on_delete=models.PROTECT, null=True, blank=True)
     number = models.CharField(max_length=30)
     date = models.DateField(db_index=True)
     memo = models.CharField(max_length=300, blank=True)
-    source = models.CharField(max_length=12, choices=SOURCES, default="manual")
+    source = models.CharField(max_length=20, choices=SOURCES, default="manual")
     source_ref = models.CharField(max_length=40, blank=True)
     reversal_of = models.OneToOneField("self", on_delete=models.PROTECT, null=True, blank=True, related_name="reversed_by")
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, related_name="+")
@@ -120,6 +186,9 @@ class JournalLine(models.Model):
     entry = models.ForeignKey(JournalEntry, on_delete=models.CASCADE, related_name="lines")
     account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name="lines")
     cost_center = models.ForeignKey(CostCenter, on_delete=models.PROTECT, null=True, blank=True)
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, null=True, blank=True, related_name="lines")
+    reconciliation = models.ForeignKey("banking.Reconciliation", on_delete=models.SET_NULL, null=True, blank=True,
+                                       related_name="lines")
     description = models.CharField(max_length=300, blank=True)
     # Base-currency amounts. These are what the ledger balances on.
     debit = models.DecimalField(max_digits=19, decimal_places=2, default=0)

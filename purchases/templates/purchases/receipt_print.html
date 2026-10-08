@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ grn.number }}{% endblock %}
+{% block content %}
+<div class="toolbar no-print"><a class="btn" href="{% url 'purchases:receipt' grn.pk %}">‹ {% translate "Back" %}</a><button class="btn primary" type="button" onclick="window.print()">{% translate "Print / save as PDF" %}</button></div>
+<div class="voucher-doc">
+  <div class="vh"><div><b>{{ company.name_en }}</b></div>
+    <div class="vt"><h1>Goods Received Note</h1><h1 class="ar">إذن استلام بضاعة</h1><div><b>{{ grn.number }}</b></div></div>
+    <div class="ar" style="text-align:start"><b>{{ company.name_ar }}</b></div></div>
+  <div class="bi"><div>Supplier / المورد: <b>{{ grn.supplier.name_en }}</b><br>Delivery note / إذن التسليم: {{ grn.reference|default:"—" }}</div>
+    <div style="text-align:end">Date / التاريخ: {{ grn.date|date:"d/m/Y" }}<br>Warehouse / المخزن: {{ grn.warehouse.name_en }}<br>PO / أمر الشراء: {{ grn.purchase_order.number|default:"—" }}</div></div>
+  <table><thead><tr><th>#</th><th>SKU</th><th>Item / الصنف</th><th class="num">Qty / الكمية</th><th>S/N / المسلسل</th><th>Batch / التشغيلة</th><th>Expiry / الصلاحية</th></tr></thead>
+    <tbody>{% for l in lines %}<tr><td>{{ forloop.counter }}</td><td>{{ l.item.sku }}</td><td>{{ l.item.name_en }}<div class="ar">{{ l.item.name_ar }}</div></td><td class="num">{{ l.qty|num:3 }}</td><td>{{ l.serials|linebreaksbr }}</td><td>{{ l.batch_no }}</td><td>{{ l.expiry_date|date:"d/m/Y" }}</td></tr>{% endfor %}</tbody></table>
+  <div class="sigs"><div class="sig">Received by (storekeeper) / المستلم (أمين المخزن)<br><b>{{ grn.created_by }}</b></div><div class="sig">Inspected by / الفحص</div><div class="sig">Delivered by / المسلِّم</div></div>
+</div>
+{% endblock %}

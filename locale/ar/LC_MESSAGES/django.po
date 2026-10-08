@@ -1514,3 +1514,3452 @@ msgstr ""
 "شركتك جاهزة. قواعد الاعتماد مفعّلة، لذا تحتاج المستندات التي تنشئها إلى شخص "
 "آخر لاعتمادها. أضف مديرًا ماليًا من المستخدمين والأدوار، أو أوقف القاعدة من "
 "الإعدادات أثناء التجربة."
+
+msgid "%(a)s found, %(b)s not yet found"
+msgstr "تم العثور على %(a)s، و%(b)s لم يُعثر عليها بعد"
+
+msgid "%(a)s of %(b)s counted"
+msgstr "تم جرد %(a)s من %(b)s"
+
+msgid "%(c)s employees added and %(u)s updated."
+msgstr "تمت إضافة %(c)s موظفين وتحديث %(u)s."
+
+msgid "%(f)s is larger than 10 MB."
+msgstr "حجم %(f)s أكبر من 10 ميجابايت."
+
+msgid "%(f)s is not a supported file type."
+msgstr "نوع الملف %(f)s غير مدعوم."
+
+msgid "%(n)s batches in stock have expired"
+msgstr "%(n)s تشغيلات في المخزون منتهية الصلاحية"
+
+msgid "%(n)s draft documents created."
+msgstr "تم إنشاء %(n)s مستندات كمسودات."
+
+msgid "%(n)s employee"
+msgid_plural "%(n)s employees"
+msgstr[0] "%(n)s موظف"
+msgstr[1] "%(n)s موظف"
+msgstr[2] "%(n)s موظف"
+msgstr[3] "%(n)s موظف"
+msgstr[4] "%(n)s موظف"
+msgstr[5] "%(n)s موظف"
+
+msgid "%(n)s invoices are overdue"
+msgstr "%(n)s فواتير متأخرة السداد"
+
+msgid "%(n)s is not on this count list (it belongs to another location)."
+msgstr "%(n)s غير مدرج في قائمة الجرد هذه (يتبع موقعًا آخر)."
+
+msgid "%(n)s item in stock"
+msgid_plural "%(n)s items in stock"
+msgstr[0] "%(n)s صنف في المخزون"
+msgstr[1] "%(n)s صنف في المخزون"
+msgstr[2] "%(n)s صنف في المخزون"
+msgstr[3] "%(n)s صنف في المخزون"
+msgstr[4] "%(n)s صنف في المخزون"
+msgstr[5] "%(n)s صنف في المخزون"
+
+msgid "%(n)s label"
+msgid_plural "%(n)s labels"
+msgstr[0] "%(n)s ملصق"
+msgstr[1] "%(n)s ملصق"
+msgstr[2] "%(n)s ملصق"
+msgstr[3] "%(n)s ملصق"
+msgstr[4] "%(n)s ملصق"
+msgstr[5] "%(n)s ملصق"
+
+msgid "%(n)s only has %(b)s left to pay."
+msgstr "المتبقي للسداد على %(n)s هو %(b)s فقط."
+
+msgid "%(n)s open purchase order"
+msgid_plural "%(n)s open purchase orders"
+msgstr[0] "%(n)s أمر شراء مفتوح"
+msgstr[1] "%(n)s أمر شراء مفتوح"
+msgstr[2] "%(n)s أمر شراء مفتوح"
+msgstr[3] "%(n)s أمر شراء مفتوح"
+msgstr[4] "%(n)s أمر شراء مفتوح"
+msgstr[5] "%(n)s أمر شراء مفتوح"
+
+msgid "%(n)s open"
+msgid_plural "%(n)s open"
+msgstr[0] "%(n)s مفتوح"
+msgstr[1] "%(n)s مفتوح"
+msgstr[2] "%(n)s مفتوح"
+msgstr[3] "%(n)s مفتوح"
+msgstr[4] "%(n)s مفتوح"
+msgstr[5] "%(n)s مفتوح"
+
+msgid "%(n)s person"
+msgid_plural "%(n)s people"
+msgstr[0] "%(n)s شخص"
+msgstr[1] "%(n)s شخص"
+msgstr[2] "%(n)s شخص"
+msgstr[3] "%(n)s شخص"
+msgstr[4] "%(n)s شخص"
+msgstr[5] "%(n)s شخص"
+
+msgid "%(n)s posted."
+msgstr "تم ترحيل %(n)s."
+
+msgid "%(n)s products are at or below their reorder level"
+msgstr "%(n)s أصناف عند حد إعادة الطلب أو أقل"
+
+msgid "%(n)s receipts uploaded. Record each one, then attach it."
+msgstr "تم رفع %(n)s إيصالات. سجّل كل إيصال ثم أرفقه بالمستند."
+
+msgid "%(n)s recurring transactions are due"
+msgstr "%(n)s معاملات متكررة مستحقة"
+
+msgid "%(n)s transactions imported, %(s)s skipped (duplicates or blank)."
+msgstr "تم استيراد %(n)s حركة، وتخطي %(s)s (مكررة أو فارغة)."
+
+msgid "%(sku)s batch %(b)s is already expired. Do not receive it into stock."
+msgstr ""
+"التشغيلة %(b)s من الصنف %(sku)s منتهية الصلاحية بالفعل. لا تستلمها في "
+"المخزون."
+
+msgid "%(sku)s counted: %(q)s"
+msgstr "تم جرد %(sku)s: %(q)s"
+
+msgid "%(sku)s needs exactly %(n)s serial numbers."
+msgstr "الصنف %(sku)s يحتاج إلى %(n)s أرقام مسلسلة بالضبط."
+
+msgid "%(sku)s: billing more than was received."
+msgstr "%(sku)s: الكمية المفوترة أكبر من المستلمة."
+
+msgid ""
+"%(sku)s: you are receiving more than is still outstanding on the order "
+"(%(q)s)."
+msgstr "%(sku)s: الكمية المستلمة أكبر من المتبقي على أمر الشراء (%(q)s)."
+
+msgid "%(total)s rows in the file"
+msgstr "%(total)s صف في الملف"
+
+msgid "0 means no limit."
+msgstr "صفر يعني بلا حد."
+
+msgid "1–30 days"
+msgstr "1–30 يومًا"
+
+msgid "31–60 days"
+msgstr "31–60 يومًا"
+
+msgid "61–90 days"
+msgstr "61–90 يومًا"
+
+msgid "A later month is already posted; post months in order."
+msgstr "تم ترحيل شهر لاحق بالفعل؛ رحّل الشهور بالترتيب."
+
+msgid ""
+"A payroll account is missing from the chart of accounts, or the run is "
+"empty."
+msgstr "أحد حسابات الرواتب غير موجود في دليل الحسابات، أو أن المسير فارغ."
+
+msgid "A payroll run is waiting for your sign-off"
+msgstr "مسير رواتب بانتظار توقيعك"
+
+msgid "A run for this month already exists."
+msgstr "يوجد مسير رواتب لهذا الشهر بالفعل."
+
+msgid "Absence"
+msgstr "الغياب"
+
+msgid "Absent"
+msgstr "غائب"
+
+msgid "Accepted"
+msgstr "مقبول"
+
+msgid "Account / IBAN / InstaPay"
+msgstr "رقم الحساب / IBAN / إنستاباي"
+
+msgid "Accounts payable"
+msgstr "الموردون (الدائنون)"
+
+msgid "Accounts payable ageing"
+msgstr "أعمار ديون الموردين"
+
+msgid "Accounts receivable"
+msgstr "العملاء (المدينون)"
+
+msgid "Accounts receivable ageing"
+msgstr "أعمار ديون العملاء"
+
+msgid "Accumulated depreciation"
+msgstr "مجمع الإهلاك"
+
+msgid "Accumulated depreciation account"
+msgstr "حساب مجمع الإهلاك"
+
+msgid "Add VAT rate"
+msgstr "إضافة نسبة ضريبة"
+
+msgid "Add a bank account first."
+msgstr "أضف حسابًا بنكيًا أولًا."
+
+msgid "Add an asset category first, so TriB knows which accounts to post to."
+msgstr "أضف فئة أصول أولًا حتى يعرف تراي بي الحسابات التي يرحّل إليها."
+
+msgid "Add category"
+msgstr "إضافة فئة"
+
+msgid "Add department"
+msgstr "إضافة إدارة"
+
+msgid "Add plan"
+msgstr "إضافة خطة"
+
+msgid "Add warehouse"
+msgstr "إضافة مخزن"
+
+msgid "Added to bookmarks."
+msgstr "تمت الإضافة إلى المفضلة."
+
+msgid "Added to the books as %(n)s."
+msgstr "تمت الإضافة إلى الدفاتر بالقيد %(n)s."
+
+msgid "Adjust stock"
+msgstr "تسوية المخزون"
+
+msgid "Adjustment in"
+msgstr "تسوية بالزيادة"
+
+msgid "Adjustment out"
+msgstr "تسوية بالنقص"
+
+msgid "Advance / unallocated"
+msgstr "دفعة مقدمة / غير مخصصة"
+
+msgid "Advance to %(e)s"
+msgstr "سلفة إلى %(e)s"
+
+msgid "Advance — not applied to a bill."
+msgstr "دفعة مقدمة — غير مخصصة لفاتورة."
+
+msgid "Ageing"
+msgstr "أعمار الديون"
+
+msgid "Ageing report"
+msgstr "تقرير أعمار الديون"
+
+msgid "All assets"
+msgstr "كل الأصول"
+
+msgid "All batches"
+msgstr "كل التشغيلات"
+
+msgid "All categories"
+msgstr "كل الفئات"
+
+msgid "All departments"
+msgstr "كل الإدارات"
+
+msgid "All except disposed"
+msgstr "الكل عدا المستبعد"
+
+msgid "All warehouses"
+msgstr "كل المخازن"
+
+msgid "Allocate oldest first"
+msgstr "التخصيص للأقدم أولًا"
+
+msgid "Allow over credit limit"
+msgstr "السماح بتجاوز حد الائتمان"
+
+msgid "Allowance"
+msgstr "البدل"
+
+msgid "Allowances"
+msgstr "البدلات"
+
+msgid "Allowances / month"
+msgstr "البدلات / شهريًا"
+
+msgid "Amount paid"
+msgstr "المبلغ المدفوع"
+
+msgid "Amount received"
+msgstr "المبلغ المحصّل"
+
+msgid "Amounts"
+msgstr "المبالغ"
+
+msgid "Annual"
+msgstr "اعتيادية"
+
+msgid ""
+"Annual leave earned but not taken, valued at each employee's daily rate: the"
+" liability for the balance sheet."
+msgstr ""
+"رصيد الإجازات الاعتيادية المستحقة وغير المستخدمة، مقيّمًا بالأجر اليومي لكل "
+"موظف: الالتزام الظاهر في الميزانية."
+
+msgid "Annual leave taken reduces the leave provision."
+msgstr "الإجازات الاعتيادية المستخدمة تخفض مخصص الإجازات."
+
+msgid "Annual leave — first year (days)"
+msgstr "الإجازة الاعتيادية — السنة الأولى (أيام)"
+
+msgid "Annual leave — senior (days)"
+msgstr "الإجازة الاعتيادية — الأقدمية (أيام)"
+
+msgid "Annual leave — standard (days)"
+msgstr "الإجازة الاعتيادية — العادية (أيام)"
+
+msgid "Annual salary tax exemption"
+msgstr "حد الإعفاء السنوي لضريبة كسب العمل"
+
+msgid "Another employee already has this code."
+msgstr "هذا الكود مستخدم لموظف آخر."
+
+msgid "Applied to"
+msgstr "مخصص إلى"
+
+msgid "Applies to"
+msgstr "ينطبق على"
+
+msgid "Approval"
+msgstr "الاعتماد"
+
+msgid "Approved and posted to the ledger."
+msgstr "تم الاعتماد والترحيل إلى دفتر الأستاذ."
+
+msgid "Approved by"
+msgstr "اعتمده"
+
+msgid "Approved. Waiting for the Managing Director."
+msgstr "تم الاعتماد. بانتظار العضو المنتدب."
+
+msgid "Asset account"
+msgstr "حساب الأصل"
+
+msgid "Asset categories"
+msgstr "فئات الأصول"
+
+msgid "Asset count"
+msgstr "جرد الأصول"
+
+msgid "Asset count closed."
+msgstr "تم إغلاق جرد الأصول."
+
+msgid "Asset disposal"
+msgstr "استبعاد أصل"
+
+msgid "Asset disposed and posted to the ledger."
+msgstr "تم استبعاد الأصل وترحيله إلى دفتر الأستاذ."
+
+msgid "Asset labels"
+msgstr "ملصقات الأصول"
+
+msgid "Asset number"
+msgstr "رقم الأصل"
+
+msgid "Asset register"
+msgstr "سجل الأصول"
+
+msgid "At or below reorder level"
+msgstr "عند حد إعادة الطلب أو أقل"
+
+msgid "Attach"
+msgstr "إرفاق"
+
+msgid "Attach to"
+msgstr "إرفاق إلى"
+
+msgid "Attachment removed."
+msgstr "تم حذف المرفق."
+
+msgid "Attachments"
+msgstr "المرفقات"
+
+msgid "Attendance"
+msgstr "الحضور والانصراف"
+
+msgid "Attendance CSV"
+msgstr "ملف الحضور CSV"
+
+msgid "Attendance imported: %(a)s added, %(u)s updated, %(s)s skipped."
+msgstr "تم استيراد الحضور: إضافة %(a)s، تحديث %(u)s، تخطي %(s)s."
+
+msgid "Attendance — last 31 days"
+msgstr "الحضور — آخر 31 يومًا"
+
+msgid "Authorise"
+msgstr "تفويض"
+
+msgid "Authorise & post"
+msgstr "تفويض وترحيل"
+
+msgid "Authorised"
+msgstr "مفوَّض"
+
+msgid "Authorised by"
+msgstr "فوّضه"
+
+msgid "Authorised. The payroll journal is posted."
+msgstr "تم التفويض وترحيل قيد الرواتب."
+
+msgid "Automatic"
+msgstr "تلقائي"
+
+msgid "Average cost"
+msgstr "متوسط التكلفة"
+
+msgid "Balance (days)"
+msgstr "الرصيد (أيام)"
+
+msgid "Balance as of"
+msgstr "الرصيد في"
+
+msgid "Balance confirmations"
+msgstr "مصادقات الأرصدة"
+
+msgid "Balance due"
+msgstr "الرصيد المستحق"
+
+msgid "Band"
+msgstr "الشريحة"
+
+msgid "Bank & InstaPay salaries paid from"
+msgstr "صرف رواتب البنك وإنستاباي من"
+
+msgid "Bank details"
+msgstr "بيانات البنك"
+
+msgid "Bank rules"
+msgstr "قواعد البنك"
+
+msgid "Bank transaction"
+msgstr "حركة بنكية"
+
+msgid "Bank transactions"
+msgstr "الحركات البنكية"
+
+msgid "Barcode"
+msgstr "الباركود"
+
+msgid "Barcode labels"
+msgstr "ملصقات الباركود"
+
+msgid "Basic"
+msgstr "الأساسي"
+
+msgid "Basic salary / month"
+msgstr "الراتب الأساسي / شهريًا"
+
+msgid "Batch"
+msgstr "التشغيلة"
+
+msgid "Batch & expiry date"
+msgstr "التشغيلة وتاريخ الصلاحية"
+
+msgid "Batches & expiry"
+msgstr "التشغيلات والصلاحية"
+
+msgid "Batches in stock"
+msgstr "التشغيلات في المخزون"
+
+msgid "Beginning balance"
+msgstr "الرصيد الافتتاحي"
+
+msgid "Best sellers"
+msgstr "الأكثر مبيعًا"
+
+msgid "Bill"
+msgstr "فاتورة مورد"
+
+msgid "Bill %(n)s belongs to another supplier or currency."
+msgstr "فاتورة المورد %(n)s تخص موردًا أو عملة أخرى."
+
+msgid "Bill %(n)s posted."
+msgstr "تم ترحيل فاتورة المورد %(n)s."
+
+msgid "Bill payment"
+msgstr "سداد فاتورة مورد"
+
+msgid "Bill payments"
+msgstr "مدفوعات الموردين"
+
+msgid "Bill voided."
+msgstr "تم إلغاء فاتورة المورد."
+
+msgid "Billed"
+msgstr "مفوتر"
+
+msgid "Billed, not received"
+msgstr "مفوتر ولم يُستلم"
+
+msgid "Bills"
+msgstr "فواتير الموردين"
+
+msgid "Bills, bill payments and payment vouchers in one list."
+msgstr "فواتير الموردين ومدفوعاتهم وسندات الصرف في قائمة واحدة."
+
+msgid "Book value"
+msgstr "القيمة الدفترية"
+
+msgid "Bookmark this page"
+msgstr "إضافة هذه الصفحة إلى المفضلة"
+
+msgid "Bookmarks"
+msgstr "المفضلة"
+
+msgid "Bookmarks saved."
+msgstr "تم حفظ المفضلة."
+
+msgid "Budget"
+msgstr "الموازنة"
+
+msgid "By category"
+msgstr "حسب الفئة"
+
+msgid ""
+"By the run's net total: which sign-offs are needed. Without a matching band,"
+" both the Finance Manager and the Managing Director sign."
+msgstr ""
+"حسب صافي المسير: التوقيعات المطلوبة. إذا لم تنطبق أي شريحة يوقّع المدير "
+"المالي والعضو المنتدب معًا."
+
+msgid "Calculate payroll"
+msgstr "احتساب الرواتب"
+
+msgid "Cancel order"
+msgstr "إلغاء الأمر"
+
+msgid "Capital"
+msgstr "التمويل"
+
+msgid "Carry on with the reconciliation already in progress."
+msgstr "استكمل التسوية الجارية بالفعل."
+
+msgid "Cash salaries paid from"
+msgstr "صرف الرواتب النقدية من"
+
+msgid "Casual"
+msgstr "عارضة"
+
+msgid "Casual leave (days)"
+msgstr "الإجازة العارضة (أيام)"
+
+msgid "Categories"
+msgstr "الفئات"
+
+msgid "Categorise as"
+msgstr "تصنيف كـ"
+
+msgid "Categorise as…"
+msgstr "تصنيف كـ…"
+
+msgid "Categorised"
+msgstr "مصنّفة"
+
+msgid "Category"
+msgstr "الفئة"
+
+msgid "Chase"
+msgstr "متابعة"
+
+msgid "Check against the ledger"
+msgstr "المطابقة مع دفتر الأستاذ"
+
+msgid "Choose an Excel .xlsx file."
+msgstr "اختر ملف إكسل بصيغة ‎.xlsx."
+
+msgid "Choose files"
+msgstr "اختر الملفات"
+
+msgid "Choose the account that received the sale proceeds."
+msgstr "اختر الحساب الذي استلم حصيلة البيع."
+
+msgid "Choose the bank account salaries are paid from."
+msgstr "اختر الحساب البنكي الذي تُصرف منه الرواتب."
+
+msgid "Choose the customer, then share the amount across their open invoices."
+msgstr "اختر العميل ثم وزّع المبلغ على فواتيره المفتوحة."
+
+msgid ""
+"Choose the date column, and either the amount column or both money in and "
+"money out."
+msgstr "اختر عمود التاريخ، وعمود المبلغ أو عمودي الوارد والمنصرف معًا."
+
+msgid "Choose the supplier, then share the payment across their open bills."
+msgstr "اختر المورد ثم وزّع الدفعة على فواتيره المفتوحة."
+
+msgid "Choose the warehouse that receives the stock on this bill."
+msgstr "اختر المخزن الذي يستلم بضاعة هذه الفاتورة."
+
+msgid "Choose the warehouse the goods are shipped from."
+msgstr "اختر المخزن الذي تُشحن منه البضاعة."
+
+msgid ""
+"Choose to post the advance to the ledger now (Dr employee advances, Cr bank "
+"or cash)."
+msgstr ""
+"اختر لترحيل السلفة الآن (من حـ/ سلف العاملين إلى حـ/ البنك أو الخزينة)."
+
+msgid "Choose two different warehouses."
+msgstr "اختر مخزنين مختلفين."
+
+msgid "City"
+msgstr "المدينة"
+
+msgid ""
+"Click the star at the top of any page to add it here. Bookmarks are yours "
+"alone."
+msgstr "اضغط النجمة أعلى أي صفحة لإضافتها هنا. المفضلة خاصة بك وحدك."
+
+msgid "Close count"
+msgstr "إغلاق الجرد"
+
+msgid "Close order"
+msgstr "إغلاق الأمر"
+
+msgid "Closed"
+msgstr "مغلق"
+
+msgid ""
+"Code 128 labels carrying the asset number, sized for A4 sheets of 21. Stick "
+"one on each asset."
+msgstr ""
+"ملصقات Code 128 تحمل رقم الأصل، بمقاس ورقة A4 من 21 ملصقًا. ألصق واحدًا على "
+"كل أصل."
+
+msgid ""
+"Code 128 labels sized for A4 sheets of 21 (63.5 × 38.1 mm). The label "
+"carries the manufacturer barcode if the product has one, otherwise its SKU."
+msgstr ""
+"ملصقات Code 128 بمقاس ورقة A4 من 21 ملصقًا (63.5 × 38.1 مم). يحمل الملصق "
+"باركود المصنّع إن وجد، وإلا كود الصنف."
+
+msgid "Code, name, title or national ID"
+msgstr "الكود أو الاسم أو الوظيفة أو الرقم القومي"
+
+msgid "Column"
+msgstr "عمود"
+
+msgid ""
+"Columns: employee_code, date (YYYY-MM-DD), hours_worked — or time_in and "
+"time_out."
+msgstr ""
+"الأعمدة: employee_code وdate (YYYY-MM-DD) وhours_worked — أو time_in "
+"وtime_out."
+
+msgid "Company share / month"
+msgstr "حصة الشركة / شهريًا"
+
+msgid "Completed"
+msgstr "مكتمل"
+
+msgid "Condition"
+msgstr "الحالة الفنية"
+
+msgid "Confirm order"
+msgstr "تأكيد الأمر"
+
+msgid "Consumables by expiry date."
+msgstr "المستلزمات حسب تاريخ الصلاحية."
+
+msgid "Contact"
+msgstr "جهة الاتصال"
+
+msgid "Contact person"
+msgstr "الشخص المسؤول"
+
+msgid "Contract"
+msgstr "العقد"
+
+msgid "Contractor"
+msgstr "متعاقد"
+
+msgid "Convert to invoice"
+msgstr "تحويل إلى فاتورة"
+
+msgid "Convert to sales order"
+msgstr "تحويل إلى أمر بيع"
+
+msgid "Converted"
+msgstr "تم التحويل"
+
+msgid "Copies"
+msgstr "النسخ"
+
+msgid "Cost"
+msgstr "التكلفة"
+
+msgid "Cost / expense account"
+msgstr "حساب التكلفة / المصروف"
+
+msgid "Cost is the FIFO cost of the goods delivered."
+msgstr "التكلفة هي تكلفة الوارد أولًا صادر أولًا للبضاعة المسلّمة."
+
+msgid "Cost layers in stock"
+msgstr "طبقات التكلفة في المخزون"
+
+msgid "Cost of goods sold"
+msgstr "تكلفة البضاعة المباعة"
+
+msgid "Costs"
+msgstr "التكاليف"
+
+msgid "Count sheet"
+msgstr "كشف الجرد"
+
+msgid "Counted"
+msgstr "المعدود"
+
+msgid "Counting"
+msgstr "جارٍ الجرد"
+
+msgid "Counts saved."
+msgstr "تم حفظ الكميات المعدودة."
+
+msgid "Coverage"
+msgstr "التغطية"
+
+msgid "Covered by social insurance"
+msgstr "مشمول بالتأمينات الاجتماعية"
+
+msgid "Create bill"
+msgstr "إنشاء فاتورة مورد"
+
+msgid "Create due drafts now"
+msgstr "إنشاء المسودات المستحقة الآن"
+
+msgid "Create invoice"
+msgstr "إنشاء فاتورة"
+
+msgid "Create purchase order"
+msgstr "إنشاء أمر شراء"
+
+msgid "Credit limit"
+msgstr "حد الائتمان"
+
+msgid "Current"
+msgstr "جارٍ"
+
+msgid "Current staff"
+msgstr "الموظفون الحاليون"
+
+msgid "Custodian"
+msgstr "العهدة لدى"
+
+msgid "Customer"
+msgstr "العميل"
+
+msgid "Customer Hub"
+msgstr "مركز العملاء"
+
+msgid "Customer orders"
+msgstr "طلبات العملاء"
+
+msgid "Customer payment"
+msgstr "تحصيل من عميل"
+
+msgid "Customer statements"
+msgstr "كشوف حسابات العملاء"
+
+msgid "Customers & suppliers"
+msgstr "العملاء والموردون"
+
+msgid "Customise"
+msgstr "تخصيص"
+
+msgid "Customise menu"
+msgstr "تخصيص القائمة"
+
+msgid "Customise your menu"
+msgstr "خصّص قائمتك"
+
+msgid "Daily rate"
+msgstr "الأجر اليومي"
+
+msgid "Damaged"
+msgstr "تالف"
+
+msgid "Date of birth"
+msgstr "تاريخ الميلاد"
+
+msgid "Date received"
+msgstr "تاريخ الاستلام"
+
+msgid "Days"
+msgstr "الأيام"
+
+msgid "Days absent"
+msgstr "أيام الغياب"
+
+msgid "Days left"
+msgstr "الأيام المتبقية"
+
+msgid "Days past the due date."
+msgstr "عدد الأيام بعد تاريخ الاستحقاق."
+
+msgid "Days per month (for daily rate)"
+msgstr "أيام الشهر (لحساب الأجر اليومي)"
+
+msgid "Days present"
+msgstr "أيام الحضور"
+
+msgid "Declined"
+msgstr "مرفوض"
+
+msgid ""
+"Deducted from payroll every month until repaid. Balances fall when a payroll"
+" run is authorised."
+msgstr ""
+"يُخصم من الراتب شهريًا حتى السداد. ينخفض الرصيد عند تفويض مسير الرواتب."
+
+msgid "Deduction"
+msgstr "الاستقطاع"
+
+msgid "Deductions"
+msgstr "الاستقطاعات"
+
+msgid "Deductions & journal"
+msgstr "الاستقطاعات والقيد"
+
+msgid "Deductions can be paid over once the run is authorised."
+msgstr "يمكن توريد الاستقطاعات بعد تفويض المسير."
+
+msgid "Default"
+msgstr "افتراضي"
+
+msgid "Delete"
+msgstr "حذف"
+
+msgid "Delete draft"
+msgstr "حذف المسودة"
+
+msgid "Delete this draft run?"
+msgstr "حذف مسودة هذا المسير؟"
+
+msgid "Deliver to warehouse"
+msgstr "التسليم إلى مخزن"
+
+msgid "Delivery & invoicing progress"
+msgstr "تقدم التسليم والفوترة"
+
+msgid "Delivery date"
+msgstr "تاريخ التسليم"
+
+msgid "Department"
+msgstr "الإدارة"
+
+msgid "Departments"
+msgstr "الإدارات"
+
+msgid "Deposit"
+msgstr "إيداع"
+
+msgid "Deposit to"
+msgstr "الإيداع في"
+
+msgid "Depreciation"
+msgstr "الإهلاك"
+
+msgid "Depreciation %(m)s"
+msgstr "إهلاك %(m)s"
+
+msgid "Depreciation before TriB"
+msgstr "الإهلاك قبل تراي بي"
+
+msgid "Depreciation expense"
+msgstr "مصروف الإهلاك"
+
+msgid "Depreciation expense account"
+msgstr "حساب مصروف الإهلاك"
+
+msgid "Depreciation for %(m)s posted."
+msgstr "تم ترحيل إهلاك %(m)s."
+
+msgid "Depreciation for this month has already been posted."
+msgstr "تم ترحيل إهلاك هذا الشهر بالفعل."
+
+msgid "Depreciation posted"
+msgstr "الإهلاك المرحّل"
+
+msgid "Depreciation starts"
+msgstr "بداية الإهلاك"
+
+msgid "Description contains"
+msgstr "الوصف يحتوي على"
+
+msgid ""
+"Differences come from VAT posted by vouchers or journals rather than "
+"invoices and bills. Open the account statement to see them."
+msgstr ""
+"تنتج الفروق عن ضريبة مرحّلة بسندات أو قيود وليس بفواتير. افتح كشف الحساب "
+"لعرضها."
+
+msgid "Disc. %"
+msgstr "خصم %"
+
+msgid "Disposal date"
+msgstr "تاريخ الاستبعاد"
+
+msgid "Disposal of %(n)s"
+msgstr "استبعاد %(n)s"
+
+msgid "Dispose"
+msgstr "استبعاد"
+
+msgid "Dispose of this asset and post the gain or loss?"
+msgstr "استبعاد هذا الأصل وترحيل الربح أو الخسارة؟"
+
+msgid "Dispose or sell"
+msgstr "استبعاد أو بيع"
+
+msgid "Disposed"
+msgstr "مستبعد"
+
+msgid ""
+"Download the statement from your bank's online banking as CSV or Excel. Any "
+"bank works: next you tell TriB which column is which."
+msgstr ""
+"نزّل كشف الحساب من الخدمات المصرفية الإلكترونية بصيغة CSV أو إكسل. يعمل مع "
+"أي بنك: في الخطوة التالية تحدد لتراي بي معنى كل عمود."
+
+msgid "Draft run deleted."
+msgstr "تم حذف مسودة المسير."
+
+msgid ""
+"Each category sets the useful life and the accounts depreciation posts to."
+msgstr "كل فئة تحدد العمر الإنتاجي والحسابات التي يُرحّل إليها الإهلاك."
+
+msgid ""
+"Each scan adds the quantity to the item's count. Scanners that send Enter "
+"after the code work without touching the keyboard."
+msgstr ""
+"كل مسح يضيف الكمية إلى جرد الصنف. أجهزة المسح التي ترسل Enter بعد الكود تعمل"
+" دون لمس لوحة المفاتيح."
+
+msgid "Each warehouse keeps its own stock, serial numbers and batches."
+msgstr "لكل مخزن رصيده وأرقامه المسلسلة وتشغيلاته."
+
+msgid "Earned to date"
+msgstr "المستحق حتى تاريخه"
+
+msgid "Edit VAT rate"
+msgstr "تعديل نسبة الضريبة"
+
+msgid "Edit bookmarks"
+msgstr "تعديل المفضلة"
+
+msgid "Edit category"
+msgstr "تعديل الفئة"
+
+msgid "Edit department"
+msgstr "تعديل الإدارة"
+
+msgid "Edit plan"
+msgstr "تعديل الخطة"
+
+msgid "Edit rule"
+msgstr "تعديل القاعدة"
+
+msgid "Edit warehouse"
+msgstr "تعديل المخزن"
+
+msgid "Email campaigns"
+msgstr "حملات البريد الإلكتروني"
+
+msgid "Emergency fund — employer %"
+msgstr "صندوق الطوارئ — حصة صاحب العمل %"
+
+msgid "Employee"
+msgstr "الموظف"
+
+msgid "Employee code"
+msgstr "كود الموظف"
+
+msgid "Employee deductions"
+msgstr "استقطاعات العاملين"
+
+msgid "Employee deductions payable"
+msgstr "استقطاعات العاملين المستحقة"
+
+msgid "Employee share / month"
+msgstr "حصة الموظف / شهريًا"
+
+msgid "Employees"
+msgstr "الموظفون"
+
+msgid "Employer cost"
+msgstr "تكلفة صاحب العمل"
+
+msgid "Employer insurance number"
+msgstr "الرقم التأميني للمنشأة"
+
+msgid "Employer social insurance"
+msgstr "حصة صاحب العمل في التأمينات"
+
+msgid "End date"
+msgstr "تاريخ الانتهاء"
+
+msgid "Enter the batch number for %(sku)s."
+msgstr "أدخل رقم التشغيلة للصنف %(sku)s."
+
+msgid "Enter the batch number."
+msgstr "أدخل رقم التشغيلة."
+
+msgid "Enter the expiry date for %(sku)s."
+msgstr "أدخل تاريخ الصلاحية للصنف %(sku)s."
+
+msgid "Enter the expiry date."
+msgstr "أدخل تاريخ الصلاحية."
+
+msgid ""
+"Enter what physically arrived. Serial numbers for machines; batch and expiry"
+" for consumables."
+msgstr ""
+"أدخل ما وصل فعليًا. الأرقام المسلسلة للأجهزة، والتشغيلة وتاريخ الصلاحية "
+"للمستلزمات."
+
+msgid "Entitlement"
+msgstr "الاستحقاق"
+
+msgid ""
+"Every asset has a number and barcode label for the annual count. Buy assets "
+"on a bill coded to the asset account, then register them here."
+msgstr ""
+"لكل أصل رقم وملصق باركود للجرد السنوي. اشترِ الأصل بفاتورة مورد على حساب "
+"الأصل ثم سجّله هنا."
+
+msgid "Every asset has been found."
+msgstr "تم العثور على كل الأصول."
+
+msgid ""
+"Every batch in the warehouse with the expiry date recorded when it was "
+"received. Expired stock cannot be invoiced; write it off with an Expired "
+"adjustment."
+msgstr ""
+"كل تشغيلة في المخزن مع تاريخ الصلاحية المسجّل عند الاستلام. لا يمكن فوترة "
+"البضاعة المنتهية؛ أعدمها بتسوية من نوع منتهي الصلاحية."
+
+msgid ""
+"Every deduction by employee, and the general ledger entry the run posts when"
+" it is authorised."
+msgstr ""
+"كل استقطاع لكل موظف، وقيد دفتر الأستاذ الذي يرحّله المسير عند التفويض."
+
+msgid "Every line needs a quantity greater than zero."
+msgstr "كل سطر يحتاج إلى كمية أكبر من صفر."
+
+msgid ""
+"Every product has its own SKU. Leave the SKU empty and TriB numbers it from "
+"the category prefix."
+msgstr "لكل صنف كود خاص. اترك الكود فارغًا وسيرقّمه تراي بي من بادئة الفئة."
+
+msgid "Everyone"
+msgstr "الجميع"
+
+msgid ""
+"Everyone is imported as subject to salary tax. Untick “Subject to salary "
+"tax” on any employee who is exempt before running payroll."
+msgstr ""
+"يُستورد الجميع خاضعين لضريبة كسب العمل. ألغِ اختيار «خاضع لضريبة كسب العمل» "
+"لأي موظف معفى قبل احتساب الرواتب."
+
+msgid "Everything ordered has been received."
+msgstr "تم استلام كل ما طُلب."
+
+msgid ""
+"Everything you can open in TriB. Pin your favourites to the menu with "
+"Customise."
+msgstr "كل ما يمكنك فتحه في تراي بي. ثبّت المفضّل في القائمة من «تخصيص»."
+
+msgid "Exchange difference"
+msgstr "فروق العملة"
+
+msgid "Exclude"
+msgstr "استبعاد"
+
+msgid "Excluded"
+msgstr "مستبعدة"
+
+msgid "Excluded."
+msgstr "تم الاستبعاد."
+
+msgid "Exempt"
+msgstr "معفى"
+
+msgid "Expected"
+msgstr "المتوقع"
+
+msgid "Expected delivery"
+msgstr "التسليم المتوقع"
+
+msgid "Expected hours"
+msgstr "الساعات المطلوبة"
+
+msgid "Expense transactions"
+msgstr "حركات المصروفات"
+
+msgid "Expenses & Bills"
+msgstr "المصروفات وفواتير الموردين"
+
+msgid "Expired"
+msgstr "منتهي الصلاحية"
+
+msgid "Expired batches"
+msgstr "تشغيلات منتهية الصلاحية"
+
+msgid "Expiring in 90 days"
+msgstr "تنتهي خلال 90 يومًا"
+
+msgid "Expiring within 180 days"
+msgstr "تنتهي خلال 180 يومًا"
+
+msgid "Expiring within 30 days"
+msgstr "تنتهي خلال 30 يومًا"
+
+msgid "Expiring within 90 days"
+msgstr "تنتهي خلال 90 يومًا"
+
+msgid "Expiry date"
+msgstr "تاريخ الصلاحية"
+
+msgid "Expiry watch"
+msgstr "متابعة الصلاحية"
+
+msgid "Export to Excel"
+msgstr "تصدير إلى إكسل"
+
+msgid "Female"
+msgstr "أنثى"
+
+msgid "File"
+msgstr "الملف"
+
+msgid "File attached."
+msgstr "تم إرفاق الملف."
+
+msgid "Files attached."
+msgstr "تم إرفاق الملفات."
+
+msgid "Finance Manager"
+msgstr "المدير المالي"
+
+msgid "Finance Manager approval"
+msgstr "اعتماد المدير المالي"
+
+msgid "Finish now"
+msgstr "إنهاء الآن"
+
+msgid "Fixed asset"
+msgstr "أصل ثابت"
+
+msgid "Fixed assets"
+msgstr "الأصول الثابتة"
+
+msgid "Fixed once depreciation has been posted."
+msgstr "ثابت بعد ترحيل الإهلاك."
+
+msgid "Fixed once stock has been received."
+msgstr "ثابت بعد استلام بضاعة."
+
+msgid "Fixed term"
+msgstr "محدد المدة"
+
+msgid "For assets bought before you started using TriB."
+msgstr "للأصول المشتراة قبل بدء استخدام تراي بي."
+
+msgid "For review"
+msgstr "للمراجعة"
+
+msgid "Found"
+msgstr "تم العثور عليه"
+
+msgid "Found: %(n)s"
+msgstr "تم العثور على: %(n)s"
+
+msgid "From net total"
+msgstr "من صافي"
+
+msgid "Gain on disposal"
+msgstr "أرباح بيع أصول"
+
+msgid "Gender"
+msgstr "النوع"
+
+msgid ""
+"Goods received into the warehouse, against purchase orders or directly."
+msgstr "البضاعة المستلمة في المخزن مقابل أوامر شراء أو مباشرة."
+
+msgid "Goods received not invoiced"
+msgstr "بضاعة مستلمة لم تصل فواتيرها"
+
+msgid "Grade"
+msgstr "الدرجة"
+
+msgid "Gross"
+msgstr "الإجمالي"
+
+msgid "Gross margin"
+msgstr "مجمل الربح"
+
+msgid "Gross pay"
+msgstr "إجمالي الأجر"
+
+msgid ""
+"HR prepares, the Finance Manager approves, the Managing Director authorises "
+"(joint release). Authorising posts the payroll journal; payment and each "
+"deduction pay-over post separately."
+msgstr ""
+"تُعدّه الموارد البشرية، ويعتمده المدير المالي، ويفوّضه العضو المنتدب (توقيع "
+"مزدوج). التفويض يرحّل قيد الرواتب، ويُرحَّل الصرف وتوريد كل استقطاع بشكل "
+"منفصل."
+
+msgid ""
+"Headings read: Department, SN, Name, Title, Full Time (F / P / Contractor), "
+"Bank / Instapay, Joining Date, Net Basic Salary, Allowance, Monthly Employee"
+" Medical Due, Monthly Employee Social Due. Yellow rows are imported as On "
+"hold and red rows as Left."
+msgstr ""
+"العناوين المقروءة: Department وSN وName وTitle وFull Time (F / P / "
+"Contractor) وBank / Instapay وJoining Date وNet Basic Salary وAllowance "
+"وMonthly Employee Medical Due وMonthly Employee Social Due. الصفوف الصفراء "
+"تُستورد «موقوف» والحمراء «ترك العمل»."
+
+msgid "Holiday"
+msgstr "عطلة"
+
+msgid "Hours worked"
+msgstr "ساعات العمل"
+
+msgid "Import"
+msgstr "استيراد"
+
+msgid "Import employees"
+msgstr "استيراد الموظفين"
+
+msgid "Import employees from the payroll sheet"
+msgstr "استيراد الموظفين من شيت الرواتب"
+
+msgid "Import from payroll sheet"
+msgstr "الاستيراد من شيت الرواتب"
+
+msgid "Import from the fingerprint machine"
+msgstr "الاستيراد من جهاز البصمة"
+
+msgid "Import these employees"
+msgstr "استيراد هؤلاء الموظفين"
+
+msgid ""
+"Import your bank statement, then match each line to what is already in TriB "
+"or add it to the books."
+msgstr ""
+"استورد كشف حساب البنك، ثم طابق كل سطر مع ما هو مسجّل في تراي بي أو أضفه إلى "
+"الدفاتر."
+
+msgid "In progress"
+msgstr "جارية"
+
+msgid "In the books"
+msgstr "في الدفاتر"
+
+msgid "In use"
+msgstr "قيد الاستخدام"
+
+msgid "Include customers with a zero balance"
+msgstr "تضمين العملاء ذوي الرصيد الصفري"
+
+msgid "Include inactive"
+msgstr "تضمين غير النشط"
+
+msgid "Income account"
+msgstr "حساب الإيراد"
+
+msgid "Indefinite"
+msgstr "غير محدد المدة"
+
+msgid "Input VAT (purchases)"
+msgstr "ضريبة المدخلات (المشتريات)"
+
+msgid "Input VAT on bills"
+msgstr "ضريبة المدخلات على فواتير الموردين"
+
+msgid "InstaPay"
+msgstr "إنستاباي"
+
+msgid "Insurable wage"
+msgstr "الأجر التأميني"
+
+msgid "Insurable wage ceiling / month"
+msgstr "الحد الأقصى للأجر التأميني / شهريًا"
+
+msgid "Insurable wage floor / month"
+msgstr "الحد الأدنى للأجر التأميني / شهريًا"
+
+msgid "Insurance"
+msgstr "التأمينات"
+
+msgid "Insurance number"
+msgstr "الرقم التأميني"
+
+msgid "Insured"
+msgstr "مؤمَّن عليه"
+
+msgid "Inventory account"
+msgstr "حساب المخزون"
+
+msgid "Inventory overview"
+msgstr "نظرة عامة على المخزون"
+
+msgid "Invoice"
+msgstr "فاتورة"
+
+msgid "Invoice %(n)s belongs to another customer or currency."
+msgstr "الفاتورة %(n)s تخص عميلًا أو عملة أخرى."
+
+msgid "Invoice %(n)s posted."
+msgstr "تم ترحيل الفاتورة %(n)s."
+
+msgid "Invoice voided."
+msgstr "تم إلغاء الفاتورة."
+
+msgid "Invoiced"
+msgstr "مفوتر"
+
+msgid "Issue"
+msgstr "صرف"
+
+msgid "Issue date"
+msgstr "تاريخ الصرف"
+
+msgid "Item"
+msgstr "الصنف"
+
+msgid "Item receipt"
+msgstr "إذن استلام"
+
+msgid "Item receipt %(n)s posted. Stock is in the warehouse."
+msgstr "تم ترحيل إذن الاستلام %(n)s. البضاعة في المخزن."
+
+msgid "Item receipts"
+msgstr "أذون الاستلام"
+
+msgid "Job title"
+msgstr "الوظيفة"
+
+msgid "Job title (Arabic)"
+msgstr "الوظيفة (عربي)"
+
+msgid "Job title (English)"
+msgstr "الوظيفة (إنجليزي)"
+
+msgid "Joined"
+msgstr "تاريخ التعيين"
+
+msgid "Joining date"
+msgstr "تاريخ التعيين"
+
+msgid "Joint release: authorisation must come from a different person."
+msgstr "التوقيع المزدوج: يجب أن يصدر التفويض من شخص آخر."
+
+msgid "Journal entry"
+msgstr "قيد اليومية"
+
+msgid "Journal to be posted on authorisation"
+msgstr "القيد الذي سيُرحَّل عند التفويض"
+
+msgid "Labels per item"
+msgstr "ملصقات لكل صنف"
+
+msgid "Last %(d)s days"
+msgstr "آخر %(d)s يومًا"
+
+msgid "Last 365 days"
+msgstr "آخر 365 يومًا"
+
+msgid "Latest stock movements"
+msgstr "أحدث حركات المخزون"
+
+msgid "Leads"
+msgstr "العملاء المحتملون"
+
+msgid "Leave"
+msgstr "الإجازات"
+
+msgid "Leave at 1 to use the latest saved rate for foreign currencies."
+msgstr "اتركه 1 لاستخدام آخر سعر صرف محفوظ للعملات الأجنبية."
+
+msgid "Leave both empty to count every asset."
+msgstr "اتركهما فارغين لجرد كل الأصول."
+
+msgid "Leave empty to count calendar days from the dates."
+msgstr "اتركه فارغًا لحساب الأيام من التاريخين."
+
+msgid "Leave empty to count every stock item."
+msgstr "اتركه فارغًا لجرد كل الأصناف."
+
+msgid "Leave empty to number it automatically (FA-00001)."
+msgstr "اتركه فارغًا للترقيم التلقائي (FA-00001)."
+
+msgid "Leave empty to number it automatically."
+msgstr "اتركه فارغًا للترقيم التلقائي."
+
+msgid ""
+"Leave empty to use basic + allowances within the legal floor and ceiling."
+msgstr ""
+"اتركه فارغًا لاستخدام الأساسي والبدلات في حدود الحد الأدنى والأقصى القانوني."
+
+msgid "Leave empty to use the category's useful life."
+msgstr "اتركه فارغًا لاستخدام العمر الإنتاجي للفئة."
+
+msgid "Leave provision"
+msgstr "مخصص الإجازات"
+
+msgid "Leave recorded."
+msgstr "تم تسجيل الإجازة."
+
+msgid "Leave the code empty to number it automatically."
+msgstr "اترك الكود فارغًا للترقيم التلقائي."
+
+msgid "Leave this year"
+msgstr "إجازات هذا العام"
+
+msgid "Leaving date"
+msgstr "تاريخ ترك العمل"
+
+msgid "Left"
+msgstr "ترك العمل"
+
+msgid "Left (red)"
+msgstr "ترك العمل (أحمر)"
+
+msgid "Link a department to a cost centre and its payroll cost posts there."
+msgstr "اربط الإدارة بمركز تكلفة لتُرحَّل تكلفة رواتبها إليه."
+
+msgid "Loan"
+msgstr "السلفة"
+
+msgid "Loan recorded. It is deducted from payroll each month until repaid."
+msgstr "تم تسجيل السلفة. تُخصم من الراتب شهريًا حتى السداد."
+
+msgid "Loan recoveries %(p)s"
+msgstr "أقساط السلف %(p)s"
+
+msgid "Loans & advances"
+msgstr "السلف والقروض"
+
+msgid "Loans & financing"
+msgstr "القروض والتمويل"
+
+msgid "Location"
+msgstr "الموقع"
+
+msgid "Loss on disposal"
+msgstr "خسائر بيع أصول"
+
+msgid "Lost or stolen"
+msgstr "مفقود أو مسروق"
+
+msgid ""
+"Machines: track serial numbers. Consumables: track batch and expiry date."
+msgstr ""
+"الأجهزة: تتبع الأرقام المسلسلة. المستلزمات: تتبع التشغيلة وتاريخ الصلاحية."
+
+msgid "Male"
+msgstr "ذكر"
+
+msgid "Managing Director"
+msgstr "العضو المنتدب"
+
+msgid "Managing Director authorisation"
+msgstr "تفويض العضو المنتدب"
+
+msgid "Manufacturer barcode if it has one; otherwise the SKU is used."
+msgstr "باركود المصنّع إن وجد؛ وإلا يُستخدم كود الصنف."
+
+msgid "Mark as sent"
+msgstr "تحديد كمُرسَل"
+
+msgid "Mark assets not found as missing"
+msgstr "تسجيل الأصول غير الموجودة كمفقودة"
+
+msgid "Mark paid and post"
+msgstr "تسجيل الصرف والترحيل"
+
+msgid "Marketing"
+msgstr "التسويق"
+
+msgid "Match"
+msgstr "مطابقة"
+
+msgid "Match the columns"
+msgstr "حدد الأعمدة"
+
+msgid "Matched"
+msgstr "مطابَقة"
+
+msgid "Matched."
+msgstr "تمت المطابقة."
+
+msgid "Maternity"
+msgstr "وضع"
+
+msgid "Medical"
+msgstr "التأمين الطبي"
+
+msgid "Medical & other"
+msgstr "طبي وأخرى"
+
+msgid "Medical & other %(p)s"
+msgstr "طبي وأخرى %(p)s"
+
+msgid "Medical & other deductions"
+msgstr "استقطاعات طبية وأخرى"
+
+msgid "Medical deduction / month"
+msgstr "الاستقطاع الطبي / شهريًا"
+
+msgid "Medical plan"
+msgstr "الخطة الطبية"
+
+msgid "Medical plans"
+msgstr "الخطط الطبية"
+
+msgid "Members"
+msgstr "الأعضاء"
+
+msgid "Missing"
+msgstr "مفقود"
+
+msgid "Money in"
+msgstr "وارد"
+
+msgid "Money in or out"
+msgstr "وارد أو منصرف"
+
+msgid "Money out"
+msgstr "منصرف"
+
+msgid "Month"
+msgstr "الشهر"
+
+msgid "Monthly"
+msgstr "شهري"
+
+msgid "Monthly basic + allowances"
+msgstr "الأساسي والبدلات شهريًا"
+
+msgid "Monthly deduction"
+msgstr "القسط الشهري"
+
+msgid "Monthly depreciation"
+msgstr "الإهلاك الشهري"
+
+msgid "Monthly pay"
+msgstr "الأجر الشهري"
+
+msgid "Monthly salary"
+msgstr "الراتب الشهري"
+
+msgid "Move stock between warehouses."
+msgstr "نقل البضاعة بين المخازن."
+
+msgid "Movement on"
+msgstr "الحركة على"
+
+msgid "Name, code or phone"
+msgstr "الاسم أو الكود أو الهاتف"
+
+msgid "National ID"
+msgstr "الرقم القومي"
+
+msgid "Net pay"
+msgstr "صافي الراتب"
+
+msgid "Net purchases"
+msgstr "صافي المشتريات"
+
+msgid "Net salaries %(p)s"
+msgstr "صافي الرواتب %(p)s"
+
+msgid "Net sales"
+msgstr "صافي المبيعات"
+
+msgid "New"
+msgstr "جديد"
+
+msgid "New asset"
+msgstr "أصل جديد"
+
+msgid "New bill"
+msgstr "فاتورة مورد جديدة"
+
+msgid "New employee"
+msgstr "موظف جديد"
+
+msgid "New employees"
+msgstr "موظفون جدد"
+
+msgid "New invoice"
+msgstr "فاتورة جديدة"
+
+msgid "New loan or advance"
+msgstr "سلفة أو قرض جديد"
+
+msgid "New order"
+msgstr "أمر جديد"
+
+msgid "New product or service"
+msgstr "صنف أو خدمة جديدة"
+
+msgid "New project"
+msgstr "مشروع جديد"
+
+msgid "New recurring transaction"
+msgstr "معاملة متكررة جديدة"
+
+msgid "New rule"
+msgstr "قاعدة جديدة"
+
+msgid "Next"
+msgstr "التالي"
+
+msgid "Next date"
+msgstr "التاريخ القادم"
+
+msgid "Night / rest-day overtime"
+msgstr "إضافي ليلي / أيام الراحة"
+
+msgid "No VAT"
+msgstr "بدون ضريبة"
+
+msgid "No active employees."
+msgstr "لا يوجد موظفون نشطون."
+
+msgid ""
+"No attendance imported for this month. Payroll pays the full monthly salary "
+"when there is none."
+msgstr ""
+"لم يُستورد حضور لهذا الشهر. يُصرف الراتب الشهري كاملًا في حال عدم وجوده."
+
+msgid "No attendance imported."
+msgstr "لم يُستورد حضور."
+
+msgid "No batches match."
+msgstr "لا توجد تشغيلات مطابقة."
+
+msgid "No bookmarks yet."
+msgstr "لا توجد مفضلة بعد."
+
+msgid "No customer has a balance on that date."
+msgstr "لا يوجد عميل له رصيد في هذا التاريخ."
+
+msgid "No depreciation posted yet."
+msgstr "لم يُرحّل إهلاك بعد."
+
+msgid "No document numbered %(n)s."
+msgstr "لا يوجد مستند برقم %(n)s."
+
+msgid "No document of this type has that number."
+msgstr "لا يوجد مستند من هذا النوع بهذا الرقم."
+
+msgid ""
+"No employee rows were found. The first sheet needs a heading row with Name "
+"and SN or Department."
+msgstr ""
+"لم يُعثر على صفوف موظفين. يحتاج الشيت الأول إلى صف عناوين يحتوي على Name وSN"
+" أو Department."
+
+msgid "No employees were active in this month."
+msgstr "لا يوجد موظفون نشطون في هذا الشهر."
+
+msgid "No files attached yet."
+msgstr "لا توجد مرفقات بعد."
+
+msgid "No leave recorded."
+msgstr "لا توجد إجازات مسجلة."
+
+msgid "No loans."
+msgstr "لا توجد سلف."
+
+msgid "No open bills. The payment will be kept as an advance to the supplier."
+msgstr "لا توجد فواتير مفتوحة. ستُسجّل الدفعة كدفعة مقدمة للمورد."
+
+msgid ""
+"No open invoices. The payment will be kept as a credit on the customer's "
+"account."
+msgstr "لا توجد فواتير مفتوحة. سيُسجّل المبلغ رصيدًا دائنًا لحساب العميل."
+
+msgid "No open sales orders."
+msgstr "لا توجد أوامر بيع مفتوحة."
+
+msgid "No payroll runs yet."
+msgstr "لا توجد مسيرات رواتب بعد."
+
+msgid "No payslips yet."
+msgstr "لا توجد قسائم رواتب بعد."
+
+msgid "No posted bills in this period."
+msgstr "لا توجد فواتير موردين مرحّلة في هذه الفترة."
+
+msgid "No posted invoices in this period."
+msgstr "لا توجد فواتير مرحّلة في هذه الفترة."
+
+msgid "No posted sales in this period."
+msgstr "لا توجد مبيعات مرحّلة في هذه الفترة."
+
+msgid "No receipts waiting."
+msgstr "لا توجد إيصالات بالانتظار."
+
+msgid "No rules yet. Bank charges and card fees are good first rules."
+msgstr "لا توجد قواعد بعد. المصروفات البنكية ورسوم البطاقات بداية جيدة."
+
+msgid "No sales in this period."
+msgstr "لا توجد مبيعات في هذه الفترة."
+
+msgid "No stock has moved yet."
+msgstr "لم تتحرك أي بضاعة بعد."
+
+msgid "No stock item has the code %(c)s."
+msgstr "لا يوجد صنف مخزني بالكود %(c)s."
+
+msgid "No stock items match."
+msgstr "لا توجد أصناف مطابقة."
+
+msgid "No stock on hand."
+msgstr "لا يوجد رصيد مخزون."
+
+msgid "No tracking"
+msgstr "بدون تتبع"
+
+msgid "No transactions up to the statement date."
+msgstr "لا توجد حركات حتى تاريخ الكشف."
+
+msgid "Non-stock item"
+msgstr "صنف غير مخزني"
+
+msgid "Not applied to any invoice."
+msgstr "غير مخصص لأي فاتورة."
+
+msgid "Not due yet"
+msgstr "لم يستحق بعد"
+
+msgid ""
+"Not enough stock of %(sku)s in %(wh)s: %(have)s available, %(need)s needed."
+msgstr ""
+"الرصيد غير كافٍ من %(sku)s في %(wh)s: المتاح %(have)s والمطلوب %(need)s."
+
+msgid "Not in use"
+msgstr "غير مستخدم"
+
+msgid "Not insured"
+msgstr "غير مؤمَّن عليه"
+
+msgid "Not taxed"
+msgstr "غير خاضع للضريبة"
+
+msgid "Not yet found"
+msgstr "لم يُعثر عليه بعد"
+
+msgid "Not yet received"
+msgstr "لم يُستلم بعد"
+
+msgid "Note"
+msgstr "ملاحظة"
+
+msgid "Nothing billed ahead of delivery."
+msgstr "لا توجد فواتير قبل التسليم."
+
+msgid "Nothing expires in the next 90 days."
+msgstr "لا شيء تنتهي صلاحيته خلال 90 يومًا."
+
+msgid "Nothing here yet."
+msgstr "لا يوجد شيء هنا بعد."
+
+msgid "Nothing here. Upload a statement to start."
+msgstr "لا يوجد شيء. ارفع كشف حساب للبدء."
+
+msgid "Nothing is due today."
+msgstr "لا شيء مستحق اليوم."
+
+msgid "Nothing needs reordering."
+msgstr "لا يوجد ما يحتاج إعادة طلب."
+
+msgid "Nothing outstanding."
+msgstr "لا توجد أرصدة مستحقة."
+
+msgid "Nothing scanned yet."
+msgstr "لم يُمسح شيء بعد."
+
+msgid "Nothing tagged to this project yet."
+msgstr "لم يُربط شيء بهذا المشروع بعد."
+
+msgid "Nothing to depreciate for this month."
+msgstr "لا يوجد ما يُهلَك لهذا الشهر."
+
+msgid "Amount (+ in, − out)"
+msgstr "المبلغ (+ وارد، − منصرف)"
+
+msgid "Copy this document (number)"
+msgstr "نسخ هذا المستند (الرقم)"
+
+msgid "Emergency fund"
+msgstr "صندوق الطوارئ"
+
+msgid "Loan recovery"
+msgstr "قسط السلفة"
+
+msgid "Social insurance — employee"
+msgstr "التأمينات — حصة الموظف"
+
+msgid "Social insurance — employer"
+msgstr "التأمينات — حصة صاحب العمل"
+
+msgid "Number, e.g. PV-2026-00012"
+msgstr "الرقم، مثل PV-2026-00012"
+
+msgid "Number, name, serial or custodian"
+msgstr "الرقم أو الاسم أو المسلسل أو صاحب العهدة"
+
+msgid "Number, reference or name"
+msgstr "الرقم أو المرجع أو الاسم"
+
+msgid "On hand"
+msgstr "الرصيد"
+
+msgid "On hold"
+msgstr "موقوف"
+
+msgid "On hold (yellow)"
+msgstr "موقوف (أصفر)"
+
+msgid "One per line, for serial-tracked items."
+msgstr "رقم في كل سطر، للأصناف ذات الأرقام المسلسلة."
+
+msgid "Only a draft run can be deleted."
+msgstr "يمكن حذف مسودة المسير فقط."
+
+msgid "Only a draft run can be recomputed."
+msgstr "يمكن إعادة احتساب مسودة المسير فقط."
+
+msgid "Only a submitted or approved run can be returned."
+msgstr "يمكن إرجاع المسير المقدَّم أو المعتمد فقط."
+
+msgid "Only an authorised run can be paid."
+msgstr "يمكن صرف المسير المفوَّض فقط."
+
+msgid "Only approved purchase orders can be received."
+msgstr "يمكن الاستلام على أوامر الشراء المعتمدة فقط."
+
+msgid "Only draft bills can be posted."
+msgstr "يمكن ترحيل مسودات فواتير الموردين فقط."
+
+msgid "Only draft invoices can be posted."
+msgstr "يمكن ترحيل مسودات الفواتير فقط."
+
+msgid "Only draft purchase orders can be submitted."
+msgstr "يمكن تقديم مسودات أوامر الشراء فقط."
+
+msgid "Only for stock items billed without an item receipt."
+msgstr "فقط للأصناف المخزنية المفوترة دون إذن استلام."
+
+msgid "Only posted bills can be voided."
+msgstr "يمكن إلغاء فواتير الموردين المرحّلة فقط."
+
+msgid "Only posted invoices can be voided."
+msgstr "يمكن إلغاء الفواتير المرحّلة فقط."
+
+msgid "Only stock items can track serial numbers or batches."
+msgstr "الأصناف المخزنية فقط يمكنها تتبع الأرقام المسلسلة أو التشغيلات."
+
+msgid "Only the first sheet is read. Other sheets are ignored."
+msgstr "يُقرأ الشيت الأول فقط، وتُتجاهل باقي الشيتات."
+
+msgid "Open balance"
+msgstr "الرصيد المفتوح"
+
+msgid "Open bills"
+msgstr "فواتير الموردين المفتوحة"
+
+msgid "Open invoices"
+msgstr "الفواتير المفتوحة"
+
+msgid "Open items"
+msgstr "البنود المفتوحة"
+
+msgid "Open sales orders"
+msgstr "أوامر البيع المفتوحة"
+
+msgid "Opening balance equity"
+msgstr "حقوق ملكية الأرصدة الافتتاحية"
+
+msgid "Opening stock"
+msgstr "مخزون أول المدة"
+
+msgid "Opening stock, damaged or expired goods, and stock take differences."
+msgstr "مخزون أول المدة، والبضاعة التالفة أو منتهية الصلاحية، وفروق الجرد."
+
+msgid "Optional: which machines are sold."
+msgstr "اختياري: الأجهزة المباعة."
+
+msgid "Order"
+msgstr "الترتيب"
+
+msgid "Order lines not yet received"
+msgstr "بنود أوامر لم تُستلم بعد"
+
+msgid "Order more"
+msgstr "طلب المزيد"
+
+msgid "Ordered"
+msgstr "المطلوب"
+
+msgid ""
+"Ordered goods that have not arrived in the warehouse, and goods billed "
+"before they arrived."
+msgstr "بضاعة مطلوبة لم تصل إلى المخزن، وبضاعة وصلت فاتورتها قبل وصولها."
+
+msgid "Ordered, not received"
+msgstr "مطلوب ولم يُستلم"
+
+msgid "Out of scope"
+msgstr "خارج نطاق الضريبة"
+
+msgid "Out of stock."
+msgstr "نفد من المخزون."
+
+msgid "Output VAT (sales)"
+msgstr "ضريبة المخرجات (المبيعات)"
+
+msgid "Output VAT on invoices"
+msgstr "ضريبة المخرجات على الفواتير"
+
+msgid "Output and input VAT for the month, checked against the ledger."
+msgstr "ضريبة المخرجات والمدخلات للشهر مطابقةً مع دفتر الأستاذ."
+
+msgid "Outstanding"
+msgstr "المتبقي"
+
+msgid "Over 90 days"
+msgstr "أكثر من 90 يومًا"
+
+msgid "Overdue"
+msgstr "متأخر"
+
+msgid "Overrides the plan's employee share for this person."
+msgstr "يحل محل حصة الموظف في الخطة لهذا الشخص."
+
+msgid "Overtime"
+msgstr "الإضافي"
+
+msgid "Overtime and short hours feed the payroll run for the month."
+msgstr "ساعات الإضافي والنقص تدخل في مسير رواتب الشهر."
+
+msgid "Overtime premium — day %"
+msgstr "علاوة الإضافي — نهاري %"
+
+msgid "Overtime premium — night / rest day %"
+msgstr "علاوة الإضافي — ليلي / راحة %"
+
+msgid "Overview"
+msgstr "نظرة عامة"
+
+msgid "Owed by %(n)s customer"
+msgid_plural "Owed by %(n)s customers"
+msgstr[0] "مستحق على %(n)s عميل"
+msgstr[1] "مستحق على %(n)s عميل"
+msgstr[2] "مستحق على %(n)s عميل"
+msgstr[3] "مستحق على %(n)s عميل"
+msgstr[4] "مستحق على %(n)s عميل"
+msgstr[5] "مستحق على %(n)s عميل"
+
+msgid "PDF, photos, Excel or Word, up to 10 MB each"
+msgstr "PDF أو صور أو إكسل أو وورد، حتى 10 ميجابايت للملف"
+
+msgid "Page"
+msgstr "الصفحة"
+
+msgid "Paid"
+msgstr "مدفوع"
+
+msgid "Paid %"
+msgstr "مدفوع %"
+
+msgid "Paid by"
+msgstr "طريقة الصرف"
+
+msgid "Paid from"
+msgstr "مدفوع من"
+
+msgid "Paid in the last 30 days"
+msgstr "المحصّل في آخر 30 يومًا"
+
+msgid "Paid out from"
+msgstr "صُرفت من"
+
+msgid "Paid over"
+msgstr "تم التوريد"
+
+msgid "Part time"
+msgstr "دوام جزئي"
+
+msgid "Partly invoiced"
+msgstr "مفوتر جزئيًا"
+
+msgid "Partly paid"
+msgstr "مدفوع جزئيًا"
+
+msgid "Partly received"
+msgstr "مستلم جزئيًا"
+
+msgid "Pay"
+msgstr "الأجر"
+
+msgid "Pay bill"
+msgstr "سداد الفاتورة"
+
+msgid "Pay bills"
+msgstr "سداد فواتير الموردين"
+
+msgid "Pay from"
+msgstr "السداد من"
+
+msgid "Pay over"
+msgstr "توريد"
+
+msgid "Pay over deductions"
+msgstr "توريد الاستقطاعات"
+
+msgid "Pay salaries"
+msgstr "صرف الرواتب"
+
+msgid "Payee"
+msgstr "المستفيد"
+
+msgid "Payment"
+msgstr "السداد"
+
+msgid "Payment %(n)s recorded."
+msgstr "تم تسجيل الدفعة %(n)s."
+
+msgid "Payment date"
+msgstr "تاريخ السداد"
+
+msgid "Payment over posted."
+msgstr "تم ترحيل التوريد."
+
+msgid "Payment receipt"
+msgstr "إيصال استلام نقدية"
+
+msgid "Payment received"
+msgstr "دفعة مستلمة"
+
+msgid "Payment terms (days)"
+msgstr "شروط السداد (أيام)"
+
+msgid "Payment voided."
+msgstr "تم إلغاء الدفعة."
+
+msgid "Payments received"
+msgstr "المتحصلات"
+
+msgid "Payroll %(p)s"
+msgstr "رواتب %(p)s"
+
+msgid "Payroll %(p)s calculated for %(n)s employees."
+msgstr "تم احتساب رواتب %(p)s لعدد %(n)s موظف."
+
+msgid "Payroll costs of this department post here."
+msgstr "تُرحَّل تكلفة رواتب هذه الإدارة هنا."
+
+msgid "Payroll runs"
+msgstr "مسيرات الرواتب"
+
+msgid "Payroll settings"
+msgstr "إعدادات الرواتب"
+
+msgid "Payroll workbook (.xlsx)"
+msgstr "ملف الرواتب (.xlsx)"
+
+msgid "Payslip"
+msgstr "قسيمة الراتب"
+
+msgid "Payslips"
+msgstr "قسائم الرواتب"
+
+msgid "Pin the apps you use most. They appear on the left menu under Pinned."
+msgstr ""
+"ثبّت التطبيقات الأكثر استخدامًا. تظهر في القائمة الجانبية تحت «المثبّتة»."
+
+msgid "Pinned"
+msgstr "مثبّت"
+
+msgid "Plan"
+msgstr "الخطة"
+
+msgid "Please reply by"
+msgstr "يرجى الرد قبل"
+
+msgid ""
+"Positive quantities add stock (enter cost, and batch and expiry for "
+"consumables). Negative quantities remove stock at FIFO cost."
+msgstr ""
+"الكميات الموجبة تضيف للمخزون (أدخل التكلفة، والتشغيلة والصلاحية للمستلزمات)."
+" الكميات السالبة تخصم بتكلفة الوارد أولًا."
+
+msgid "Post adjustment"
+msgstr "ترحيل التسوية"
+
+msgid "Post automatically when imported"
+msgstr "الترحيل تلقائيًا عند الاستيراد"
+
+msgid "Post bill"
+msgstr "ترحيل فاتورة المورد"
+
+msgid "Post depreciation for %(m)s"
+msgstr "ترحيل إهلاك %(m)s"
+
+msgid "Post differences"
+msgstr "ترحيل الفروق"
+
+msgid "Post invoice"
+msgstr "ترحيل الفاتورة"
+
+msgid ""
+"Post one month at a time, in order. Each run posts one journal entry per "
+"category."
+msgstr "رحّل شهرًا واحدًا في كل مرة وبالترتيب. كل عملية ترحّل قيدًا لكل فئة."
+
+msgid "Post the differences to stock and the ledger?"
+msgstr "ترحيل الفروق إلى المخزون ودفتر الأستاذ؟"
+
+msgid "Post transfer"
+msgstr "ترحيل التحويل"
+
+msgid "Posted journal"
+msgstr "القيد المرحّل"
+
+msgid "Posted months"
+msgstr "الشهور المرحّلة"
+
+msgid "Posted to the ledger. Changes now need a new run or a journal."
+msgstr "تم الترحيل إلى دفتر الأستاذ. أي تعديل يحتاج إلى مسير جديد أو قيد."
+
+msgid "Prepare letters"
+msgstr "إعداد الخطابات"
+
+msgid "Prepared by"
+msgstr "أعدّه"
+
+msgid "Present"
+msgstr "حاضر"
+
+msgid "Preview"
+msgstr "معاينة"
+
+msgid "Preview for %(m)s"
+msgstr "معاينة %(m)s"
+
+msgid "Price difference %(sku)s"
+msgstr "فرق سعر %(sku)s"
+
+msgid "Print / PDF"
+msgstr "طباعة / PDF"
+
+msgid "Print / save as PDF"
+msgstr "طباعة / حفظ PDF"
+
+msgid "Print GRN"
+msgstr "طباعة إذن الاستلام"
+
+msgid "Print label"
+msgstr "طباعة الملصق"
+
+msgid "Print labels"
+msgstr "طباعة الملصقات"
+
+msgid "Print payslips"
+msgstr "طباعة قسائم الرواتب"
+
+msgid "Priority"
+msgstr "الأولوية"
+
+msgid "Probation"
+msgstr "تحت الاختبار"
+
+msgid "Probation (months)"
+msgstr "فترة الاختبار (شهور)"
+
+msgid "Product"
+msgstr "الصنف"
+
+msgid "Product / service"
+msgstr "الصنف / الخدمة"
+
+msgid "Product or service"
+msgstr "صنف أو خدمة"
+
+msgid "Products & services"
+msgstr "الأصناف والخدمات"
+
+msgid "Profit"
+msgstr "الربح"
+
+msgid ""
+"Profit and loss, balance sheet, ageing, VAT return, sales by product, stock "
+"valuation."
+msgstr ""
+"الأرباح والخسائر، الميزانية، أعمار الديون، الإقرار الضريبي، المبيعات حسب "
+"الصنف، تقييم المخزون."
+
+msgid "Progress saved."
+msgstr "تم حفظ التقدم."
+
+msgid "Project"
+msgstr "المشروع"
+
+msgid "Projects"
+msgstr "المشروعات"
+
+msgid "Provider"
+msgstr "مقدم الخدمة"
+
+msgid "Provision"
+msgstr "المخصص"
+
+msgid "Purchase VAT"
+msgstr "ضريبة المشتريات"
+
+msgid "Purchase cost"
+msgstr "تكلفة الشراء"
+
+msgid "Purchase date"
+msgstr "تاريخ الشراء"
+
+msgid "Purchase order"
+msgstr "أمر شراء"
+
+msgid "Purchase order approved."
+msgstr "تم اعتماد أمر الشراء."
+
+msgid "Purchase order cancelled."
+msgstr "تم إلغاء أمر الشراء."
+
+msgid "Purchase order closed. Anything not received is no longer expected."
+msgstr "تم إغلاق أمر الشراء. ما لم يُستلم لم يعد متوقعًا."
+
+msgid "Purchase orders"
+msgstr "أوامر الشراء"
+
+msgid "Purchase price variance"
+msgstr "فروق أسعار الشراء"
+
+msgid "Purchases"
+msgstr "المشتريات"
+
+msgid "Purchases & bills"
+msgstr "المشتريات وفواتير الموردين"
+
+msgid "Qty"
+msgstr "الكمية"
+
+msgid "Qty received"
+msgstr "الكمية المستلمة"
+
+msgid "Qty remaining"
+msgstr "الكمية المتبقية"
+
+msgid "Quantities and value at FIFO cost."
+msgstr "الكميات والقيمة بتكلفة الوارد أولًا صادر أولًا."
+
+msgid "Quantities, sales and margin by category and product."
+msgstr "الكميات والمبيعات والهامش حسب الفئة والصنف."
+
+msgid "Quantity"
+msgstr "الكمية"
+
+msgid "Quantity + / −"
+msgstr "الكمية + / −"
+
+msgid "Quantity must be greater than zero."
+msgstr "يجب أن تكون الكمية أكبر من صفر."
+
+msgid "Quarterly"
+msgstr "ربع سنوي"
+
+msgid "Quotation"
+msgstr "عرض سعر"
+
+msgid "Quotations"
+msgstr "عروض الأسعار"
+
+msgid "Rate %"
+msgstr "النسبة %"
+
+msgid "Reason"
+msgstr "السبب"
+
+msgid "Reason for returning"
+msgstr "سبب الإرجاع"
+
+msgid "Recalculate"
+msgstr "إعادة الاحتساب"
+
+msgid "Recalculated."
+msgstr "تمت إعادة الاحتساب."
+
+msgid "Receipt"
+msgstr "إيصال"
+
+msgid "Receipt attached to %(n)s."
+msgstr "تم إرفاق الإيصال بالمستند %(n)s."
+
+msgid "Receipt removed."
+msgstr "تم حذف الإيصال."
+
+msgid "Receipts"
+msgstr "الإيصالات"
+
+msgid "Receive goods"
+msgstr "استلام البضاعة"
+
+msgid "Receive into stock"
+msgstr "الاستلام في المخزون"
+
+msgid "Receive payment"
+msgstr "تحصيل دفعة"
+
+msgid "Receive payments"
+msgstr "التحصيلات"
+
+msgid "Receive stock into"
+msgstr "استلام البضاعة في"
+
+msgid "Received into"
+msgstr "استُلمت في"
+
+msgid "Receiving & billing"
+msgstr "الاستلام والفوترة"
+
+msgid "Recent bills"
+msgstr "أحدث فواتير الموردين"
+
+msgid "Recent invoices"
+msgstr "أحدث الفواتير"
+
+msgid "Recent payments"
+msgstr "أحدث المدفوعات"
+
+msgid "Reconcile"
+msgstr "التسوية البنكية"
+
+msgid "Reconciled"
+msgstr "تمت التسوية"
+
+msgid "Reconciled."
+msgstr "تمت التسوية."
+
+msgid "Record"
+msgstr "تسجيل"
+
+msgid "Record leave"
+msgstr "تسجيل إجازة"
+
+msgid "Recurring transactions"
+msgstr "المعاملات المتكررة"
+
+msgid "Related"
+msgstr "مرتبط"
+
+msgid "Remittance advice"
+msgstr "إشعار سداد"
+
+msgid "Remove"
+msgstr "حذف"
+
+msgid "Remove the payments allocated to this bill first."
+msgstr "احذف المدفوعات المخصصة لهذه الفاتورة أولًا."
+
+msgid "Remove the payments allocated to this invoice first."
+msgstr "احذف التحصيلات المخصصة لهذه الفاتورة أولًا."
+
+msgid "Removed from bookmarks."
+msgstr "تم الحذف من المفضلة."
+
+msgid ""
+"Rent, subscriptions, service contracts: TriB copies the document as a draft "
+"on each date for you to check and post."
+msgstr ""
+"الإيجار والاشتراكات وعقود الصيانة: ينسخ تراي بي المستند كمسودة في كل موعد "
+"لتراجعه وترحّله."
+
+msgid "Reorder"
+msgstr "إعادة الطلب"
+
+msgid "Reorder level"
+msgstr "حد إعادة الطلب"
+
+msgid "Repeat"
+msgstr "التكرار"
+
+msgid "Reset to default"
+msgstr "إعادة الضبط الافتراضي"
+
+msgid "Residual value"
+msgstr "القيمة التخريدية"
+
+msgid "Residual value plus earlier depreciation cannot exceed the cost."
+msgstr "لا يجوز أن تتجاوز القيمة التخريدية مع الإهلاك السابق تكلفة الأصل."
+
+msgid "Restart"
+msgstr "إعادة التشغيل"
+
+msgid "Return"
+msgstr "إرجاع"
+
+msgid "Return to HR"
+msgstr "إرجاع للموارد البشرية"
+
+msgid "Returned"
+msgstr "مُرتجع"
+
+msgid "Returned for review"
+msgstr "أُعيد للمراجعة"
+
+msgid "Returned to HR."
+msgstr "أُعيد للموارد البشرية."
+
+msgid "Returned to the creator."
+msgstr "أُعيد إلى المُنشئ."
+
+msgid "Returned: %(r)s"
+msgstr "أُعيد: %(r)s"
+
+msgid "Room / area"
+msgstr "الغرفة / المنطقة"
+
+msgid "Rule"
+msgstr "القاعدة"
+
+msgid "Rule name"
+msgstr "اسم القاعدة"
+
+msgid "Rules"
+msgstr "القواعد"
+
+msgid "Run payroll"
+msgstr "احتساب الرواتب"
+
+msgid "S/N, comma separated"
+msgstr "الأرقام المسلسلة مفصولة بفواصل"
+
+msgid "SKU"
+msgstr "كود الصنف"
+
+msgid "SKU or name"
+msgstr "الكود أو الاسم"
+
+msgid "SKU or name contains"
+msgstr "الكود أو الاسم يحتوي على"
+
+msgid "SKU prefix"
+msgstr "بادئة الكود"
+
+msgid "SKU, name or barcode"
+msgstr "الكود أو الاسم أو الباركود"
+
+msgid "Salaries & wages"
+msgstr "الأجور والمرتبات"
+
+msgid "Salaries marked paid and posted."
+msgstr "تم تسجيل صرف الرواتب وترحيله."
+
+msgid "Salaries paid %(p)s"
+msgstr "صرف رواتب %(p)s"
+
+msgid "Salaries paid from"
+msgstr "صرف الرواتب من"
+
+msgid "Salaries payable"
+msgstr "رواتب مستحقة"
+
+msgid "Salary tax"
+msgstr "ضريبة كسب العمل"
+
+msgid "Salary tax %(p)s"
+msgstr "ضريبة كسب العمل %(p)s"
+
+msgid "Salary tax payable"
+msgstr "ضريبة كسب العمل المستحقة"
+
+msgid "Sale proceeds"
+msgstr "حصيلة البيع"
+
+msgid "Sales"
+msgstr "المبيعات"
+
+msgid "Sales VAT"
+msgstr "ضريبة المبيعات"
+
+msgid "Sales by product"
+msgstr "المبيعات حسب الصنف"
+
+msgid "Sales order"
+msgstr "أمر بيع"
+
+msgid "Sales order cancelled."
+msgstr "تم إلغاء أمر البيع."
+
+msgid "Sales order confirmed."
+msgstr "تم تأكيد أمر البيع."
+
+msgid "Sales orders"
+msgstr "أوامر البيع"
+
+msgid "Sales price"
+msgstr "سعر البيع"
+
+msgid "Sales revenue"
+msgstr "إيرادات المبيعات"
+
+msgid "Save an exchange rate for %(c)s first."
+msgstr "احفظ سعر صرف لعملة %(c)s أولًا."
+
+msgid "Save and post"
+msgstr "حفظ وترحيل"
+
+msgid "Save and receive into stock"
+msgstr "حفظ واستلام في المخزون"
+
+msgid "Save counts"
+msgstr "حفظ الكميات"
+
+msgid "Save for later"
+msgstr "حفظ للاستكمال لاحقًا"
+
+msgid "Save payment"
+msgstr "حفظ الدفعة"
+
+msgid "Save the document first, then attach files."
+msgstr "احفظ المستند أولًا ثم أرفق الملفات."
+
+msgid "Saved. A draft is created on each date for you to review and post."
+msgstr "تم الحفظ. ستُنشأ مسودة في كل موعد لتراجعها وترحّلها."
+
+msgid "Scan"
+msgstr "مسح"
+
+msgid "Scan or type a barcode or SKU"
+msgstr "امسح أو اكتب الباركود أو كود الصنف"
+
+msgid "Scan or type the asset number"
+msgstr "امسح أو اكتب رقم الأصل"
+
+msgid "Scheme of delegation"
+msgstr "لائحة الصلاحيات"
+
+msgid ""
+"Segregation of duties: the person who prepared the run cannot approve it."
+msgstr "الفصل بين المهام: من أعدّ المسير لا يعتمده."
+
+msgid "Select all"
+msgstr "تحديد الكل"
+
+msgid "Sent"
+msgstr "مُرسل"
+
+msgid "Sent for approval."
+msgstr "تم الإرسال للاعتماد."
+
+msgid "Sent to the Finance Manager for approval."
+msgstr "تم الإرسال للمدير المالي للاعتماد."
+
+msgid "Serial / batch"
+msgstr "المسلسل / التشغيلة"
+
+msgid "Serial number"
+msgstr "الرقم المسلسل"
+
+msgid "Serial number already in stock: %(s)s"
+msgstr "الرقم المسلسل موجود بالمخزون بالفعل: %(s)s"
+
+msgid "Serial number not in this warehouse: %(s)s"
+msgstr "الرقم المسلسل غير موجود في هذا المخزن: %(s)s"
+
+msgid "Serial numbers"
+msgstr "الأرقام المسلسلة"
+
+msgid "Serial numbers in stock"
+msgstr "الأرقام المسلسلة في المخزون"
+
+msgid "Service"
+msgstr "خدمة"
+
+msgid "Set the delivery warehouse on the purchase order first."
+msgstr "حدد مخزن التسليم في أمر الشراء أولًا."
+
+msgid "Settled"
+msgstr "مسدد"
+
+msgid "Ship from warehouse"
+msgstr "الشحن من مخزن"
+
+msgid "Show open bills"
+msgstr "عرض الفواتير المفتوحة"
+
+msgid "Show open invoices"
+msgstr "عرض الفواتير المفتوحة"
+
+msgid "Show statement"
+msgstr "عرض الكشف"
+
+msgid "Sick"
+msgstr "مرضية"
+
+msgid "Social insurance"
+msgstr "التأمينات الاجتماعية"
+
+msgid "Social insurance %(p)s"
+msgstr "التأمينات الاجتماعية %(p)s"
+
+msgid "Social insurance (NOSI)"
+msgstr "التأمينات الاجتماعية (الهيئة القومية)"
+
+msgid "Social insurance payable"
+msgstr "التأمينات الاجتماعية المستحقة"
+
+msgid "Social insurance — employee %"
+msgstr "التأمينات — حصة الموظف %"
+
+msgid "Social insurance — employer %"
+msgstr "التأمينات — حصة صاحب العمل %"
+
+msgid "Some staff are paid in cash: choose the cash box."
+msgstr "بعض الموظفين يُصرف لهم نقدًا: اختر الخزينة."
+
+msgid "Spent"
+msgstr "منصرف"
+
+msgid "Spine point"
+msgstr "المربوط"
+
+msgid "Staff"
+msgstr "العاملون"
+
+msgid "Standard hours per day"
+msgstr "ساعات العمل اليومية"
+
+msgid "Standard hours per week"
+msgstr "ساعات العمل الأسبوعية"
+
+msgid "Standard rated"
+msgstr "خاضع بالسعر العام"
+
+msgid "Star a page to add it here."
+msgstr "ضع نجمة على صفحة لإضافتها هنا."
+
+msgid "Start"
+msgstr "بدء"
+
+msgid ""
+"Start a count, scan barcodes with a handheld scanner or type quantities, "
+"then post the differences."
+msgstr ""
+"ابدأ الجرد، وامسح الباركود بجهاز يدوي أو اكتب الكميات، ثم رحّل الفروق."
+
+msgid "Start a stock take"
+msgstr "بدء جرد المخزون"
+
+msgid "Start an asset count"
+msgstr "بدء جرد الأصول"
+
+msgid "Start counting"
+msgstr "بدء الجرد"
+
+msgid "Start date"
+msgstr "تاريخ البدء"
+
+msgid "Start reconciling"
+msgstr "بدء التسوية"
+
+msgid "Statement"
+msgstr "كشف الحساب"
+
+msgid "Statement end date"
+msgstr "تاريخ نهاية الكشف"
+
+msgid "Statement ending balance"
+msgstr "رصيد نهاية الكشف"
+
+msgid "Statement file (.csv or .xlsx)"
+msgstr "ملف الكشف (.csv أو .xlsx)"
+
+msgid "Statements"
+msgstr "كشوف الحساب"
+
+msgid ""
+"Statutory rates for Egypt (2026 defaults). Change them when the law changes;"
+" runs already authorised keep their figures."
+msgstr ""
+"النسب القانونية في مصر (قيم 2026). عدّلها عند تغيّر القانون؛ المسيرات "
+"المفوّضة تحتفظ بأرقامها."
+
+msgid "Still to invoice"
+msgstr "المتبقي للفوترة"
+
+msgid "Stock adjustment"
+msgstr "تسوية مخزون"
+
+msgid "Stock adjustments"
+msgstr "تسويات المخزون"
+
+msgid ""
+"Stock is valued first in, first out. Consumables are issued soonest expiry "
+"first."
+msgstr ""
+"يُقيَّم المخزون بطريقة الوارد أولًا صادر أولًا، وتُصرف المستلزمات حسب الأقرب"
+" انتهاءً."
+
+msgid "Stock item"
+msgstr "صنف مخزني"
+
+msgid "Stock movements"
+msgstr "حركات المخزون"
+
+msgid ""
+"Stock moves at its FIFO cost, keeping serial numbers, batches and expiry "
+"dates."
+msgstr ""
+"تنتقل البضاعة بتكلفتها مع الاحتفاظ بالأرقام المسلسلة والتشغيلات وتواريخ "
+"الصلاحية."
+
+msgid "Stock on hand"
+msgstr "رصيد المخزون"
+
+msgid "Stock on hand at FIFO cost, by warehouse."
+msgstr "رصيد المخزون بتكلفة الوارد أولًا، حسب المخزن."
+
+msgid "Stock take"
+msgstr "جرد المخزون"
+
+msgid "Stock take %(n)s"
+msgstr "جرد المخزون %(n)s"
+
+msgid "Stock take difference"
+msgstr "فروق جرد"
+
+msgid "Stock take posted as adjustment %(n)s."
+msgstr "تم ترحيل الجرد كتسوية %(n)s."
+
+msgid "Stock transfer"
+msgstr "تحويل مخزني"
+
+msgid "Stock transfers"
+msgstr "التحويلات المخزنية"
+
+msgid "Stock valuation"
+msgstr "تقييم المخزون"
+
+msgid "Stock value (FIFO)"
+msgstr "قيمة المخزون (الوارد أولًا)"
+
+msgid "Stop"
+msgstr "إيقاف"
+
+msgid "Stopped"
+msgstr "موقوف"
+
+msgid ""
+"Straight-line depreciation from the month it is put in use, down to the "
+"residual value."
+msgstr "إهلاك بطريقة القسط الثابت من شهر بدء الاستخدام حتى القيمة التخريدية."
+
+msgid "Subject to salary tax"
+msgstr "خاضع لضريبة كسب العمل"
+
+msgid "Subtotal"
+msgstr "الإجمالي قبل الضريبة"
+
+msgid "Supplier"
+msgstr "المورد"
+
+msgid "Supplier delivery note"
+msgstr "إذن تسليم المورد"
+
+msgid "Supplier invoice %(n)s is already entered for this supplier."
+msgstr "فاتورة المورد رقم %(n)s مسجلة بالفعل لهذا المورد."
+
+msgid "Supplier invoice number"
+msgstr "رقم فاتورة المورد"
+
+msgid "Supplier payment"
+msgstr "سداد لمورد"
+
+msgid "Supplier statements"
+msgstr "كشوف حسابات الموردين"
+
+msgid ""
+"Tag invoice, bill and voucher lines with a project to see its profit, e.g. a"
+" clinic fit-out."
+msgstr "اربط بنود الفواتير والسندات بمشروع لترى ربحيته، مثل تجهيز عيادة."
+
+msgid "Taken"
+msgstr "المستخدم"
+
+msgid "Tax"
+msgstr "الضريبة"
+
+msgid "Taxable"
+msgstr "خاضع للضريبة"
+
+msgid "Team"
+msgstr "فريق العمل"
+
+msgid "Team & stock"
+msgstr "فريق العمل والمخزون"
+
+msgid "Terms"
+msgstr "الشروط"
+
+msgid "That entry is on a different account."
+msgstr "هذا القيد على حساب مختلف."
+
+msgid "The amount must be greater than zero."
+msgstr "يجب أن يكون المبلغ أكبر من صفر."
+
+msgid "The cheque has already cleared; it cannot be voided here."
+msgstr "تم تحصيل الشيك بالفعل؛ لا يمكن إلغاؤه من هنا."
+
+msgid "The cheque has already moved on; bounce or reverse it from Cheques."
+msgstr "تغيّرت حالة الشيك؛ ارفضه أو اعكسه من شاشة الشيكات."
+
+msgid ""
+"The default rate is filled in on new invoice and bill lines. Egypt's "
+"standard rate is 14%."
+msgstr ""
+"تُملأ النسبة الافتراضية في بنود الفواتير الجديدة. السعر العام في مصر 14%."
+
+msgid "The difference must be zero before you finish."
+msgstr "يجب أن يكون الفرق صفرًا قبل الإنهاء."
+
+msgid ""
+"The employee share is deducted in payroll unless the employee has their own "
+"amount."
+msgstr "تُخصم حصة الموظف في الرواتب ما لم يكن له مبلغ خاص."
+
+msgid "The end date is before the start date."
+msgstr "تاريخ الانتهاء قبل تاريخ البدء."
+
+msgid "The file has no transactions."
+msgstr "الملف لا يحتوي على حركات."
+
+msgid "The file is larger than 10 MB."
+msgstr "حجم الملف أكبر من 10 ميجابايت."
+
+msgid "The first row is a heading"
+msgstr "الصف الأول عناوين"
+
+msgid "The monthly deduction cannot be more than the loan."
+msgstr "لا يجوز أن يتجاوز القسط الشهري قيمة السلفة."
+
+msgid ""
+"The prefix starts every new SKU in the category, for example MCH-00001 for "
+"machines and SUP-00001 for supplies."
+msgstr ""
+"تبدأ البادئة كل كود جديد في الفئة، مثل MCH-00001 للأجهزة وSUP-00001 "
+"للمستلزمات."
+
+msgid "The preview has expired. Upload the workbook again."
+msgstr "انتهت صلاحية المعاينة. ارفع الملف مرة أخرى."
+
+msgid "The same serial number is entered twice for %(sku)s."
+msgstr "نفس الرقم المسلسل مُدخل مرتين للصنف %(sku)s."
+
+msgid "There are no payslips in this run."
+msgstr "لا توجد قسائم في هذا المسير."
+
+msgid "There is nothing to pay over."
+msgstr "لا يوجد ما يُورَّد."
+
+msgid "This SKU is already used by another item."
+msgstr "هذا الكود مستخدم لصنف آخر."
+
+msgid "This adjustment is already posted."
+msgstr "تم ترحيل هذه التسوية بالفعل."
+
+msgid "This asset is already disposed."
+msgstr "تم استبعاد هذا الأصل بالفعل."
+
+msgid "This asset is disposed and can no longer be changed."
+msgstr "هذا الأصل مستبعد ولا يمكن تعديله."
+
+msgid "This asset number is already used."
+msgstr "رقم الأصل مستخدم بالفعل."
+
+msgid ""
+"This bill received stock directly; reverse it with a stock adjustment "
+"instead."
+msgstr "استلمت هذه الفاتورة بضاعة مباشرة؛ اعكسها بتسوية مخزون بدلًا من ذلك."
+
+msgid "This count is already closed."
+msgstr "تم إغلاق هذا الجرد بالفعل."
+
+msgid "This deduction has already been paid over."
+msgstr "تم توريد هذا الاستقطاع بالفعل."
+
+msgid "This document can no longer be changed."
+msgstr "لم يعد من الممكن تعديل هذا المستند."
+
+msgid "This invoice takes %(c)s over the credit limit of %(l)s."
+msgstr "هذه الفاتورة تجعل %(c)s يتجاوز حد الائتمان البالغ %(l)s."
+
+msgid "This item receipt is already posted."
+msgstr "تم ترحيل إذن الاستلام هذا بالفعل."
+
+msgid "This line has already been dealt with."
+msgstr "تمت معالجة هذا السطر بالفعل."
+
+msgid "This page cannot be bookmarked."
+msgstr "لا يمكن إضافة هذه الصفحة إلى المفضلة."
+
+msgid "This payment is already void."
+msgstr "هذه الدفعة ملغاة بالفعل."
+
+msgid "This purchase order is not waiting for approval."
+msgstr "أمر الشراء هذا ليس بانتظار الاعتماد."
+
+msgid "This reconciliation is finished."
+msgstr "انتهت هذه التسوية."
+
+msgid "This run has already been submitted."
+msgstr "تم تقديم هذا المسير بالفعل."
+
+msgid "This run is not waiting for approval."
+msgstr "هذا المسير ليس بانتظار الاعتماد."
+
+msgid "This run is not waiting for authorisation."
+msgstr "هذا المسير ليس بانتظار التفويض."
+
+msgid "This stock take is already posted."
+msgstr "تم ترحيل هذا الجرد بالفعل."
+
+msgid "This transfer is already posted."
+msgstr "تم ترحيل هذا التحويل بالفعل."
+
+msgid ""
+"Tick off each transaction that appears on the bank statement until the "
+"difference is zero."
+msgstr "علّم كل حركة تظهر في كشف البنك حتى يصبح الفرق صفرًا."
+
+msgid "Total employer cost"
+msgstr "إجمالي تكلفة صاحب العمل"
+
+msgid "Total outstanding"
+msgstr "إجمالي المتبقي"
+
+msgid "Total sales"
+msgstr "إجمالي المبيعات"
+
+msgid "Tracking"
+msgstr "التتبع"
+
+msgid "Transactions"
+msgstr "الحركات"
+
+msgid "Transfer in"
+msgstr "تحويل وارد"
+
+msgid "Transfer out"
+msgstr "تحويل صادر"
+
+msgid "Transfer stock"
+msgstr "تحويل بضاعة"
+
+msgid ""
+"TriB calculates every active employee's pay from salary, attendance, "
+"overtime, loans and medical deductions, using the Egyptian social insurance "
+"and salary tax rules in Payroll settings."
+msgstr ""
+"يحتسب تراي بي أجر كل موظف نشط من الراتب والحضور والإضافي والسلف والاستقطاعات"
+" الطبية، وفق قواعد التأمينات وضريبة كسب العمل المصرية في إعدادات الرواتب."
+
+msgid ""
+"TriB could not read this file. Export the statement again as CSV or .xlsx."
+msgstr ""
+"تعذّر على تراي بي قراءة الملف. صدّر الكشف مرة أخرى بصيغة CSV أو ‎.xlsx."
+
+msgid "TriB could not read this workbook. Save it again as .xlsx and retry."
+msgstr ""
+"تعذّر على تراي بي قراءة هذا الملف. احفظه مرة أخرى بصيغة ‎.xlsx وأعد "
+"المحاولة."
+
+msgid "Unallocated"
+msgstr "غير مخصص"
+
+msgid "Uncategorised"
+msgstr "بدون فئة"
+
+msgid "Undo"
+msgstr "تراجع"
+
+msgid "Unit"
+msgstr "الوحدة"
+
+msgid "Unit cost"
+msgstr "تكلفة الوحدة"
+
+msgid "Unit cost (for increases)"
+msgstr "تكلفة الوحدة (للزيادة)"
+
+msgid "Unknown asset number: %(c)s"
+msgstr "رقم أصل غير معروف: %(c)s"
+
+msgid "Unpaid"
+msgstr "غير مدفوع"
+
+msgid "Up to net total"
+msgstr "حتى صافي"
+
+msgid "Update"
+msgstr "تحديث"
+
+msgid "Upload"
+msgstr "رفع"
+
+msgid "Upload a CSV or Excel (.xlsx) statement under 5 MB."
+msgstr "ارفع كشفًا بصيغة CSV أو إكسل (.xlsx) أقل من 5 ميجابايت."
+
+msgid "Upload bank statement"
+msgstr "رفع كشف حساب البنك"
+
+msgid ""
+"Upload photos or PDFs of receipts and supplier invoices as they come in. "
+"Record each one as a payment voucher or bill, then attach the receipt to it."
+msgstr ""
+"ارفع صور أو ملفات PDF للإيصالات وفواتير الموردين فور وصولها. سجّل كلًا منها "
+"كسند صرف أو فاتورة مورد ثم أرفق الإيصال بها."
+
+msgid "Upload receipts"
+msgstr "رفع الإيصالات"
+
+msgid "Upload statement"
+msgstr "رفع الكشف"
+
+msgid ""
+"Upload the monthly payroll workbook. TriB reads the main employee list on "
+"the first sheet, matches people by their SN code, and shows you everything "
+"before saving."
+msgstr ""
+"ارفع ملف الرواتب الشهري. يقرأ تراي بي قائمة الموظفين الرئيسية من الشيت "
+"الأول، ويطابقهم بكود SN، ويعرض لك كل شيء قبل الحفظ."
+
+msgid "Uploaded"
+msgstr "تم الرفع"
+
+msgid ""
+"Use the fingerprint ID as the employee code so attendance imports match."
+msgstr "استخدم رقم البصمة ككود للموظف لتتطابق ملفات الحضور."
+
+msgid "Use the fingerprint ID so attendance imports match."
+msgstr "استخدم رقم البصمة لتتطابق ملفات الحضور."
+
+msgid "Used to build SKUs, e.g. MCH → MCH-00001"
+msgstr "تُستخدم لبناء الأكواد، مثل MCH ← MCH-00001"
+
+msgid "Useful life (months)"
+msgstr "العمر الإنتاجي (شهور)"
+
+msgid "VAT"
+msgstr "ضريبة القيمة المضافة"
+
+msgid "VAT payable"
+msgstr "الضريبة المستحقة"
+
+msgid "VAT rate"
+msgstr "نسبة الضريبة"
+
+msgid "VAT rates"
+msgstr "نسب الضريبة"
+
+msgid "VAT refundable / carried forward"
+msgstr "ضريبة مستردة / مرحّلة"
+
+msgid "VAT return"
+msgstr "الإقرار الضريبي"
+
+msgid "Valid until"
+msgstr "صالح حتى"
+
+msgid "Value"
+msgstr "القيمة"
+
+msgid "Value (FIFO)"
+msgstr "القيمة (الوارد أولًا)"
+
+msgid "View invoices"
+msgstr "عرض الفواتير"
+
+msgid "Void %(n)s"
+msgstr "إلغاء %(n)s"
+
+msgid "Voucher"
+msgstr "سند"
+
+msgid "Waiting for Finance Manager"
+msgstr "بانتظار المدير المالي"
+
+msgid "Waiting for Managing Director"
+msgstr "بانتظار العضو المنتدب"
+
+msgid "Waiting for me"
+msgstr "بانتظاري"
+
+msgid ""
+"Walk the site and scan each asset label. Anything not scanned shows as "
+"missing."
+msgstr "تجوّل في الموقع وامسح ملصق كل أصل. ما لم يُمسح يظهر كمفقود."
+
+msgid "Warehouse"
+msgstr "المخزن"
+
+msgid "Warehouses"
+msgstr "المخازن"
+
+msgid "Weekly"
+msgstr "أسبوعي"
+
+msgid "What customers owe, by how late it is."
+msgstr "مستحقات العملاء حسب مدة التأخير."
+
+msgid "What you owe suppliers, by how late it is."
+msgstr "مستحقات الموردين حسب مدة التأخير."
+
+msgid ""
+"When a statement line's description contains the text, TriB suggests the "
+"account — or posts it straight away if you tick automatic."
+msgstr ""
+"عندما يحتوي وصف سطر الكشف على النص، يقترح تراي بي الحساب — أو يرحّله مباشرة "
+"إذا اخترت «تلقائي»."
+
+msgid "Will be updated"
+msgstr "سيتم تحديثهم"
+
+msgid "Working days"
+msgstr "أيام العمل"
+
+msgid "Write off"
+msgstr "إعدام"
+
+msgid "Write off expired stock"
+msgstr "إعدام البضاعة المنتهية"
+
+msgid "Year"
+msgstr "السنة"
+
+msgid ""
+"Year-end letters asking each customer to confirm the balance they owe, with "
+"a reply slip for your auditors."
+msgstr ""
+"خطابات نهاية العام تطلب من كل عميل المصادقة على رصيده، مع قسيمة رد لمراقب "
+"الحسابات."
+
+msgid "Yearly"
+msgstr "سنوي"
+
+msgid "You allocated more than the amount paid."
+msgstr "خصصت أكثر من المبلغ المدفوع."
+
+msgid "You allocated more than the amount received."
+msgstr "خصصت أكثر من المبلغ المحصّل."
+
+msgid "You owe suppliers"
+msgstr "المستحق للموردين"
+
+msgid "Your menu is updated."
+msgstr "تم تحديث قائمتك."
+
+msgid "Zero rated"
+msgstr "خاضع بسعر صفر"
+
+msgid "days"
+msgstr "أيام"
+
+msgid "due"
+msgstr "مستحق"
+
+msgid "letters"
+msgstr "خطابات"
+
+msgid "months"
+msgstr "شهور"
+
+msgid "of which cash"
+msgstr "منها نقدًا"
+
+msgid "units"
+msgstr "وحدة"
+
+msgid "years"
+msgstr "سنوات"
+
+msgid "%(d)s ago"
+msgstr "منذ %(d)s"
+
+msgid ""
+"%(n)s cheques recorded as returned. The amounts are owed again by the "
+"customers."
+msgstr "تم تسجيل %(n)s شيكات مرتجعة، وعادت مبالغها مستحقة على العملاء."
+
+msgid "%(n)s cheques were found on the statement and cleared."
+msgstr "تم العثور على %(n)s شيكات في كشف البنك وتحصيلها."
+
+msgid "Amount differs"
+msgstr "المبلغ مختلف"
+
+msgid "Balance per bank statement"
+msgstr "الرصيد حسب كشف البنك"
+
+msgid "Balance per books"
+msgstr "الرصيد حسب الدفاتر"
+
+msgid "Bank against books"
+msgstr "البنك مقابل الدفاتر"
+
+msgid "Bank's reference"
+msgstr "مرجع البنك"
+
+msgid "Bounced on"
+msgstr "تاريخ الارتداد"
+
+msgid "Check against our cheques"
+msgstr "المطابقة مع شيكاتنا"
+
+msgid "Check the bank's list"
+msgstr "مراجعة قائمة البنك"
+
+msgid "Cheque %(n)s cleared."
+msgstr "تم تحصيل الشيك %(n)s."
+
+msgid "Cheque %(n)s is back with the bank for collection."
+msgstr "أُعيد الشيك %(n)s إلى البنك للتحصيل."
+
+msgid "Cheque %(n)s resubmitted"
+msgstr "إعادة تقديم الشيك %(n)s"
+
+msgid "Cheque %(n)s resubmitted for collection"
+msgstr "إعادة تقديم الشيك %(n)s للتحصيل"
+
+msgid "Cheque %(n)s returned unpaid"
+msgstr "ارتداد الشيك %(n)s دون صرف"
+
+msgid "Cheque position"
+msgstr "موقف الشيكات"
+
+msgid "Cheque reconciliation"
+msgstr "تسوية الشيكات"
+
+msgid "Cheques returned unpaid in the period"
+msgstr "الشيكات المرتدة خلال الفترة"
+
+msgid "Choose a cash box or bank account in %(c)s."
+msgstr "اختر خزينة أو حسابًا بنكيًا بعملة %(c)s."
+
+msgid "Choose the cash box or bank account that received the money."
+msgstr "اختر الخزينة أو الحساب البنكي الذي استلم المبلغ."
+
+msgid "Clear cheque"
+msgstr "تحصيل الشيك"
+
+msgid "Cleared cheques"
+msgstr "الشيكات المحصّلة"
+
+msgid ""
+"Cleared cheques are already in both balances. Uncleared cheques sit in "
+"Cheques payable and Cheques under collection, not in the bank account, so "
+"they are not a difference."
+msgstr ""
+"الشيكات المحصّلة مسجلة في الرصيدين. أما غير المحصّلة فتظهر في أوراق الدفع "
+"وشيكات تحت التحصيل وليس في حساب البنك، لذا لا تُعد فرقًا."
+
+msgid "Cleared on"
+msgstr "تاريخ التحصيل"
+
+msgid "Collected in cash / transfer"
+msgstr "حُصّل نقدًا / بتحويل"
+
+msgid "Date of the bank's notice"
+msgstr "تاريخ إخطار البنك"
+
+msgid "Deposited for collection"
+msgstr "أُودع للتحصيل"
+
+msgid "Enter it above"
+msgstr "أدخله أعلاه"
+
+msgid "Every issued cheque has cleared."
+msgstr "تم صرف كل الشيكات الصادرة."
+
+msgid "Everything on the statement is in the books."
+msgstr "كل ما في الكشف مسجل في الدفاتر."
+
+msgid "First column: cheque number. Second column (optional): reason."
+msgstr "العمود الأول: رقم الشيك. العمود الثاني (اختياري): السبب."
+
+msgid "History"
+msgstr "السجل"
+
+msgid "Issued cheques cleared in the period"
+msgstr "الشيكات الصادرة المصروفة خلال الفترة"
+
+msgid "Leave empty to look in every bank account."
+msgstr "اتركه فارغًا للبحث في كل الحسابات البنكية."
+
+msgid "Less: statement lines not yet in the books"
+msgstr "يُخصم: حركات في الكشف لم تُسجل بعد"
+
+msgid "Next step"
+msgstr "الخطوة التالية"
+
+msgid "No cheque numbers were found in the list."
+msgstr "لم يُعثر على أرقام شيكات في القائمة."
+
+msgid "No cheques cleared in this period."
+msgstr "لا توجد شيكات محصّلة في هذه الفترة."
+
+msgid "No cheques waiting in the safe."
+msgstr "لا توجد شيكات بالخزينة."
+
+msgid "No cheques were returned."
+msgstr "لم ترتد أي شيكات."
+
+msgid "No returned cheques are waiting."
+msgstr "لا توجد شيكات مرتدة بالانتظار."
+
+msgid "Not found in TriB"
+msgstr "غير موجود في تراي بي"
+
+msgid "Nothing under collection."
+msgstr "لا يوجد شيء تحت التحصيل."
+
+msgid "On the statement, not yet in the books"
+msgstr "في الكشف ولم يُسجل بالدفاتر"
+
+msgid ""
+"One per line: cheque number, then a comma and the reason if the bank gave "
+"one."
+msgstr "شيك في كل سطر: رقم الشيك، ثم فاصلة والسبب إن ذكره البنك."
+
+msgid "Only returned cheques can be resubmitted."
+msgstr "يمكن إعادة تقديم الشيكات المرتدة فقط."
+
+msgid "Only returned cheques can be settled."
+msgstr "يمكن تسوية الشيكات المرتدة فقط."
+
+msgid "Or the bank's list (.csv or .xlsx)"
+msgstr "أو قائمة البنك (.csv أو .xlsx)"
+
+msgid "Outstanding for"
+msgstr "قائم منذ"
+
+msgid "Outstanding issued cheques"
+msgstr "شيكات صادرة لم تُصرف"
+
+msgid "Projected balance after outstanding cheques"
+msgstr "الرصيد المتوقع بعد الشيكات القائمة"
+
+msgid "Reason returned"
+msgstr "سبب الارتداد"
+
+msgid "Receipt / transfer ref."
+msgstr "مرجع الإيصال / التحويل"
+
+msgid "Received cheques cleared in the period"
+msgstr "الشيكات الواردة المحصّلة خلال الفترة"
+
+msgid "Received cheques in the safe, not deposited"
+msgstr "شيكات واردة بالخزينة لم تُودع"
+
+msgid "Received cheques under collection"
+msgstr "شيكات واردة تحت التحصيل"
+
+msgid "Record the bank's list"
+msgstr "تسجيل قائمة البنك"
+
+msgid ""
+"Record the list of returned cheques the bank sends you. Each one goes back "
+"on the customer's account until you resubmit it to the bank or the customer "
+"pays in cash or by transfer."
+msgstr ""
+"سجّل قائمة الشيكات المرتدة التي يرسلها البنك. يعود كل شيك على حساب العميل "
+"حتى تعيد تقديمه للبنك أو يسدده العميل نقدًا أو بتحويل."
+
+msgid "Record the ticked cheques as returned"
+msgstr "تسجيل الشيكات المحددة كمرتدة"
+
+msgid "Resubmit or settle"
+msgstr "إعادة تقديم أو تسوية"
+
+msgid "Resubmit to bank"
+msgstr "إعادة التقديم للبنك"
+
+msgid "Resubmitted to the bank"
+msgstr "أُعيد تقديمه للبنك"
+
+msgid "Returned cheque %(n)s settled"
+msgstr "تسوية الشيك المرتد %(n)s"
+
+msgid "Returned cheque %(n)s settled and the customer's account credited."
+msgstr "تمت تسوية الشيك المرتد %(n)s وإضافة المبلغ لحساب العميل."
+
+msgid "Returned cheques"
+msgstr "الشيكات المرتدة"
+
+msgid "Returned on"
+msgstr "تاريخ الارتداد"
+
+msgid "Returned unpaid"
+msgstr "مرتد دون صرف"
+
+msgid "Returned unpaid in the period"
+msgstr "المرتد خلال الفترة"
+
+msgid "Same amount, no cheque number"
+msgstr "نفس المبلغ دون رقم شيك"
+
+msgid "Settled by cash or transfer"
+msgstr "سُدد نقدًا أو بتحويل"
+
+msgid "Several cheques have this number: record it from Cheques"
+msgstr "أكثر من شيك بهذا الرقم: سجّله من شاشة الشيكات"
+
+msgid "Statement reference"
+msgstr "مرجع الكشف"
+
+msgid "Status in TriB"
+msgstr "الحالة في تراي بي"
+
+msgid "The preview has expired. Enter the list again."
+msgstr "انتهت صلاحية المعاينة. أدخل القائمة مرة أخرى."
+
+msgid "This cheque goes the other way."
+msgstr "اتجاه هذا الشيك عكس الحركة."
+
+msgid "Times returned"
+msgstr "مرات الارتداد"
+
+msgid "TriB could not read this file. Export it again as CSV or .xlsx."
+msgstr "تعذّر على تراي بي قراءة الملف. صدّره مرة أخرى بصيغة CSV أو ‎.xlsx."
+
+msgid "Type the cheque numbers or upload the bank's list."
+msgstr "اكتب أرقام الشيكات أو ارفع قائمة البنك."
+
+msgid "Waiting to be resolved"
+msgstr "بانتظار التسوية"
+
+msgid "cannot be returned"
+msgstr "لا يمكن تسجيله كمرتد"
+
+msgid "deposited, not yet paid"
+msgstr "مودعة ولم تُصرف بعد"
+
+msgid "not yet presented to the bank"
+msgstr "لم تُقدَّم للبنك بعد"
+
+msgid "received, not yet deposited"
+msgstr "مستلمة ولم تُودع بعد"

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "VAT rates" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "VAT rates" %}</h1><div class="sub">{% translate "The default rate is filled in on new invoice and bill lines. Egypt's standard rate is 14%." %}</div></div>
+  <a class="btn" href="{% url 'reports:vat_return' %}">{% translate "VAT return" %}</a></div>
+<div class="cols">
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Name" %}</th><th>{% translate "Type" %}</th><th class="num">{% translate "Rate %" %}</th><th></th><th></th></tr></thead>
+    <tbody>{% for r in rows %}<tr><td>{{ r.name_en }}{% if r.name_ar %}<div class="lbl">{{ r.name_ar }}</div>{% endif %}</td><td>{{ r.get_kind_display }}</td><td class="num">{{ r.rate|num }}</td>
+      <td>{% if r.is_default %}<span class="pill good">{% translate "Default" %}</span>{% endif %}{% if not r.is_active %}<span class="pill">{% translate "Inactive" %}</span>{% endif %}</td>
+      <td>{% if can.setup.edit %}<a class="link" href="?edit={{ r.pk }}">{% translate "Edit" %}</a>{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+  {% if form %}<div class="panel"><h2>{% if obj %}{% translate "Edit VAT rate" %}{% else %}{% translate "Add VAT rate" %}{% endif %}</h2>
+    <form method="post" class="form">{% csrf_token %}{% if obj %}<input type="hidden" name="pk" value="{{ obj.pk }}">{% endif %}
+      {% include "partials/form_fields.html" %}
+      <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button></div></form></div>{% endif %}
+</div>
+{% endblock %}

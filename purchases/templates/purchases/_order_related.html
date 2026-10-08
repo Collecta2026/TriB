@@ -1,0 +1,9 @@
+{% load i18n trib %}<div class="panel"><h2>{% translate "Receiving & billing" %}</h2>
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Product / service" %}</th><th class="num">{% translate "Ordered" %}</th><th class="num">{% translate "Received" %}</th><th class="num">{% translate "Not yet received" %}</th><th class="num">{% translate "Billed" %}</th></tr></thead>
+  <tbody>{% for l in doc.lines.all %}<tr><td>{{ l.label }}</td><td class="num">{{ l.qty|num:3 }}</td><td class="num">{{ l.qty_received|num:3 }}</td>
+    <td class="num">{% if l.qty_outstanding %}<span class="pill warn">{{ l.qty_outstanding|num:3 }}</span>{% else %}0.000{% endif %}</td><td class="num">{{ l.qty_billed|num:3 }}</td></tr>{% endfor %}</tbody></table></div>
+  <div class="cols" style="margin-top:12px">
+    <div><b>{% translate "Item receipts" %}</b>{% for g in doc.receipts.all %}<div><a href="{% url 'purchases:receipt' g.pk %}">{{ g.number|default:_("Draft") }}</a> · {{ g.date|date:"d/m/Y" }} <span class="pill {{ g.status|pill_class }}">{{ g.get_status_display }}</span></div>{% empty %}<div class="lbl">—</div>{% endfor %}</div>
+    <div><b>{% translate "Bills" %}</b>{% for b in doc.bills.all %}<div><a href="{% url 'purchases:bill' b.pk %}">{{ b.number|default:_("Draft") }}</a> · {{ b.total|num }} <span class="pill {{ b.status|pill_class }}">{{ b.get_status_display }}</span></div>{% empty %}<div class="lbl">—</div>{% endfor %}</div>
+  </div>
+</div>

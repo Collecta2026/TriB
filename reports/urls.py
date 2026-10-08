@@ -10,4 +10,8 @@ urlpatterns = [
     path("statement/", views.statement, name="statement"),
     path("profit-and-loss/", views.profit_loss, name="profit_loss"),
     path("balance-sheet/", views.balance_sheet, name="balance_sheet"),
+    path("ar-ageing/", views.ar_aging, name="ar_aging"),
+    path("ap-ageing/", views.ap_aging, name="ap_aging"),
+    path("vat-return/", views.vat_return, name="vat_return"),
+    path("sales-by-product/", views.sales_by_item, name="sales_by_item"),
 ]

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Payroll runs" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Payroll runs" %}</h1>
+  <div class="sub">{% translate "HR prepares, the Finance Manager approves, the Managing Director authorises (joint release). Authorising posts the payroll journal; payment and each deduction pay-over post separately." %}</div></div>
+  <div class="toolbar"><a class="btn" href="{% url 'team:employees' %}">{% translate "Employees" %}</a><a class="btn" href="{% url 'team:loans' %}">{% translate "Loans & advances" %}</a>
+    {% if can.payroll.edit %}<a class="btn" href="{% url 'payroll:settings' %}">{% translate "Payroll settings" %}</a>{% endif %}</div></div>
+<div class="cols">
+  <div class="table-wrap"><table class="tbl">
+    <thead><tr><th>{% translate "Month" %}</th><th>{% translate "Status" %}</th><th class="num">{% translate "Staff" %}</th><th class="num">{% translate "Gross" %}</th><th class="num">{% translate "Deductions" %}</th><th class="num">{% translate "Net pay" %}</th><th class="num">{% translate "Employer cost" %}</th></tr></thead>
+    <tbody>{% for r, t in rows %}<tr><td><a href="{% url 'payroll:run' r.pk %}">{{ r.period_label }}</a></td><td><span class="pill {{ r.status|pill_class }}">{{ r.get_status_display }}</span></td>
+      <td class="num">{{ r.payslips.count }}</td><td class="num">{{ t.gross|num }}</td><td class="num">{{ t.total_deductions|num }}</td><td class="num">{{ t.net_pay|num }}</td><td class="num">{{ t.employer_cost|num }}</td></tr>
+    {% empty %}<tr><td colspan="7" class="lbl">{% translate "No payroll runs yet." %}</td></tr>{% endfor %}</tbody></table></div>
+  {% if can.payroll.create %}<div class="panel"><h2>{% translate "Run payroll" %}</h2>
+    <form method="post" class="form">{% csrf_token %}{% include "partials/form_fields.html" %}
+      <div class="lbl">{% translate "TriB calculates every active employee's pay from salary, attendance, overtime, loans and medical deductions, using the Egyptian social insurance and salary tax rules in Payroll settings." %}</div>
+      <div class="form-actions"><button class="btn primary" type="submit">{% translate "Calculate payroll" %}</button></div></form></div>{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Payslips" %} {{ run.period_label }}{% endblock %}
+{% block content %}
+<div class="toolbar no-print"><a class="btn" href="{% url 'payroll:run' run.pk %}">‹ {% translate "Back" %}</a><button class="btn primary" type="button" onclick="window.print()">{% translate "Print / save as PDF" %}</button></div>
+{% for p in slips %}{% include "payroll/_slip.html" %}{% endfor %}
+{% endblock %}

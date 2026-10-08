@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Deductions" %} {{ run.period_label }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'payroll:run' run.pk %}">{% translate "Payroll" %} {{ run.period_label }}</a></div>
+  <h1>{% translate "Deductions & journal" %} · {{ run.period_label }}</h1>
+  <div class="sub">{% translate "Every deduction by employee, and the general ledger entry the run posts when it is authorised." %}</div></div>
+  {% if can.payroll.export %}<a class="btn primary" href="?format=xlsx">{% translate "Export to Excel" %}</a>{% endif %}</div>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Code" %}</th><th>{% translate "Employee" %}</th><th class="num">{% translate "Gross" %}</th>{% for _k, label in deductions %}<th class="num">{{ label }}</th>{% endfor %}<th class="num">{% translate "Net pay" %}</th></tr></thead>
+  <tbody>{% for p in slips %}<tr><td>{{ p.employee.code }}</td><td>{{ p.employee.name }}</td><td class="num">{{ p.gross|num }}</td>
+    {% for k, _l in deductions %}<td class="num">{{ p|get_attr:k|num }}</td>{% endfor %}<td class="num">{{ p.net_pay|num }}</td></tr>{% endfor %}</tbody>
+  <tfoot><tr><td colspan="2">{% translate "Total" %}</td><td class="num">{{ t.gross|num }}</td>{% for k, _l in deductions %}<td class="num">{{ t|get:k|num }}</td>{% endfor %}<td class="num">{{ t.net_pay|num }}</td></tr></tfoot>
+</table></div>
+<div class="panel"><h2>{% if run.journal_entry_id %}{% translate "Posted journal" %} · <a href="{% url 'ledger:journal' run.journal_entry_id %}">{{ run.journal_entry.number }}</a>{% else %}{% translate "Journal to be posted on authorisation" %}{% endif %}</h2>
+  {% if lines %}<table class="tbl"><thead><tr><th>{% translate "Account" %}</th><th>{% translate "Cost centre" %}</th><th>{% translate "Description" %}</th><th class="num">{% translate "Debit" %}</th><th class="num">{% translate "Credit" %}</th></tr></thead>
+  <tbody>{% for l in lines %}{% if l.debit or l.credit %}<tr><td>{{ l.account.code }} · {{ l.account.name }}</td><td>{{ l.cost_center|default:"" }}</td><td>{{ l.description }}</td><td class="num">{% if l.debit %}{{ l.debit|num }}{% endif %}</td><td class="num">{% if l.credit %}{{ l.credit|num }}{% endif %}</td></tr>{% endif %}{% endfor %}</tbody></table>
+  {% else %}<p class="lbl">{% translate "A payroll account is missing from the chart of accounts, or the run is empty." %}</p>{% endif %}
+</div>
+{% endblock %}

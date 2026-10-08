@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "VAT return" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'reports:index' %}">{% translate "Reports" %}</a></div><h1>{% translate "VAT return" %}</h1>
+  <div class="sub">{{ company.name }} · {{ from|date:"d/m/Y" }} – {{ to|date:"d/m/Y" }} · {{ company.base_currency_id }}</div></div>
+  {% include "reports/_period.html" with show_from=1 %}
+</div>
+<div class="kpis">
+  <div class="kpi"><span class="lbl">{% translate "Output VAT (sales)" %}</span><span class="n">{{ r.output_vat|num }}</span></div>
+  <div class="kpi"><span class="lbl">{% translate "Input VAT (purchases)" %}</span><span class="n">{{ r.input_vat|num }}</span></div>
+  <div class="kpi {% if r.net > 0 %}warn{% endif %}"><span class="lbl">{% if r.net >= 0 %}{% translate "VAT payable" %}{% else %}{% translate "VAT refundable / carried forward" %}{% endif %}</span><span class="n">{{ r.net|num }}</span></div>
+</div>
+<div class="cols">
+  <div class="panel"><h2>{% translate "Sales" %}</h2><table class="tbl"><thead><tr><th>{% translate "VAT rate" %}</th><th class="num">{% translate "Invoices" %}</th><th class="num">{% translate "Net sales" %}</th><th class="num">{% translate "VAT" %}</th></tr></thead>
+    <tbody>{% for x in r.sales %}<tr><td>{{ x.rate|default:_("No VAT") }}</td><td class="num">{{ x.docs }}</td><td class="num">{{ x.net|num }}</td><td class="num">{{ x.tax|num }}</td></tr>
+    {% empty %}<tr><td colspan="4" class="lbl">{% translate "No posted invoices in this period." %}</td></tr>{% endfor %}</tbody></table></div>
+  <div class="panel"><h2>{% translate "Purchases" %}</h2><table class="tbl"><thead><tr><th>{% translate "VAT rate" %}</th><th class="num">{% translate "Bills" %}</th><th class="num">{% translate "Net purchases" %}</th><th class="num">{% translate "VAT" %}</th></tr></thead>
+    <tbody>{% for x in r.purchases %}<tr><td>{{ x.rate|default:_("No VAT") }}</td><td class="num">{{ x.docs }}</td><td class="num">{{ x.net|num }}</td><td class="num">{{ x.tax|num }}</td></tr>
+    {% empty %}<tr><td colspan="4" class="lbl">{% translate "No posted bills in this period." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+<div class="panel"><h2>{% translate "Check against the ledger" %}</h2>
+  <table class="tbl" style="max-width:760px"><tbody>
+    <tr><td>{% translate "Output VAT on invoices" %}</td><td class="num">{{ r.sales_tax|num }}</td></tr>
+    <tr><td>{% translate "Movement on" %} <a href="{% url 'reports:statement' %}?account={{ r.out_account.pk }}&from={{ from|date:'Y-m-d' }}&to={{ to|date:'Y-m-d' }}">{{ r.out_account.code }} · {{ r.out_account.name }}</a></td><td class="num">{{ r.output_vat|num }}</td></tr>
+    <tr><td>{% translate "Input VAT on bills" %}</td><td class="num">{{ r.purchase_tax|num }}</td></tr>
+    <tr><td>{% translate "Movement on" %} <a href="{% url 'reports:statement' %}?account={{ r.in_account.pk }}&from={{ from|date:'Y-m-d' }}&to={{ to|date:'Y-m-d' }}">{{ r.in_account.code }} · {{ r.in_account.name }}</a></td><td class="num">{{ r.input_vat|num }}</td></tr>
+  </tbody></table>
+  <p class="lbl">{% translate "Differences come from VAT posted by vouchers or journals rather than invoices and bills. Open the account statement to see them." %}</p>
+</div>
+{% endblock %}

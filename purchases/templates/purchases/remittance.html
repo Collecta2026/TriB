@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ p.number }}{% endblock %}
+{% block content %}
+<div class="toolbar no-print"><a class="btn" href="{% url 'purchases:payment' p.pk %}">‹ {% translate "Back" %}</a><button class="btn primary" type="button" onclick="window.print()">{% translate "Print / save as PDF" %}</button></div>
+<div class="voucher-doc">
+  <div class="vh"><div><b>{{ company.name_en }}</b><div>{{ company.address|linebreaksbr }}</div></div>
+    <div class="vt"><h1>Remittance Advice</h1><h1 class="ar">إشعار سداد</h1><div><b>{{ p.number }}</b></div></div>
+    <div class="ar" style="text-align:start"><b>{{ company.name_ar }}</b></div></div>
+  <div class="bi"><div>To / إلى: <b>{{ p.supplier.name_en }}</b><div>{{ p.supplier.address|linebreaksbr }}</div></div>
+    <div style="text-align:end">Date / التاريخ: {{ p.date|date:"d/m/Y" }}<br>{{ p.get_method_display }}{% if p.bank_account %} · {{ p.bank_account.name_en }}{% endif %}{% if p.cheque_number %} · Cheque #{{ p.cheque_number }} ({{ p.cheque_due_date|date:"d/m/Y" }}){% endif %}{% if p.reference %}<br>Ref / المرجع: {{ p.reference }}{% endif %}</div></div>
+  <p>We have paid the following invoices. / نفيدكم بسداد الفواتير التالية:</p>
+  <table><thead><tr><th>Your invoice / فاتورتكم</th><th>Our ref. / مرجعنا</th><th>Date / التاريخ</th><th class="num">Invoice total / إجمالي الفاتورة</th><th class="num">Paid / المسدد</th></tr></thead>
+    <tbody>{% for a in allocs %}<tr><td>{{ a.bill.supplier_invoice_no|default:"—" }}</td><td>{{ a.bill.number }}</td><td>{{ a.bill.date|date:"d/m/Y" }}</td><td class="num">{{ a.bill.total|num }}</td><td class="num">{{ a.amount|num }}</td></tr>{% endfor %}
+      {% if p.unallocated %}<tr><td colspan="4">Advance payment / دفعة مقدمة</td><td class="num">{{ p.unallocated|num }}</td></tr>{% endif %}</tbody>
+    <tfoot><tr><th colspan="4">Total paid / إجمالي المسدد ({{ p.currency_id }})</th><th class="num">{{ p.amount|num }}</th></tr></tfoot></table>
+  <div class="words">{{ words_en }}</div><div class="words ar">{{ words_ar }}</div>
+  <div class="sigs"><div class="sig">Prepared by / إعداد<br><b>{{ p.created_by }}</b></div><div class="sig">Finance / الإدارة المالية</div><div class="sig">Stamp / الختم</div></div>
+</div>
+{% endblock %}

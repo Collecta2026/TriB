@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ p.number }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'purchases:payments' %}">{% translate "Bill payments" %}</a></div>
+  <h1>{{ p.number }} <span class="pill {{ p.status|pill_class }}">{{ p.get_status_display }}</span></h1>
+  <div class="sub">{{ p.date|date:"d/m/Y" }} · <a href="{% url 'contacts:supplier' p.supplier_id %}">{{ p.supplier.name }}</a>{% if p.journal_entry_id %} · <a href="{% url 'ledger:journal' p.journal_entry_id %}">{{ p.journal_entry.number }}</a>{% endif %}</div></div>
+  <div class="toolbar"><a class="btn primary" href="{% url 'purchases:payment_print' p.pk %}">{% include "partials/icon.html" with name="print" %} {% translate "Remittance advice" %}</a>
+    {% if p.status == "posted" and can.purchases.void %}<form method="post" action="{% url 'purchases:payment_void' p.pk %}">{% csrf_token %}<button class="btn danger" type="submit">{% translate "Void" %}</button></form>{% endif %}</div>
+</div>
+<div class="cols">
+  <div class="panel"><h2>{% translate "Details" %}</h2><table class="tbl"><tbody>
+    <tr><td class="lbl">{% translate "Amount paid" %}</td><td><b>{{ p.amount|money:p.currency }}</b></td></tr>
+    <tr><td class="lbl">{% translate "Payment method" %}</td><td>{{ p.get_method_display }}{% if p.bank_account %} · {{ p.bank_account.name }}{% endif %}{% if p.cheque_number %} · #{{ p.cheque_number }}{% endif %}</td></tr>
+    <tr><td class="lbl">{% translate "Reference" %}</td><td>{{ p.reference|default:"—" }}</td></tr>
+  </tbody></table></div>
+  <div class="panel"><h2>{% translate "Applied to" %}</h2><table class="tbl"><tbody>
+    {% for a in allocs %}<tr><td><a href="{% url 'purchases:bill' a.bill_id %}">{{ a.bill.number }}</a> {{ a.bill.supplier_invoice_no }}</td><td class="num">{{ a.amount|num }}</td></tr>{% empty %}<tr><td class="lbl">{% translate "Advance — not applied to a bill." %}</td></tr>{% endfor %}
+  </tbody></table></div>
+</div>
+{% attachments p %}
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% block title %}{% translate "Item receipt" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'purchases:receipts' %}">{% translate "Item receipts" %}</a></div>
+  <h1>{% translate "Item receipt" %}{% if grn.purchase_order %} · {{ grn.purchase_order.number }}{% endif %}</h1>
+  <div class="sub">{% translate "Enter what physically arrived. Serial numbers for machines; batch and expiry for consumables." %}</div></div></div>
+<form method="post" class="form" data-doc-form="purchase">{% csrf_token %}
+  <div class="panel">{% include "partials/form_fields.html" %}</div>
+  <div class="panel" data-formset="lines">
+    <div class="panel-h"><h2>{% translate "Lines" %}</h2><button class="btn sm" type="button" data-add-line>+ {% translate "Add line" %}</button></div>
+    {{ formset.management_form }}
+    {% if formset.non_form_errors %}<div class="msg error">{{ formset.non_form_errors|join:" " }}</div>{% endif %}
+    <div class="table-wrap"><table class="tbl lines doc-lines">
+      <thead><tr>{% for f in formset.empty_form.visible_fields %}{% if f.name != "DELETE" %}<th>{{ f.label }}</th>{% endif %}{% endfor %}<th class="num">{% translate "Amount" %}</th><th class="del"></th></tr></thead>
+      <tbody>{% for lf in formset %}{% include "docs/_line.html" %}{% endfor %}</tbody>
+    </table></div>
+    <template>{% include "docs/_line.html" with lf=formset.empty_form %}</template>
+  </div>
+  <div class="form-actions"><button class="btn" type="submit" name="save">{% translate "Save draft" %}</button>
+    {% if can.inventory.post %}<button class="btn primary" type="submit" name="post">{% translate "Save and receive into stock" %}</button>{% endif %}</div>
+</form>
+{{ picker|json_script:"doc-picker" }}
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/docs.js' %}"></script>{% endblock %}

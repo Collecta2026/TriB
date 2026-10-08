@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ p }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'projects:list' %}">{% translate "Projects" %}</a></div>
+  <h1>{{ p.code }} · {{ p.name }} <span class="pill {{ p.status|pill_class }}">{{ p.get_status_display }}</span></h1>
+  <div class="sub">{% if p.customer %}{{ p.customer.name }} · {% endif %}{% if p.start_date %}{{ p.start_date|date:"d/m/Y" }} – {{ p.end_date|date:"d/m/Y" }}{% endif %}</div></div>
+  {% if can.projects.edit %}<a class="btn" href="{% url 'projects:edit' p.pk %}">{% translate "Edit" %}</a>{% endif %}</div>
+<div class="kpis">
+  <div class="kpi"><span class="lbl">{% translate "Budget" %}</span><span class="n">{{ p.budget|num }}</span></div>
+  <div class="kpi"><span class="lbl">{% translate "Income" %}</span><span class="n">{{ pl.total_income|num }}</span></div>
+  <div class="kpi"><span class="lbl">{% translate "Costs" %}</span><span class="n">{{ pl.total_expense|num }}</span></div>
+  <div class="kpi {% if pl.profit < 0 %}crit{% endif %}"><span class="lbl">{% translate "Profit" %}</span><span class="n">{{ pl.profit|num }}</span></div>
+</div>
+<div class="cols">
+  <div class="panel"><h2>{% translate "Profit and loss" %}</h2><table class="tbl"><tbody>
+    <tr class="grp"><td colspan="2">{% translate "Income" %}</td></tr>
+    {% for r, v in pl.income %}<tr><td class="indent-1">{{ r.account__code }} · {{ r.account__name_en }}</td><td class="num">{{ v|num }}</td></tr>{% endfor %}
+    <tr class="grp"><td colspan="2">{% translate "Costs" %}</td></tr>
+    {% for r, v in pl.expense %}<tr><td class="indent-1">{{ r.account__code }} · {{ r.account__name_en }}</td><td class="num">{{ v|num }}</td></tr>{% endfor %}
+  </tbody><tfoot><tr><td>{% translate "Profit" %}</td><td class="num">{{ pl.profit|num }}</td></tr></tfoot></table></div>
+  <div class="panel"><h2>{% translate "Transactions" %}</h2><table class="tbl"><tbody>
+    {% for l in lines %}<tr><td>{{ l.entry.date|date:"d/m/Y" }}</td><td><a href="{% url 'ledger:journal' l.entry_id %}">{{ l.entry.number }}</a></td><td>{{ l.account.code }}</td><td class="num">{% if l.debit %}{{ l.debit|num }}{% else %}-{{ l.credit|num }}{% endif %}</td></tr>
+    {% empty %}<tr><td class="lbl">{% translate "Nothing tagged to this project yet." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% attachments p %}
+{% endblock %}

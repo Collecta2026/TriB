@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% if kind == "customer" %}{% translate "Accounts receivable ageing" %}{% else %}{% translate "Accounts payable ageing" %}{% endif %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'reports:index' %}">{% translate "Reports" %}</a></div>
+  <h1>{% if kind == "customer" %}{% translate "Accounts receivable ageing" %}{% else %}{% translate "Accounts payable ageing" %}{% endif %}</h1>
+  <div class="sub">{{ company.name }} · {% translate "As of" %} {{ to|date:"d/m/Y" }} · {{ company.base_currency_id }} · {% translate "Days past the due date." %}</div></div>
+  {% include "reports/_period.html" %}
+</div>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% if kind == "customer" %}{% translate "Customer" %}{% else %}{% translate "Supplier" %}{% endif %}</th>{% for _d, label in buckets %}<th class="num">{{ label }}</th>{% endfor %}<th class="num">{% translate "Total" %}</th><th></th></tr></thead>
+  <tbody>{% for r in rows %}<tr><td><a href="{% if kind == 'customer' %}{% url 'contacts:customer' r.contact.pk %}{% else %}{% url 'contacts:supplier' r.contact.pk %}{% endif %}">{{ r.contact.name }}</a></td>
+    {% for b in r.buckets %}<td class="num">{% if b %}{% if forloop.counter0 >= 3 %}<span class="pill crit">{{ b|num }}</span>{% else %}{{ b|num }}{% endif %}{% endif %}</td>{% endfor %}
+    <td class="num"><b>{{ r.total|num }}</b></td>
+    <td><a class="link" href="{% if kind == 'customer' %}{% url 'sales:statements' %}?customer={{ r.contact.pk }}{% else %}{% url 'purchases:statements' %}?supplier={{ r.contact.pk }}{% endif %}">{% translate "Statement" %}</a></td></tr>
+  {% empty %}<tr><td colspan="8" class="lbl">{% translate "Nothing outstanding." %}</td></tr>{% endfor %}</tbody>
+  <tfoot><tr><td>{% translate "Total" %}</td>{% for t in totals %}<td class="num">{{ t|num }}</td>{% endfor %}<td class="num">{{ total|num }}</td><td></td></tr></tfoot>
+</table></div>
+{% endblock %}

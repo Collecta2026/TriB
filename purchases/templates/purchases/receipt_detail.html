@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ grn.number }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'purchases:receipts' %}">{% translate "Item receipts" %}</a></div>
+  <h1>{% translate "Item receipt" %} · {{ grn.number|default:_("Draft") }} <span class="pill {{ grn.status|pill_class }}">{{ grn.get_status_display }}</span></h1>
+  <div class="sub">{{ grn.date|date:"d/m/Y" }} · {{ grn.supplier.name }} · {{ grn.warehouse }}{% if grn.purchase_order %} · <a href="{% url 'purchases:order' grn.purchase_order_id %}">{{ grn.purchase_order.number }}</a>{% endif %}
+  {% if grn.journal_entry_id %} · <a href="{% url 'ledger:journal' grn.journal_entry_id %}">{{ grn.journal_entry.number }}</a>{% endif %}</div></div>
+  <div class="toolbar">
+    {% if grn.number %}<a class="btn" href="{% url 'purchases:receipt_print' grn.pk %}">{% translate "Print GRN" %}</a>{% endif %}
+    {% if grn.status == "draft" %}{% if can.purchases.edit %}<a class="btn" href="{% url 'purchases:receipt_edit' grn.pk %}">{% translate "Edit" %}</a>{% endif %}
+      {% if can.inventory.post %}<form method="post" action="{% url 'purchases:receipt_post' grn.pk %}">{% csrf_token %}<button class="btn primary">{% translate "Receive into stock" %}</button></form>{% endif %}{% endif %}
+    {% if grn.status == "posted" and grn.purchase_order and can.purchases.create %}<form method="post" action="{% url 'purchases:order_action' grn.purchase_order_id %}">{% csrf_token %}<button class="btn" name="action" value="bill">{% translate "Create bill" %}</button></form>{% endif %}
+  </div>
+</div>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Product" %}</th><th>{% translate "Description" %}</th><th class="num">{% translate "Qty received" %}</th><th class="num">{% translate "Unit cost" %}</th><th>{% translate "Serial numbers" %}</th><th>{% translate "Batch" %}</th><th>{% translate "Expiry date" %}</th><th class="num">{% translate "Billed" %}</th></tr></thead>
+  <tbody>{% for l in lines %}<tr><td>{{ l.item.sku }}<div class="lbl">{{ l.item.name }}</div></td><td>{{ l.description }}</td><td class="num">{{ l.qty|num:3 }}</td><td class="num">{{ l.unit_cost|num }}</td>
+    <td>{{ l.serials|linebreaksbr }}</td><td>{{ l.batch_no }}</td><td>{{ l.expiry_date|date:"d/m/Y" }}</td><td class="num">{{ l.qty_billed|num:3 }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% attachments grn %}
+{% endblock %}

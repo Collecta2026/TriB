@@ -1,0 +1,4 @@
+{% load i18n %}
+{% if doc.status == "draft" and can.purchases.post %}<form method="post" action="{% url 'purchases:bill_action' doc.pk %}">{% csrf_token %}<button class="btn primary" name="action" value="post">{% translate "Post bill" %}</button></form>{% endif %}
+{% if doc.status == "posted" and doc.balance_due > 0 and can.purchases.create %}<a class="btn primary" href="{% url 'purchases:payment_new' %}?supplier={{ doc.supplier_id }}">{% translate "Pay bill" %}</a>{% endif %}
+{% if doc.status == "posted" and not doc.amount_paid and can.purchases.void %}<form method="post" action="{% url 'purchases:bill_action' doc.pk %}">{% csrf_token %}<button class="btn danger" name="action" value="void">{% translate "Void" %}</button></form>{% endif %}

@@ -1,0 +1,20 @@
+{% load trib %}<div class="voucher-doc" style="margin-bottom:24px;break-after:page">
+  <div class="vh"><div><b>{{ company.name_en }}</b></div>
+    <div class="vt"><h1>Payslip</h1><h1 class="ar">قسيمة راتب</h1><div><b>{{ run.period_label }}</b></div></div>
+    <div class="ar" style="text-align:start"><b>{{ company.name_ar }}</b></div></div>
+  <div class="bi"><div>Employee / الموظف: <b>{{ p.employee.name_en }}</b>{% if p.employee.name_ar %} · <span class="ar">{{ p.employee.name_ar }}</span>{% endif %}<br>
+      Code / الكود: {{ p.employee.code }}{% if p.employee.department %} · {{ p.employee.department.name_en }}{% endif %}</div>
+    <div style="text-align:end">{{ p.employee.job_title_en }}<br>Paid by / طريقة الدفع: {{ p.employee.get_payment_method_display }}</div></div>
+  <table><thead><tr><th>Earnings / الاستحقاقات</th><th class="num">EGP</th><th>Deductions / الاستقطاعات</th><th class="num">EGP</th></tr></thead>
+    <tbody>
+      <tr><td>Basic salary / الراتب الأساسي</td><td class="num">{{ p.basic|num }}</td><td>Social insurance 11% / تأمينات اجتماعية</td><td class="num">{{ p.si_employee|num }}</td></tr>
+      <tr><td>Allowances / البدلات</td><td class="num">{{ p.allowances|num }}</td><td>Salary tax / ضريبة كسب العمل</td><td class="num">{{ p.income_tax|num }}</td></tr>
+      <tr><td>Overtime / الإضافي</td><td class="num">{{ p.overtime|num }}</td><td>Loan recovery / قسط سلفة</td><td class="num">{{ p.loan_deduction|num }}</td></tr>
+      <tr><td></td><td></td><td>Medical & other / تأمين طبي وأخرى</td><td class="num">{{ p.other_deductions|num }}</td></tr>
+      <tr><td></td><td></td><td>Absence / غياب</td><td class="num">{{ p.absence_deduction|num }}</td></tr>
+    </tbody>
+    <tfoot><tr><th>Gross / الإجمالي</th><th class="num">{{ p.gross|num }}</th><th>Total deductions / إجمالي الاستقطاعات</th><th class="num">{{ p.total_deductions|num }}</th></tr>
+      <tr><th colspan="3">Net pay / صافي الراتب</th><th class="num">{{ p.net_pay|num }}</th></tr></tfoot></table>
+  {% if p.comment %}<p>{{ p.comment }}</p>{% endif %}
+  <div class="sigs"><div class="sig">HR / الموارد البشرية</div><div class="sig">Finance / الإدارة المالية</div><div class="sig">Employee / الموظف</div></div>
+</div>

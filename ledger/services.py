@@ -29,6 +29,7 @@ class Line:
     credit: Decimal = ZERO
     description: str = ""
     cost_center: CostCenter = None
+    project: object = None
     currency: object = None  # Currency or code; defaults to base currency
     amount_fc: Decimal = None  # original-currency amount; defaults to debit/credit
     rate: Decimal = field(default_factory=lambda: Decimal("1"))
@@ -67,7 +68,7 @@ def post_journal(company, date, lines, memo="", source="manual", source_ref="", 
         total_debit += debit
         total_credit += credit
         clean.append(JournalLine(
-            account=account, cost_center=line.cost_center, description=(line.description or "")[:300],
+            account=account, cost_center=line.cost_center, project=line.project, description=(line.description or "")[:300],
             debit=debit, credit=credit, currency_id=currency, amount_fc=amount_fc, rate=line.rate or Decimal("1"),
         ))
 
@@ -93,7 +94,7 @@ def reverse_journal(entry, date, user=None, memo=""):
         raise PostingError(_("This entry has already been reversed."))
     lines = [
         Line(account=l.account, debit=l.credit, credit=l.debit, description=l.description, cost_center=l.cost_center,
-             currency=l.currency_id, amount_fc=l.amount_fc, rate=l.rate)
+             project=l.project, currency=l.currency_id, amount_fc=l.amount_fc, rate=l.rate)
         for l in entry.lines.select_related("account")
     ]
     return post_journal(

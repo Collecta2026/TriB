@@ -8,5 +8,11 @@
   <a class="blk" style="min-height:0;color:inherit" href="{% url 'reports:balance_sheet' %}"><div class="bh"><h3>{% translate "Balance sheet" %}</h3></div><div class="lbl">{% translate "Assets, liabilities and equity on a date." %}</div></a>
   <a class="blk" style="min-height:0;color:inherit" href="{% url 'reports:trial_balance' %}"><div class="bh"><h3>{% translate "Trial balance" %}</h3></div><div class="lbl">{% translate "Opening, movement and closing balance of every account." %}</div></a>
   <a class="blk" style="min-height:0;color:inherit" href="{% url 'reports:statement' %}"><div class="bh"><h3>{% translate "Account statement" %}</h3></div><div class="lbl">{% translate "Every posting to one account, with a running balance." %}</div></a>
+  <a class="blk" style="min-height:0;color:inherit" href="{% url 'reports:ar_aging' %}"><div class="bh"><h3>{% translate "Accounts receivable ageing" %}</h3></div><div class="lbl">{% translate "What customers owe, by how late it is." %}</div></a>
+  <a class="blk" style="min-height:0;color:inherit" href="{% url 'reports:ap_aging' %}"><div class="bh"><h3>{% translate "Accounts payable ageing" %}</h3></div><div class="lbl">{% translate "What you owe suppliers, by how late it is." %}</div></a>
+  <a class="blk" style="min-height:0;color:inherit" href="{% url 'reports:vat_return' %}"><div class="bh"><h3>{% translate "VAT return" %}</h3></div><div class="lbl">{% translate "Output and input VAT for the month, checked against the ledger." %}</div></a>
+  <a class="blk" style="min-height:0;color:inherit" href="{% url 'reports:sales_by_item' %}"><div class="bh"><h3>{% translate "Sales by product" %}</h3></div><div class="lbl">{% translate "Quantities, sales and margin by category and product." %}</div></a>
+  <a class="blk" style="min-height:0;color:inherit" href="{% url 'inventory:stock' %}"><div class="bh"><h3>{% translate "Stock valuation" %}</h3></div><div class="lbl">{% translate "Stock on hand at FIFO cost, by warehouse." %}</div></a>
+  <a class="blk" style="min-height:0;color:inherit" href="{% url 'inventory:expiry' %}"><div class="bh"><h3>{% translate "Batches & expiry" %}</h3></div><div class="lbl">{% translate "Consumables by expiry date." %}</div></a>
 </div>
 {% endblock %}

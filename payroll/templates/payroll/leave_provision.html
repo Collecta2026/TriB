@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Leave provision" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'team:leave' %}">{% translate "Leave" %}</a></div><h1>{% translate "Leave provision" %}</h1>
+  <div class="sub">{% translate "Annual leave earned but not taken, valued at each employee's daily rate: the liability for the balance sheet." %}</div></div>
+  <form method="get" class="toolbar"><select name="month" style="width:auto">{% for m in months %}<option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}</option>{% endfor %}</select>
+    <input type="number" name="year" value="{{ year }}" style="width:100px"><button class="btn" type="submit">{% translate "Run report" %}</button></form></div>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Code" %}</th><th>{% translate "Employee" %}</th><th class="num">{% translate "Entitlement" %}</th><th class="num">{% translate "Earned to date" %}</th><th class="num">{% translate "Taken" %}</th><th class="num">{% translate "Balance (days)" %}</th><th class="num">{% translate "Daily rate" %}</th><th class="num">{% translate "Provision" %}</th></tr></thead>
+  <tbody>{% for r in rows %}<tr><td>{{ r.emp.code }}</td><td>{{ r.emp.name }}</td><td class="num">{{ r.entitlement|num:0 }}</td><td class="num">{{ r.accrued|num:1 }}</td><td class="num">{{ r.taken|num:1 }}</td><td class="num">{{ r.balance|num:1 }}</td><td class="num">{{ r.daily|num }}</td><td class="num">{{ r.provision|num }}</td></tr>
+  {% empty %}<tr><td colspan="8" class="lbl">{% translate "No active employees." %}</td></tr>{% endfor %}</tbody>
+  <tfoot><tr><td colspan="5">{% translate "Total" %}</td><td class="num">{{ totals.balance|num:1 }}</td><td></td><td class="num">{{ totals.provision|num }}</td></tr></tfoot>
+</table></div>
+{% endblock %}

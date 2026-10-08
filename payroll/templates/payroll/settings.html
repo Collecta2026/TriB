@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Payroll settings" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'payroll:runs' %}">{% translate "Payroll runs" %}</a></div><h1>{% translate "Payroll settings" %}</h1>
+  <div class="sub">{% translate "Statutory rates for Egypt (2026 defaults). Change them when the law changes; runs already authorised keep their figures." %}</div></div></div>
+<form method="post" class="form">{% csrf_token %}
+  <div class="panel">{% include "partials/form_fields.html" %}</div>
+  <div class="panel"><h2>{% translate "Scheme of delegation" %}</h2>
+    <p class="lbl">{% translate "By the run's net total: which sign-offs are needed. Without a matching band, both the Finance Manager and the Managing Director sign." %}</p>
+    {{ bands.management_form }}
+    <div class="table-wrap"><table class="tbl lines"><thead><tr><th>{% translate "Band" %}</th><th>{% translate "From net total" %}</th><th>{% translate "Up to net total" %}</th><th>{% translate "Finance Manager approval" %}</th><th>{% translate "Managing Director authorisation" %}</th><th>{% translate "Order" %}</th><th>{% translate "Delete" %}</th></tr></thead>
+      <tbody>{% for f in bands %}<tr>{% for h in f.hidden_fields %}{{ h }}{% endfor %}<td>{{ f.name }}</td><td>{{ f.min_amount }}</td><td>{{ f.max_amount }}</td><td>{{ f.requires_fm }}</td><td>{{ f.requires_md }}</td><td>{{ f.order }}</td><td>{% if f.instance.pk %}{{ f.DELETE }}{% endif %}</td></tr>
+      {% if f.errors %}<tr><td colspan="7" class="err">{{ f.errors }}</td></tr>{% endif %}{% endfor %}</tbody></table></div>
+  </div>
+  <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button></div>
+</form>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Pay bills" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'purchases:payments' %}">{% translate "Bill payments" %}</a></div><h1>{% translate "Pay bills" %}</h1>
+  <div class="sub">{% translate "Choose the supplier, then share the payment across their open bills." %}</div></div></div>
+<form method="post" class="form">{% csrf_token %}
+  <div class="panel">
+    {% if form.non_field_errors %}<div class="msg error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+    <div class="fields">{% for f in form.visible_fields %}
+      {% if f.name == "cheque_number" or f.name == "cheque_due_date" %}{% include "partials/field.html" with method="cheque" %}
+      {% else %}{% include "partials/field.html" %}{% endif %}{% endfor %}</div>
+    {% if not supplier %}<div class="form-actions"><button class="btn" type="submit" name="load">{% translate "Show open bills" %}</button></div>{% endif %}
+  </div>
+  {% if supplier %}
+  <div class="panel"><div class="panel-h"><h2>{% translate "Open bills" %} · {{ supplier.name }}</h2><button class="btn sm" type="button" data-autoalloc>{% translate "Allocate oldest first" %}</button></div>
+    <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Bill" %}</th><th>{% translate "Supplier invoice number" %}</th><th>{% translate "Due date" %}</th><th class="num">{% translate "Total" %}</th><th class="num">{% translate "Balance due" %}</th><th class="num">{% translate "Payment" %}</th></tr></thead>
+    <tbody>{% for b in open_bills %}<tr><td>{{ b.number }}</td><td>{{ b.supplier_invoice_no }}</td><td>{{ b.due_date|date:"d/m/Y" }}</td><td class="num">{{ b.total|num }}</td><td class="num" data-due="{{ b.balance_due }}">{{ b.balance_due|num }}</td>
+      <td><input type="number" step="0.01" min="0" name="alloc_{{ b.pk }}" data-alloc style="width:140px"></td></tr>
+    {% empty %}<tr><td colspan="6" class="lbl">{% translate "No open bills. The payment will be kept as an advance to the supplier." %}</td></tr>{% endfor %}</tbody></table></div>
+  </div>
+  <div class="form-actions"><button class="btn primary" type="submit" name="save">{% translate "Save payment" %}</button><a class="btn" href="{% url 'purchases:payments' %}">{% translate "Cancel" %}</a></div>
+  {% endif %}
+</form>
+<script>
+(function () {
+  const btn = document.querySelector("[data-autoalloc]");
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    let left = parseFloat(document.getElementById("id_amount").value) || 0;
+    document.querySelectorAll("[data-alloc]").forEach((input) => {
+      const due = parseFloat(input.closest("tr").querySelector("[data-due]").dataset.due) || 0;
+      const take = Math.min(due, left);
+      input.value = take > 0 ? take.toFixed(2) : "";
+      left = Math.round((left - take) * 100) / 100;
+    });
+  });
+})();
+</script>
+{% endblock %}

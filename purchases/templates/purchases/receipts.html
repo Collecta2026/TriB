@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Item receipts" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Item receipts" %}</h1><div class="sub">{% translate "Goods received into the warehouse, against purchase orders or directly." %}</div></div>
+  <div class="toolbar"><a class="btn" href="{% url 'purchases:not_received' %}">{% translate "Not yet received" %}</a>
+  {% if can.purchases.create %}<a class="btn primary" href="{% url 'purchases:receipt_new' %}">+ {% translate "Item receipt" %}</a>{% endif %}</div></div>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Number" %}</th><th>{% translate "Date" %}</th><th>{% translate "Supplier" %}</th><th>{% translate "Purchase order" %}</th><th>{% translate "Warehouse" %}</th><th>{% translate "Supplier delivery note" %}</th><th>{% translate "Status" %}</th></tr></thead>
+  <tbody>{% for g in page %}<tr><td><a href="{% url 'purchases:receipt' g.pk %}">{{ g.number|default:_("Draft") }}</a></td><td>{{ g.date|date:"d/m/Y" }}</td><td>{{ g.supplier.name }}</td>
+    <td>{% if g.purchase_order %}<a href="{% url 'purchases:order' g.purchase_order_id %}">{{ g.purchase_order.number }}</a>{% endif %}</td><td>{{ g.warehouse.code }}</td><td>{{ g.reference }}</td><td><span class="pill {{ g.status|pill_class }}">{{ g.get_status_display }}</span></td></tr>
+  {% empty %}<tr><td colspan="7" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

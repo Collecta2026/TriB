@@ -59,6 +59,32 @@ EGYPT_TRADING = [
 ]
 
 
+# Added in Release 2 (inventory, purchasing, assets, payroll). Also applied to companies created earlier.
+RELEASE_2_ACCOUNTS = [
+    ("2115", "21", "Goods received not invoiced", "بضاعة مستلمة لم تصل فواتيرها", "liability", "grni", False),
+    ("2155", "21", "Salaries payable", "رواتب مستحقة", "liability", "salaries_payable", False),
+    ("2165", "21", "Salary income tax payable", "ضريبة كسب العمل المستحقة", "liability", "payroll_tax", False),
+    ("2168", "21", "Employee deductions payable (medical & other)", "استقطاعات العاملين المستحقة (طبي وأخرى)",
+     "liability", "employee_deductions", False),
+    ("5220", "5", "Overtime", "الأجر الإضافي", "expense", "overtime", False),
+    ("3900", "3", "Opening balance equity", "حقوق ملكية افتتاحية", "equity", "opening_equity", False),
+    ("4850", "4", "Gain on disposal of assets", "أرباح بيع أصول", "income", "disposal_gain", False),
+    ("5110", "5", "Stock adjustments & write-offs", "تسويات وإعدام المخزون", "expense", "stock_adjustment", False),
+    ("5120", "5", "Purchase price variance", "فروق أسعار الشراء", "expense", "price_variance", False),
+    ("5850", "5", "Loss on disposal of assets", "خسائر بيع أصول", "expense", "disposal_loss", False),
+]
+# Existing accounts that gain a system role in Release 2.
+RELEASE_2_ROLES = {"4100": "sales", "5100": "cogs", "1210": "fixed_assets", "1290": "accum_depreciation",
+                   "5800": "depreciation", "2160": "social_insurance", "5200": "salaries", "5210": "employer_si"}
+
+DEFAULT_TAX_RATES = [
+    ("VAT 14%", "ضريبة القيمة المضافة 14%", "14", "standard", True),
+    ("Zero rated 0%", "خاضع بنسبة صفر", "0", "zero", False),
+    ("Exempt", "معفى", "0", "exempt", False),
+    ("Out of scope", "خارج نطاق الضريبة", "0", "out_of_scope", False),
+]
+
+
 def install_chart(company, rows=EGYPT_TRADING):
     created = {}
     for code, parent, en, ar, typ, subtype, is_group in rows:
@@ -66,4 +92,26 @@ def install_chart(company, rows=EGYPT_TRADING):
             company=company, code=code, parent=created.get(parent), name_en=en, name_ar=ar,
             type=typ, subtype=subtype, is_group=is_group, is_system=True,
         )
+    ensure_release_2(company)
     return created
+
+
+def ensure_release_2(company, Account=Account, TaxRate=None):
+    """Add the Release 2 accounts, roles and VAT rates to a company if they are missing. Safe to repeat."""
+    if TaxRate is None:
+        from .models import TaxRate
+    by_code = {a.code: a for a in Account.objects.filter(company=company)}
+    for code, parent, en, ar, typ, subtype, is_group in RELEASE_2_ACCOUNTS:
+        if code not in by_code and parent in by_code:
+            by_code[code] = Account.objects.create(
+                company=company, code=code, parent=by_code[parent], name_en=en, name_ar=ar, type=typ,
+                subtype=subtype, is_group=is_group, is_system=True,
+            )
+    for code, subtype in RELEASE_2_ROLES.items():
+        account = by_code.get(code)
+        if account is not None and not account.subtype:
+            account.subtype = subtype
+            account.save(update_fields=["subtype"])
+    if not TaxRate.objects.filter(company=company).exists():
+        for en, ar, rate, kind, default in DEFAULT_TAX_RATES:
+            TaxRate.objects.create(company=company, name_en=en, name_ar=ar, rate=rate, kind=kind, is_default=default)

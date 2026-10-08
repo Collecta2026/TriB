@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Expense transactions" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Expense transactions" %}</h1><div class="sub">{% translate "Bills, bill payments and payment vouchers in one list." %}</div></div>
+  <div class="toolbar">{% if can.vouchers.create %}<a class="btn" href="{% url 'vouchers:new' 'payment' %}">{% translate "Payment voucher" %}</a>{% endif %}
+    {% if can.purchases.create %}<a class="btn" href="{% url 'purchases:payment_new' %}">{% translate "Pay bills" %}</a><a class="btn primary" href="{% url 'purchases:bill_new' %}">+ {% translate "Bill" %}</a>{% endif %}</div></div>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Date" %}</th><th>{% translate "Type" %}</th><th>{% translate "Number" %}</th><th>{% translate "Payee" %}</th><th class="num">{% translate "Amount" %}</th><th>{% translate "Currency" %}</th><th>{% translate "Status" %}</th></tr></thead>
+  <tbody>{% for r in rows %}<tr><td>{{ r.date|date:"d/m/Y" }}</td><td>{{ r.type }}</td><td><a href="{{ r.url }}">{{ r.number }}</a></td><td>{{ r.party }}</td><td class="num">{{ r.amount|num }}</td><td>{{ r.currency }}</td><td><span class="pill {{ r.state|pill_class }}">{{ r.status }}</span></td></tr>
+  {% empty %}<tr><td colspan="7" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

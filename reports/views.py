@@ -1,5 +1,5 @@
 import csv
-from datetime import date
+from datetime import date, timedelta
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -67,3 +67,54 @@ def profit_loss(request):
 def balance_sheet(request):
     _from, as_of = _period(request)
     return render(request, "reports/balance_sheet.html", {"r": services.balance_sheet(request.company, as_of), "to": as_of})
+
+
+def _as_of(request):
+    return parse_date(request.GET.get("to", "") or "") or timezone.localdate()
+
+
+@require_perm("reports.view")
+def ar_aging(request):
+    from sales.services import AGING_BUCKETS, ar_aging as aging
+    as_of = _as_of(request)
+    rows = aging(request.company, as_of)
+    return render(request, "reports/aging.html", {
+        "rows": rows, "to": as_of, "kind": "customer", "buckets": AGING_BUCKETS,
+        "totals": [sum(r["buckets"][i] for r in rows) for i in range(5)], "total": sum(r["total"] for r in rows)})
+
+
+@require_perm("reports.view")
+def ap_aging(request):
+    from purchases.services import ap_aging as aging
+    from sales.services import AGING_BUCKETS
+    as_of = _as_of(request)
+    rows = aging(request.company, as_of)
+    return render(request, "reports/aging.html", {
+        "rows": rows, "to": as_of, "kind": "supplier", "buckets": AGING_BUCKETS,
+        "totals": [sum(r["buckets"][i] for r in rows) for i in range(5)], "total": sum(r["total"] for r in rows)})
+
+
+@require_perm("reports.view")
+def vat_return(request):
+    today = timezone.localdate()
+    first = today.replace(day=1)
+    if "from" not in request.GET:  # default: last complete month, as filed with the ETA
+        last_month_end = first - timedelta(days=1)
+        date_from, date_to = last_month_end.replace(day=1), last_month_end
+    else:
+        date_from, date_to = _period(request)
+    return render(request, "reports/vat_return.html", {
+        "r": services.vat_return(request.company, date_from, date_to), "from": date_from, "to": date_to})
+
+
+@require_perm("reports.view")
+def sales_by_item(request):
+    today = timezone.localdate()
+    if "from" not in request.GET:
+        date_from, date_to = today - timedelta(days=90), today
+    else:
+        date_from, date_to = _period(request)
+    groups = services.sales_by_item(request.company, date_from, date_to)
+    return render(request, "reports/sales_by_item.html", {
+        "groups": groups, "from": date_from, "to": date_to,
+        "total": {k: sum((g[k] for g in groups), services.ZERO) for k in ("revenue", "cost", "margin")}})

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Not yet received" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'purchases:receipts' %}">{% translate "Item receipts" %}</a></div><h1>{% translate "Not yet received" %}</h1>
+  <div class="sub">{% translate "Ordered goods that have not arrived in the warehouse, and goods billed before they arrived." %}</div></div></div>
+<div class="panel"><h2>{% translate "Ordered, not received" %}</h2>
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Purchase order" %}</th><th>{% translate "Supplier" %}</th><th>{% translate "Expected delivery" %}</th><th>{% translate "Product" %}</th><th class="num">{% translate "Ordered" %}</th><th class="num">{% translate "Received" %}</th><th class="num">{% translate "Outstanding" %}</th></tr></thead>
+  <tbody>{% for l in outstanding %}<tr><td><a href="{% url 'purchases:order' l.document_id %}">{{ l.document.number }}</a></td><td>{{ l.document.supplier.name }}</td>
+    <td>{% if l.document.expected_date %}{{ l.document.expected_date|date:"d/m/Y" }}{% endif %}</td><td>{{ l.label }}</td><td class="num">{{ l.qty|num:3 }}</td><td class="num">{{ l.qty_received|num:3 }}</td><td class="num"><span class="pill warn">{{ l.qty_outstanding|num:3 }}</span></td></tr>
+  {% empty %}<tr><td colspan="7" class="lbl">{% translate "Everything ordered has been received." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+<div class="panel"><h2>{% translate "Billed, not received" %}</h2>
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Purchase order" %}</th><th>{% translate "Product" %}</th><th class="num">{% translate "Billed" %}</th><th class="num">{% translate "Received" %}</th></tr></thead>
+  <tbody>{% for l in billed %}<tr><td><a href="{% url 'purchases:order' l.document_id %}">{{ l.document.number }}</a></td><td>{{ l.label }}</td><td class="num">{{ l.qty_billed|num:3 }}</td><td class="num"><span class="pill crit">{{ l.qty_received|num:3 }}</span></td></tr>
+  {% empty %}<tr><td colspan="4" class="lbl">{% translate "Nothing billed ahead of delivery." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% endblock %}
