@@ -13,7 +13,8 @@
     <thead><tr><th>{% translate "Name" %}</th><th>{% translate "Roles" %}</th><th>{% translate "Branches" %}</th><th>{% translate "Warehouses" %}</th><th>{% translate "Records" %}</th>
       {% for t in limit_types %}<th class="num">{{ t }}</th>{% endfor %}</tr></thead>
     <tbody>{% for p in people %}<tr{% if not p.active %} class="muted-row"{% endif %}>
-      <td><b>{{ p.name }}</b>{% if p.owner %} <span class="pill info">{% translate "Owner" %}</span>{% endif %}{% if not p.active %} <span class="pill">{% translate "Inactive" %}</span>{% endif %}<div class="lbl">{{ p.email }}</div></td>
+      <td><b>{{ p.name }}</b>{% if p.owner %} <span class="pill info">{% translate "Owner" %}</span>{% endif %}{% if not p.active %} <span class="pill">{% translate "Inactive" %}</span>{% endif %}<div class="lbl">{{ p.email }}</div>
+        {% if can.users.edit %}<a class="no-print" href="{% url 'users:user_edit' p.m.pk %}">{% translate "Edit" %}</a>{% endif %}</td>
       <td>{{ p.roles }}</td><td>{{ p.branches }}</td><td>{{ p.warehouses }}</td><td>{{ p.scope }}</td>
       {% for label, v in p.limits %}<td class="num">{{ v }}</td>{% endfor %}</tr>{% endfor %}</tbody>
   </table></div>
@@ -29,11 +30,13 @@
 </div>
 
 <div class="panel"><h2>{% translate "Roles" %}</h2>
-  <div class="access-roles">{% for r in roles %}<section class="access-role">
-    <h3>{{ r.role.name }}{% if r.own %} <span class="pill warn">{% translate "Own records only" %}</span>{% endif %}{% if r.role.is_system %} <span class="pill">{% translate "Starter role" %}</span>{% endif %}</h3>
+  {# One role per row, full width; on a narrow screen the matrix scrolls inside its own box. #}
+  <div class="access-roles" style="grid-template-columns:minmax(0,1fr);gap:22px">{% for r in roles %}<section class="access-role" style="min-width:0">
+    <h3>{{ r.role.name }}{% if r.own %} <span class="pill warn">{% translate "Own records only" %}</span>{% endif %}{% if r.role.is_system %} <span class="pill">{% translate "Starter role" %}</span>{% endif %}
+      {% if can.users.edit %}<a class="btn sm no-print" href="{% url 'users:role_edit' r.role.pk %}">{% translate "Edit" %}</a>{% endif %}</h3>
     <div class="lbl">{% for label, v in r.limits_set %}{{ label }}: <b>{{ v }}</b>{% if not forloop.last %} · {% endif %}{% empty %}{% translate "Cannot approve" %}{% endfor %}</div>
-    <table class="tbl access-matrix"><thead><tr><th>{% translate "Module" %}</th>{% for a, label in actions %}<th>{{ label }}</th>{% endfor %}</tr></thead>
-      <tbody>{% for row in r.matrix %}<tr><td>{{ row.module }}</td>{% for applies, on in row.cells %}<td>{% if not applies %}<span class="lbl">—</span>{% elif on %}✓{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody></table>
+    <div class="table-wrap"><table class="tbl access-matrix"><thead><tr><th>{% translate "Module" %}</th>{% for a, label in actions %}<th>{{ label }}</th>{% endfor %}</tr></thead>
+      <tbody>{% for row in r.matrix %}<tr><td>{{ row.module }}</td>{% for applies, on in row.cells %}<td>{% if not applies %}<span class="lbl">—</span>{% elif on %}✓{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>
   </section>{% endfor %}</div>
 </div>
 
