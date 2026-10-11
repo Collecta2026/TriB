@@ -176,3 +176,25 @@ def header_groups(form):
         used.update(names)
     out["more"] = [f for f in form.visible_fields() if f.name not in used]
     return out
+
+
+@register.simple_tag(takes_context=True)
+def query_without(context, chip):
+    """The current URL without the parameters behind one filter chip (and without the page number)."""
+    query = context["request"].GET.copy()
+    for key in list(getattr(chip, "params", ())) + ["page"]:
+        query.pop(key, None)
+    if "dates" in getattr(chip, "params", ()):
+        query.pop("from", None)
+        query.pop("to", None)
+    encoded = query.urlencode()
+    return f"?{encoded}" if encoded else context["request"].path
+
+
+@register.simple_tag(takes_context=True)
+def help_for_page(context):
+    """The manual topic for the page being viewed (for the ? menu)."""
+    from core.help import for_path
+
+    request = context.get("request")
+    return for_path(request.path) if request else None

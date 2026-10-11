@@ -38,11 +38,19 @@ APPS = [
         (_("Customers"), "contacts:customers", "contacts.view"),
     ]},
     {"key": "customers", "label": _("Customer Hub"), "icon": "hub", "items": [
+        (_("Overview"), "crm:overview", "crm.view"),
+        (_("Customers & leads"), "crm:list:lead", "crm.view"),
+        (_("Opportunities"), "crm:board", "crm.view"),
+        (_("Estimates"), "sales:quotes", "sales.view"),
+        (_("Proposals"), "crm:list:proposal", "crm.view"),
+        (_("Contracts"), "crm:list:contract", "crm.view"),
+        (_("Appointments"), "crm:calendar", "crm.view"),
+        (_("Reviews"), "crm:reviews", "crm.view"),
+        (_("Tasks"), "crm:list:task", "crm.view"),
+        (_("Conversations"), "crm:list:conversation", "crm.view"),
         (_("Customers"), "contacts:customers", "contacts.view"),
-        (_("Quotations"), "sales:quotes", "sales.view"),
         (_("Customer statements"), "sales:statements", "sales.view"),
         (_("Balance confirmations"), "sales:confirmations", "sales.view"),
-        (_("Leads"), None, "contacts.view"),
     ]},
     {"key": "payroll", "label": _("Payroll"), "icon": "payroll", "items": [
         (_("Payroll runs"), "payroll:runs", "payroll.view"),
@@ -125,6 +133,12 @@ DEFAULT_BOOKMARKS = [
 ]
 
 
+def _reverse(url_name):
+    """reverse(), allowing "ns:name:arg" for pages that take one argument (e.g. crm:list:lead)."""
+    parts = url_name.split(":")
+    return reverse(":".join(parts[:2]), args=parts[2:]) if len(parts) > 2 else reverse(url_name)
+
+
 PERMS = {url_name: perm for app in APPS for _label, url_name, perm in app["items"] if url_name}
 
 
@@ -138,7 +152,7 @@ def visible_apps(membership, path=""):
             if url_name is None:
                 items.append({"label": label, "url": None})
             elif membership and membership.has_perm(perm):
-                url = reverse(url_name)
+                url = _reverse(url_name)
                 items.append({"label": label, "url": url})
                 active = active or (url != "/" and path.startswith(url))
         first = next((i["url"] for i in items if i["url"]), None)
@@ -156,7 +170,7 @@ def seed_bookmarks(user, company, membership):
     for position, (title, url_name) in enumerate(DEFAULT_BOOKMARKS):
         perm = PERMS.get(url_name)
         if perm and membership.has_perm(perm):
-            rows.append(Bookmark(user=user, company=company, title=str(title), url=reverse(url_name), position=position))
+            rows.append(Bookmark(user=user, company=company, title=str(title), url=_reverse(url_name), position=position))
     Bookmark.objects.bulk_create(rows)
 
 

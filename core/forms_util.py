@@ -119,6 +119,16 @@ class LineForm(CompanyModelForm):
         for name in ("serials", "notes"):
             if name in self.fields and isinstance(self.fields[name].widget, forms.Textarea):
                 self.fields[name].widget.attrs.update({"rows": 1, "data-autogrow": ""})
+        if "position" in self.fields:
+            self.fields["position"].widget = forms.HiddenInput(attrs={"data-position": ""})
+            self.fields["position"].required = False
+
+    def has_changed(self):
+        # The line order is set on every row when the form is sent; that alone does not make a blank row a line.
+        return any(name != "position" for name in self.changed_data)
+
+    def clean_position(self):
+        return self.cleaned_data.get("position") or 0
 
     def clean(self):
         data = super().clean()
@@ -165,6 +175,8 @@ class CompanyLineFormSet(BaseInlineFormSet):
 
 def line_formsets(parent, line_model, fields, form=LineForm, fk_name="document"):
     """(existing-document formset, new-document formset with two blank rows)."""
+    if any(f.name == "position" for f in line_model._meta.fields) and "position" not in fields:
+        fields = list(fields) + ["position"]
     meta = type("Meta", (), {"model": line_model, "fields": fields})
     form_class = type(f"{line_model.__name__}Form", (form,), {"Meta": meta})
     kwargs = {"form": form_class, "formset": CompanyLineFormSet, "fields": fields, "can_delete": True, "fk_name": fk_name}

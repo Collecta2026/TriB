@@ -11,6 +11,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 
 
 REGISTRY = {}  # (ns, key) -> DocSpec, for the shared More actions (copy, delete, share)
@@ -102,6 +103,40 @@ def picker_data(company, source, party=""):
     return json.dumps({"items": items, "taxes": taxes, "defaultTax": default_tax or "", "parties": parties})
 
 
+def clean_subtotals(raw):
+    """Subtotal markers from the line grid: [{"pos": int, "label": str}], at most 50."""
+    try:
+        data = json.loads(raw or "[]")
+    except ValueError:
+        return []
+    out = []
+    for s in data if isinstance(data, list) else []:
+        if isinstance(s, dict) and isinstance(s.get("pos"), int) and 0 < s["pos"] < 10000:
+            out.append({"pos": s["pos"], "label": str(s.get("label") or "")[:60]})
+    return out[:50]
+
+
+DELIVERY = [("unsent", gettext_lazy("Not sent yet")), ("emailed", gettext_lazy("Emailed")),
+            ("shared", gettext_lazy("Shared by link or WhatsApp"))]
+
+
+def filter_delivery(company, qs, method):
+    """Documents emailed with Review and send, shared by link, or neither."""
+    from .models import AuditLog, ShareLink
+
+    model = qs.model
+    emailed = {int(i) for i in AuditLog.objects.filter(company=company, object_type=model._meta.label,
+                                                       action__endswith=".sent").values_list("object_id", flat=True)
+               if str(i).isdigit()}
+    shared = set(ShareLink.objects.filter(company=company, target=model._meta.label_lower)
+                 .values_list("target_id", flat=True))
+    if method == "emailed":
+        return qs.filter(pk__in=emailed)
+    if method == "shared":
+        return qs.filter(pk__in=shared)
+    return qs.exclude(pk__in=emailed | shared)
+
+
 def doc_list(request, spec, template="docs/list.html", extra=None):
     require(request, spec, "view")
     qs = spec.model.objects.filter(company=request.company)
@@ -119,12 +154,28 @@ def doc_list(request, spec, template="docs/list.html", extra=None):
         qs = qs.filter(cond)
     if spec.list_filter:
         qs = spec.list_filter(request, qs)
+    from ledger.models import Project
+
+    from .filters import DATES, Chip
     from .filters import apply as drill_filter
     qs, drill = drill_filter(request, qs, party)
+    if status:
+        drill.insert(0, Chip(str(dict(spec.statuses).get(status, status)), "status"))
+    delivery_methods = DELIVERY if spec.shareable and party == "customer" else []
+    delivery = request.GET.get("delivery", "")
+    if delivery in dict(delivery_methods):
+        qs = filter_delivery(request.company, qs, delivery)
+        drill.append(Chip(str(dict(delivery_methods)[delivery]), "delivery"))
     page = Paginator(qs.prefetch_related("lines__tax_rate"), 40).get_page(request.GET.get("page"))
     rows = [{"obj": o, "url": spec.url("detail", o.pk), "cells": [(fn(o), kind) for _label, fn, kind in spec.columns]}
             for o in page]
+    party_model = spec.model._meta.get_field(party).related_model if party else None
     ctx = {"spec": spec, "page": page, "rows": rows, "status": status, "q": q, "drill": drill,
+           "filter_statuses": spec.statuses, "filter_dates": DATES, "list_key": f"{spec.ns}-{spec.key}",
+           "filter_party": list(party_model.objects.filter(company=request.company, is_active=True)
+                                .values_list("pk", "name_en")) if party_model else [],
+           "filter_party_label": party_model._meta.verbose_name.capitalize() if party_model else "",
+           "projects": Project.objects.filter(company=request.company), "delivery_methods": delivery_methods,
            "can_create": request.membership.has_perm(f"{spec.perm}.create")}
     ctx.update(extra or {})
     return render(request, template, ctx)
@@ -150,6 +201,8 @@ def doc_form(request, spec, doc=None, after_save=None, post_label=None):
     if request.method == "POST" and form.is_valid() and formset.is_valid():
         doc = form.save(commit=False)
         doc.company = company
+        if hasattr(doc, "subtotals") and "subtotals" in request.POST:
+            doc.subtotals = clean_subtotals(request.POST.get("subtotals"))
         if not doc.pk:
             doc.created_by = request.user
         if doc.currency_id == company.base_currency_id:
@@ -174,7 +227,7 @@ def doc_form(request, spec, doc=None, after_save=None, post_label=None):
     return render(request, "docs/form.html", {
         "spec": spec, "doc": doc, "form": form, "formset": formset,
         "picker": picker_data(company, spec.price_source, spec.party),
-        "can_post": can_post, "post_label": post_label,
+        "can_post": can_post, "post_label": post_label, "subtotals_json": json.dumps(getattr(doc, "subtotals", None) or []),
         "bar": {**bar_for(request, spec, doc, "form"), "primary": post_label if can_post else "", "primary_name": "post"},
     })
 

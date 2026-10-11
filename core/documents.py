@@ -30,6 +30,8 @@ class TradeDocument(models.Model):
     # "Amounts are: inclusive of VAT" — the rate typed on each line already contains the VAT.
     prices_include_tax = models.BooleanField(_("Amounts include VAT"), default=False)
     tags = models.JSONField(_("Tags"), default=list, blank=True)
+    # Subtotal lines: [{"pos": 3, "label": "Equipment"}], "pos" sharing one sequence with the lines' positions.
+    subtotals = models.JSONField(default=list, blank=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -43,8 +45,26 @@ class TradeDocument(models.Model):
     @property
     def lines_list(self):
         if not hasattr(self, "_lines_cache"):
-            self._lines_cache = list(self.lines.select_related("item", "tax_rate"))
+            self._lines_cache = list(self.lines.select_related("item", "tax_rate").order_by("position", "id"))
         return self._lines_cache
+
+    @property
+    def display_lines(self):
+        """Lines with subtotal rows placed between them. Each row: {"line": line, "n": line number} or
+        {"subtotal": label, "amount": x}."""
+        marks = sorted(self.subtotals or [], key=lambda s: s.get("pos", 0))
+        rows, running, mi = [], Decimal("0"), 0
+        lines = self.lines_list
+        for n, line in enumerate(lines, 1):
+            while mi < len(marks) and marks[mi].get("pos", 0) < line.position and line.position:
+                rows.append({"subtotal": marks[mi].get("label") or "", "amount": running})
+                running, mi = Decimal("0"), mi + 1
+            rows.append({"line": line, "n": n})
+            running += line.amount if self.prices_include_tax else line.net
+        while mi < len(marks):
+            rows.append({"subtotal": marks[mi].get("label") or "", "amount": running})
+            running, mi = Decimal("0"), mi + 1
+        return rows
 
     @property
     def subtotal(self):
@@ -87,10 +107,11 @@ class TradeLine(models.Model):
     tax_rate = models.ForeignKey("ledger.TaxRate", on_delete=models.PROTECT, null=True, blank=True, verbose_name=_("VAT"))
     project = models.ForeignKey("ledger.Project", on_delete=models.PROTECT, null=True, blank=True, verbose_name=_("Project"))
     account = models.ForeignKey("ledger.Account", on_delete=models.PROTECT, null=True, blank=True, verbose_name=_("Account"))
+    position = models.PositiveIntegerField(default=0)  # order on the document (drag to reorder)
 
     class Meta:
         abstract = True
-        ordering = ["id"]
+        ordering = ["position", "id"]
 
     @property
     def _inclusive(self):

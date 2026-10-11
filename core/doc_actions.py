@@ -61,7 +61,7 @@ def bar_for(request, spec, doc, mode):
     has_number = bool(doc.pk and doc.number)
     detail = spec.url("detail", doc.pk) if doc.pk else None
     bar = {"mode": mode, "cancel": detail or spec.url_list, "left": [], "more": []}
-    if has_number:
+    if doc.pk:  # drafts print too, marked DRAFT
         printing = spec.url("print", doc.pk)
         bar["print"] = {"print": printing, "pdf": printing + "#pdf",
                         "delivery": printing + "?delivery=1" if spec.party == "customer" else None}

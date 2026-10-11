@@ -33,6 +33,10 @@ class Command(BaseCommand):
                 singular, plural = msgid.split("{% plural %}")
                 po.append(polib.POEntry(msgid=singular, msgid_plural=plural,
                                         msgstr_plural={i: msgstr for i in range(6)}))
+            elif "\x04" in msgid:
+                # "context\x04text" is {% translate "text" context "context" %} / pgettext.
+                ctx, text = msgid.split("\x04", 1)
+                po.append(polib.POEntry(msgctxt=ctx, msgid=text, msgstr=msgstr))
             else:
                 po.append(polib.POEntry(msgid=msgid, msgstr=msgstr))
         po.save(str(out / "django.po"))

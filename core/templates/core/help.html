@@ -2,17 +2,16 @@
 {% load i18n %}
 {% block title %}{% translate "Help" %}{% endblock %}
 {% block content %}
-<div class="page-head"><div><h1>{% translate "Help" %}</h1><div class="sub">{% translate "Shortcuts and quick answers for working in TriB." %}</div></div></div>
-<div class="cols">
-  <section class="panel"><h2>{% translate "Keyboard shortcuts" %}</h2>
-    <table class="tbl"><tbody>{% for key, what in shortcuts %}<tr><td style="width:150px"><kbd>{{ key }}</kbd></td><td>{{ what }}</td></tr>{% endfor %}</tbody></table></section>
-  <section class="panel" id="answers"><h2>{% translate "Quick answers" %}</h2>
-    <dl class="faq">
-      <dt>{% translate "How do I change what is on my dashboard?" %}</dt><dd>{% translate "On the home page select Customise, next to Privacy. Add, hide, move and resize widgets, then select Save." %} <a href="{% url 'dashboard:home' %}?customise=1">{% translate "Customise now" %}</a></dd>
-      <dt>{% translate "How do I see the detail behind a number?" %}</dt><dd>{% translate "Select it. Every number, tile, bar and row on the dashboard opens the list or report behind it." %}</dd>
-      <dt>{% translate "How do I keep a page one click away?" %}</dt><dd>{% translate "Select the bookmark icon next to any menu item, or the star at the top of any page. Your bookmarks appear on the left menu." %}</dd>
-      <dt>{% translate "How do I export a report to Excel?" %}</dt><dd>{% translate "Open the report and select Export to Excel, or use the ⋮ menu next to it on the Reports page." %}</dd>
-      <dt>{% translate "Something isn't working" %}</dt><dd><a href="{% url 'core:feedback' %}">{% translate "Tell us in Feedback" %}</a></dd>
-    </dl></section>
+<div class="page-head"><div><h1>{% translate "TriB user manual" %}</h1><div class="sub">{% translate "How every screen works, step by step. Search, or pick a topic." %}</div></div>
+  <div class="toolbar"><a class="btn" href="{% url 'core:manual' %}">{% include "partials/icon.html" with name="print" %}{% translate "Printable manual (PDF)" %}</a>
+    <a class="btn" href="{% url 'core:feedback' %}">{% include "partials/icon.html" with name="chat" %}{% translate "Give feedback" %}</a></div></div>
+<div class="rep-search help-search">{% include "partials/icon.html" with name="search" %}
+  <input type="search" id="helpSearch" placeholder="{% translate 'Search the manual, e.g. returned cheque, subtotal, VAT' %}" aria-label="{% translate 'Search the manual' %}" autocomplete="off"></div>
+<p class="lbl" id="helpNone" hidden>{% translate "No topic matches. Try other words." %}</p>
+<div class="help-grid">
+  {% for s in sections %}<section class="panel help-sec" data-help-sec>
+    <h2>{{ s.title }}</h2>
+    {% for t in s.topics %}<a class="list-link" href="{% url 'core:help_topic' t.key %}" data-help-text="{{ t.title|lower }} {{ t.text }}">{{ t.title }}{% include "partials/icon.html" with name="chev" %}</a>{% endfor %}
+  </section>{% endfor %}
 </div>
 {% endblock %}

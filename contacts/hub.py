@@ -22,7 +22,7 @@ TYPES = {
 STATUSES = [("open", gettext_lazy("Open")), ("overdue", gettext_lazy("Overdue")), ("paid", gettext_lazy("Paid")),
             ("closed", gettext_lazy("Closed")), ("draft", gettext_lazy("Draft")), ("void", gettext_lazy("Void"))]
 PERIODS = [("30", gettext_lazy("Last 30 days")), ("90", gettext_lazy("Last 90 days")), ("365", gettext_lazy("Last 12 months")),
-           ("year", gettext_lazy("This year"))]
+           ("year", gettext_lazy("This year")), ("all", gettext_lazy("All dates"))]
 
 
 def _status(state, due=None, today=None):
@@ -41,9 +41,15 @@ def _status(state, due=None, today=None):
     }.get(state, ("open", "open", str(state).replace("_", " ").capitalize()))
 
 
-def _row(kind, label, doc, number, amount, currency, status, url, actions=(), memo="", select=""):
+def _order_status(order):
+    """Orders keep their own wording ("Partly received", "Waiting for approval"), with the usual icon."""
+    key, icon, _label = _status(order.status)
+    return key, icon, order.get_status_display()
+
+
+def _row(kind, label, doc, number, amount, currency, status, url, actions=(), memo="", select="", can=None):
     key, icon, text = status
-    return {"kind": kind, "type": label, "date": doc.date if hasattr(doc, "date") else None, "number": number,
+    return {"menu": doc_menu(select, doc, can) if can else [],"kind": kind, "type": label, "date": doc.date if hasattr(doc, "date") else None, "number": number,
             "memo": memo, "amount": amount, "currency": currency, "status": key, "icon": icon, "status_label": text,
             "url": url, "actions": list(actions), "select": select, "sort": (getattr(doc, "date", None), getattr(doc, "pk", 0))}
 
@@ -63,7 +69,7 @@ def customer_rows(c, can):
             actions.append((_("Print"), reverse("sales:invoice_print", args=[inv.pk]) + "#print"))
         row = _row("invoice", _("Invoice"), inv, inv.number, inv.total, inv.currency_id,
                    _status(state, inv.due_date, today), reverse("sales:invoice", args=[inv.pk]), actions,
-                   inv.reference or inv.customer_po, f"sales:invoice:{inv.pk}" if inv.number else "")
+                   inv.reference or inv.customer_po, f"sales:invoice:{inv.pk}" if inv.number else "", can=can)
         row["doc_due"] = inv.balance_due
         rows.append(row)
     for p in CustomerPayment.objects.filter(customer=c):
@@ -75,7 +81,7 @@ def customer_rows(c, can):
         state = n.status if n.status != "posted" else ("closed" if n.available <= 0 else "open")
         rows.append(_row("credit", _("Credit note"), n, n.number, -n.total, n.currency_id, _status(state),
                          reverse("sales:credit", args=[n.pk]), [(_("View/Edit"), reverse("sales:credit", args=[n.pk]))],
-                         n.reference, f"sales:credit:{n.pk}" if n.number else ""))
+                         n.reference, f"sales:credit:{n.pk}" if n.number else "", can=can))
     for r in CustomerRefund.objects.filter(customer=c):
         rows.append(_row("refund", _("Refund"), r, r.number, r.amount, r.currency_id,
                          _status("void" if r.status == "void" else "closed"), reverse("sales:refund", args=[r.pk]),
@@ -83,11 +89,11 @@ def customer_rows(c, can):
     for q in Quotation.objects.filter(customer=c).prefetch_related("lines__tax_rate"):
         rows.append(_row("quote", _("Quotation"), q, q.number, q.total, q.currency_id, _status(q.status),
                          reverse("sales:quote", args=[q.pk]), [(_("View/Edit"), reverse("sales:quote", args=[q.pk]))],
-                         q.reference, f"sales:quote:{q.pk}" if q.number else ""))
+                         q.reference, f"sales:quote:{q.pk}" if q.number else "", can=can))
     for o in SalesOrder.objects.filter(customer=c).prefetch_related("lines__tax_rate"):
-        rows.append(_row("order", _("Sales order"), o, o.number, o.total, o.currency_id, _status(o.status),
+        rows.append(_row("order", _("Sales order"), o, o.number, o.total, o.currency_id, _order_status(o),
                          reverse("sales:order", args=[o.pk]), [(_("View/Edit"), reverse("sales:order", args=[o.pk]))],
-                         o.reference or o.customer_po, f"sales:order:{o.pk}" if o.number else ""))
+                         o.reference or o.customer_po, f"sales:order:{o.pk}" if o.number else "", can=can))
     for chq in Cheque.objects.filter(customer=c, status__in=("bounced", "settled")).exclude(bounced_on=None):
         chq.date = chq.bounced_on
         rows.append(_row("cheque", _("Returned cheque"), chq, chq.number, chq.amount, chq.currency_id, _status(chq.status),
@@ -107,7 +113,7 @@ def supplier_rows(s, can):
             actions.append((_("Pay bill"), f"{reverse('purchases:payment_new')}?supplier={s.pk}"))
         row = _row("bill", _("Bill"), b, b.number, b.total, b.currency_id, _status(b.payment_state, b.due_date, today),
                    reverse("purchases:bill", args=[b.pk]), actions, b.supplier_invoice_no or b.reference,
-                   f"purchases:bill:{b.pk}" if b.number else "")
+                   f"purchases:bill:{b.pk}" if b.number else "", can=can)
         row["doc_due"] = b.balance_due
         rows.append(row)
     for p in SupplierPayment.objects.filter(supplier=s):
@@ -120,11 +126,11 @@ def supplier_rows(s, can):
         rows.append(_row("supplier_credit", _("Supplier credit"), n, n.number, -n.total, n.currency_id, _status(state),
                          reverse("purchases:supplier_credit", args=[n.pk]),
                          [(_("View/Edit"), reverse("purchases:supplier_credit", args=[n.pk]))], n.reference,
-                         f"purchases:supplier_credit:{n.pk}" if n.number else ""))
+                         f"purchases:supplier_credit:{n.pk}" if n.number else "", can=can))
     for o in PurchaseOrder.objects.filter(supplier=s).prefetch_related("lines__tax_rate"):
-        rows.append(_row("order", _("Purchase order"), o, o.number, o.total, o.currency_id, _status(o.status),
+        rows.append(_row("order", _("Purchase order"), o, o.number, o.total, o.currency_id, _order_status(o),
                          reverse("purchases:order", args=[o.pk]), [(_("View/Edit"), reverse("purchases:order", args=[o.pk]))],
-                         o.reference, f"purchases:order:{o.pk}" if o.number else ""))
+                         o.reference, f"purchases:order:{o.pk}" if o.number else "", can=can))
     for g in GoodsReceipt.objects.filter(supplier=s):
         rows.append(_row("receipt", _("Item receipt"), g, g.number, None, "", _status(g.status),
                          reverse("purchases:receipt", args=[g.pk]), [(_("View"), reverse("purchases:receipt", args=[g.pk]))],
@@ -132,11 +138,34 @@ def supplier_rows(s, can):
     return rows
 
 
+def doc_menu(select, doc, can):
+    """The ▾ beside a row's action: Print, Send, Make a copy, Void."""
+    from core.docviews import REGISTRY
+
+    if not select:
+        return []
+    ns, key, pk = select.split(":")
+    spec = REGISTRY.get((ns, key))
+    if spec is None:
+        return []
+    out = [{"label": _("Print"), "url": spec.url("print", doc.pk) + "#print"}]
+    if ns == "sales" and key in ("invoice", "quote") and doc.number:
+        out.append({"label": _("Send"), "url": reverse("core:doc_send", args=[ns, key, doc.pk])})
+    if can(f"{spec.perm}.create"):
+        out.append({"label": _("Make a copy"), "post": reverse("core:doc_copy", args=[ns, key, doc.pk])})
+    if spec.voidable and doc.status == "posted" and can(f"{spec.perm}.void") and not getattr(doc, "amount_paid", 0):
+        out.append({"label": _("Void"), "post": reverse(f"{ns}:{key}_action", args=[doc.pk]), "action": "void",
+                    "confirm": _("Void this document? Its ledger entry is reversed.")})
+    return out
+
+
 def filtered(rows, request):
-    kind, status, period = request.GET.get("type", ""), request.GET.get("status", ""), request.GET.get("period", "")
+    kind, status, period = request.GET.get("type", ""), request.GET.get("status", ""), request.GET.get("period", "365")
     today = timezone.localdate()
     since = None
-    if period in ("30", "90", "365"):
+    if period == "all":
+        since = None
+    elif period in ("30", "90", "365"):
         since = today - timedelta(days=int(period))
     elif period == "year":
         since = today.replace(month=1, day=1)

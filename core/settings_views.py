@@ -56,7 +56,35 @@ SHORTCUTS = [
 
 @require_perm("dashboard.view")
 def help_page(request):
-    return render(request, "core/help.html", {"shortcuts": SHORTCUTS})
+    """Help centre: the manual's sections and topics, searchable."""
+    from . import help as manual
+
+    return render(request, "core/help.html", {"sections": manual.sections(), "shortcuts": SHORTCUTS})
+
+
+@require_perm("dashboard.view")
+def help_topic(request, key):
+    from django.http import Http404
+
+    from . import help as manual
+
+    items = manual.topics()
+    index = next((i for i, t in enumerate(items) if t["key"] == key), None)
+    if index is None:
+        raise Http404
+    return render(request, "core/help_topic.html", {
+        "t": items[index], "sections": manual.sections(), "prev": items[index - 1] if index else None,
+        "next": items[index + 1] if index + 1 < len(items) else None})
+
+
+@require_perm("dashboard.view")
+def manual(request):
+    """The whole manual on one page, to print or save as PDF."""
+    from django.utils import timezone
+
+    from . import help as manual_content
+
+    return render(request, "core/manual.html", {"sections": manual_content.sections(), "today": timezone.localdate()})
 
 
 # ---------- Your company ----------

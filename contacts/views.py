@@ -93,12 +93,23 @@ def contact_detail(request, kind, pk):
     recurring_ids = ids.get(("sales", "invoice") if kind == "customer" else ("purchases", "bill"), [])
     recurring = RecurringTemplate.objects.filter(company=request.company, kind=recurring_kind, source_id__in=recurring_ids)
     projects = obj.projects.all() if kind == "customer" else []
+    # Left-hand list of all customers / suppliers with their balances, to move between them without leaving the page.
+    if kind == "customer":
+        from sales.services import ar_aging as aging
+    else:
+        from purchases.services import ap_aging as aging
+    owed = {r["contact"].pk: r["total"] for r in aging(request.company)}
+    side = [{"c": c, "balance": owed.get(c.pk, 0)} for c in cfg["model"].objects.filter(company=request.company, is_active=True)
+            .order_by("name_en")[:500]]
     return render(request, "contacts/detail.html", {
         "kind": kind, "cfg": cfg, "obj": obj, "rows": rows, "filters": filters, "total_rows": len(all_rows),
         "types": hub.TYPES[kind], "statuses": hub.STATUSES, "periods": hub.PERIODS,
         "balance": hub.summary(kind, obj, [])["balance"], "overdue": overdue,
         "files": files, "activity": activity, "recurring": recurring, "projects": projects,
-        "tab": request.GET.get("tab", "transactions"), "contact_files": for_object(obj),
+        "tab": request.GET.get("tab", "transactions"), "contact_files": for_object(obj), "side": side,
+        "tasks": obj.tasks.select_related("assignee") if can("crm.view") else [],
+        "opportunities": obj.opportunities.select_related("currency") if kind == "customer" and can("crm.view") else [],
+        "conversations": obj.conversations.select_related("by") if kind == "customer" and can("crm.view") else [],
     })
 
 
@@ -124,5 +135,20 @@ suppliers = require_perm("contacts.view")(lambda r: contact_list(r, "supplier"))
 supplier_new = require_perm("contacts.create")(lambda r: contact_form(r, "supplier"))
 supplier_edit = require_perm("contacts.edit")(lambda r, pk: contact_form(r, "supplier", pk))
 supplier = require_perm("contacts.view")(lambda r, pk: contact_detail(r, "supplier", pk))
+@require_perm("contacts.edit")
+def contact_active(request, kind, pk):
+    cfg = KINDS[kind]
+    obj = get_object_or_404(cfg["model"], pk=pk, company=request.company)
+    if request.method == "POST":
+        obj.is_active = not obj.is_active
+        obj.save(update_fields=["is_active"])
+        AuditLog.record(request.company, request.user, f"{kind}.active", obj, f"{obj.name_en}: active={obj.is_active}",
+                        ip=client_ip(request))
+        messages.success(request, _("Made active.") if obj.is_active else _("Made inactive. It no longer appears in lists."))
+    return redirect(f"contacts:{kind}", pk=obj.pk)
+
+
+customer_active = lambda r, pk: contact_active(r, "customer", pk)  # noqa: E731
+supplier_active = lambda r, pk: contact_active(r, "supplier", pk)  # noqa: E731
 customer_notes = lambda r, pk: contact_notes(r, "customer", pk)  # noqa: E731
 supplier_notes = lambda r, pk: contact_notes(r, "supplier", pk)  # noqa: E731
