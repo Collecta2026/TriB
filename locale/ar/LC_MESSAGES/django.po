@@ -4963,3 +4963,1880 @@ msgstr "لم تُقدَّم للبنك بعد"
 
 msgid "received, not yet deposited"
 msgstr "مستلمة ولم تُودع بعد"
+
+msgid "Columns"
+msgstr "الأعمدة"
+
+msgid "Drag to resize · double-click to reset"
+msgstr "اسحب لتغيير العرض · انقر مرتين للإرجاع"
+
+msgid "No match"
+msgstr "لا توجد نتائج"
+
+msgid "Reset columns"
+msgstr "إعادة ضبط الأعمدة"
+
+msgid "Show list"
+msgstr "عرض القائمة"
+
+msgid ""
+"Tab moves along the line · Enter adds a new line · Ctrl+Delete removes a "
+"line · drag a column edge to resize it"
+msgstr ""
+"Tab للتنقل في السطر · Enter لإضافة سطر جديد · Ctrl+Delete لحذف سطر · اسحب "
+"حافة العمود لتغيير عرضه"
+
+msgid "Type or choose…"
+msgstr "اكتب أو اختر…"
+
+msgid "%(c)s has %(a)s of credit available to refund."
+msgstr "لدى %(c)s رصيد دائن قدره %(a)s متاح للرد."
+
+msgid "Add customer"
+msgstr "إضافة عميل"
+
+msgid "Add product/service"
+msgstr "إضافة صنف / خدمة"
+
+msgid "Add supplier"
+msgstr "إضافة مورد"
+
+msgid "Amount refunded"
+msgstr "المبلغ المردود"
+
+msgid "Amount sent"
+msgstr "المبلغ المحوَّل"
+
+msgid "Apply to bill"
+msgstr "خصم من فاتورة المورد"
+
+msgid "Apply to invoice"
+msgstr "خصم من الفاتورة"
+
+msgid "Back to stock"
+msgstr "يعود للمخزون"
+
+msgid "Bank deposit"
+msgstr "إيداع بنكي"
+
+msgid "Bank deposits"
+msgstr "الإيداعات البنكية"
+
+msgid "Cash amount"
+msgstr "المبلغ النقدي"
+
+msgid "Cash deposited %(n)s"
+msgstr "إيداع نقدي %(n)s"
+
+msgid "Cash from"
+msgstr "النقدية من"
+
+msgid "Cheque %(n)s is in %(c)s; deposit it into an account in that currency."
+msgstr "الشيك %(n)s بعملة %(c)s؛ أودعه في حساب بنفس العملة."
+
+msgid "Cheques in the safe"
+msgstr "الشيكات بالخزينة"
+
+msgid "Choose the cash box the cash comes from, in %(c)s."
+msgstr "اختر الخزينة التي تخرج منها النقدية، بعملة %(c)s."
+
+msgid "Choose the warehouse the goods come back to."
+msgstr "اختر المخزن الذي تعود إليه البضاعة."
+
+msgid "Choose the warehouse the goods leave from."
+msgstr "اختر المخزن الذي تخرج منه البضاعة."
+
+msgid "Choose two different accounts."
+msgstr "اختر حسابين مختلفين."
+
+msgid "Credit applied to %(n)s."
+msgstr "تم خصم الرصيد الدائن من %(n)s."
+
+msgid "Credit card credit"
+msgstr "استرداد على بطاقة ائتمان"
+
+msgid "Credit note"
+msgstr "إشعار دائن"
+
+msgid "Credit note %(n)s posted."
+msgstr "تم ترحيل الإشعار الدائن %(n)s."
+
+msgid "Credit note voided."
+msgstr "تم إلغاء الإشعار الدائن."
+
+msgid "Credit notes"
+msgstr "الإشعارات الدائنة"
+
+msgid "Delayed charge"
+msgstr "مطالبة مؤجلة"
+
+msgid "Delayed credit"
+msgstr "خصم مؤجل"
+
+msgid "Deposit %(n)s recorded."
+msgstr "تم تسجيل الإيداع %(n)s."
+
+msgid "Deposit slip number"
+msgstr "رقم حافظة الإيداع"
+
+msgid "Deposits go into a bank account."
+msgstr "الإيداع يكون في حساب بنكي."
+
+msgid "Enter the amount received in %(c)s."
+msgstr "أدخل المبلغ المستلم بعملة %(c)s."
+
+msgid "Estimate (quotation)"
+msgstr "عرض سعر"
+
+msgid "For credit note"
+msgstr "عن إشعار دائن"
+
+msgid "Goods go back"
+msgstr "إرجاع البضاعة"
+
+msgid "Money paid back to customers from a credit note or an overpayment."
+msgstr "مبالغ مردودة للعملاء من إشعار دائن أو مبلغ زائد."
+
+msgid ""
+"Move money between your own bank accounts and cash boxes. Between "
+"currencies, enter the amount that arrived; any rate difference goes to "
+"exchange gain or loss."
+msgstr ""
+"حوّل الأموال بين حساباتك البنكية وخزائنك. عند اختلاف العملة أدخل المبلغ "
+"الواصل؛ ويُرحَّل أي فرق سعر إلى أرباح أو خسائر العملة."
+
+msgid "New transfer"
+msgstr "تحويل جديد"
+
+msgid "No received cheques are waiting in the safe."
+msgstr "لا توجد شيكات واردة بالخزينة."
+
+msgid "Not used yet."
+msgstr "لم يُستخدم بعد."
+
+msgid "Only %(a)s of this credit is still available."
+msgstr "المتاح من هذا الرصيد الدائن %(a)s فقط."
+
+msgid "Only draft credit notes can be posted."
+msgstr "يمكن ترحيل مسودات الإشعارات الدائنة فقط."
+
+msgid "Only draft supplier credits can be posted."
+msgstr "يمكن ترحيل مسودات إشعارات المورد فقط."
+
+msgid "Only posted credit notes can be voided."
+msgstr "يمكن إلغاء الإشعارات الدائنة المرحّلة فقط."
+
+msgid "Only posted supplier credits can be voided."
+msgstr "يمكن إلغاء إشعارات المورد المرحّلة فقط."
+
+msgid "Only when the two accounts are in different currencies."
+msgstr "فقط عند اختلاف عملة الحسابين."
+
+msgid "Original bill"
+msgstr "فاتورة المورد الأصلية"
+
+msgid "Original invoice"
+msgstr "الفاتورة الأصلية"
+
+msgid "Overpayment"
+msgstr "مبلغ زائد"
+
+msgid ""
+"Pay a customer back. Record the returned goods with a credit note first; "
+"then refund its unused credit."
+msgstr ""
+"رد مبلغ لعميل. سجّل البضاعة المرتجعة بإشعار دائن أولًا، ثم رد الرصيد غير "
+"المستخدم."
+
+msgid "Pay down credit card"
+msgstr "سداد بطاقة الائتمان"
+
+msgid "Pay the refund from an account in %(c)s."
+msgstr "اصرف المبلغ المردود من حساب بعملة %(c)s."
+
+msgid "Post credit note"
+msgstr "ترحيل الإشعار الدائن"
+
+msgid "Post supplier credit"
+msgstr "ترحيل إشعار المورد"
+
+msgid "Proposal"
+msgstr "عرض فني ومالي"
+
+msgid "Received cheques and cash paid into the bank on one deposit slip."
+msgstr "شيكات واردة ونقدية مودعة في البنك بحافظة إيداع واحدة."
+
+msgid "Refund"
+msgstr "رد مبلغ"
+
+msgid "Refund %(n)s recorded."
+msgstr "تم تسجيل الرد %(n)s."
+
+msgid "Refund date"
+msgstr "تاريخ الرد"
+
+msgid "Refund receipt"
+msgstr "إيصال رد مبلغ"
+
+msgid "Refund to customer"
+msgstr "رد المبلغ للعميل"
+
+msgid "Refund voided."
+msgstr "تم إلغاء الرد."
+
+msgid "Refunds"
+msgstr "المبالغ المردودة"
+
+msgid "Remove what this credit was used for first."
+msgstr "ألغِ استخدامات هذا الرصيد الدائن أولًا."
+
+msgid "Return goods from warehouse"
+msgstr "إرجاع البضاعة من مخزن"
+
+msgid "Return goods to warehouse"
+msgstr "إرجاع البضاعة إلى مخزن"
+
+msgid "Sales receipt"
+msgstr "إيصال بيع نقدي"
+
+msgid "Sales receipt %(n)s posted and paid (%(p)s)."
+msgstr "تم ترحيل إيصال البيع %(n)s وتحصيله (%(p)s)."
+
+msgid "Save and receive payment"
+msgstr "حفظ وتحصيل المبلغ"
+
+msgid "Save deposit"
+msgstr "حفظ الإيداع"
+
+msgid "Save refund"
+msgstr "حفظ الرد"
+
+msgid "Save transfer"
+msgstr "حفظ التحويل"
+
+msgid "Single time activity"
+msgstr "نشاط وقت منفرد"
+
+msgid "Supplier credit"
+msgstr "إشعار مدين للمورد"
+
+msgid "Supplier credit %(n)s posted."
+msgstr "تم ترحيل إشعار المورد %(n)s."
+
+msgid "Supplier credit voided."
+msgstr "تم إلغاء إشعار المورد."
+
+msgid "Supplier credits"
+msgstr "إشعارات الموردين"
+
+msgid "Supplier's credit note number"
+msgstr "رقم إشعار المورد"
+
+msgid "Task"
+msgstr "مهمة"
+
+msgid "The cash box or bank account the money goes into."
+msgstr "الخزينة أو الحساب البنكي الذي يُودع فيه المبلغ."
+
+msgid "The customer only has %(a)s of credit to refund."
+msgstr "الرصيد الدائن المتاح للعميل للرد %(a)s فقط."
+
+msgid "The original bill belongs to another supplier or currency."
+msgstr "فاتورة المورد الأصلية تخص موردًا أو عملة أخرى."
+
+msgid "The original invoice belongs to another customer or currency."
+msgstr "الفاتورة الأصلية تخص عميلًا أو عملة أخرى."
+
+msgid "This bill belongs to another supplier."
+msgstr "فاتورة المورد هذه تخص موردًا آخر."
+
+msgid "This credit note belongs to another customer."
+msgstr "هذا الإشعار الدائن يخص عميلًا آخر."
+
+msgid "This invoice belongs to another customer."
+msgstr "هذه الفاتورة تخص عميلًا آخر."
+
+msgid "This refund is already void."
+msgstr "هذا الرد ملغى بالفعل."
+
+msgid "This transfer is already void."
+msgstr "هذا التحويل ملغى بالفعل."
+
+msgid "Tick at least one cheque or enter a cash amount."
+msgstr "حدد شيكًا واحدًا على الأقل أو أدخل مبلغًا نقديًا."
+
+msgid ""
+"Tick the cheques you are paying in, add any cash from the cash box, and "
+"print the slip for the bank."
+msgstr ""
+"حدد الشيكات المودعة، وأضف أي نقدية من الخزينة، واطبع حافظة الإيداع للبنك."
+
+msgid "Transfer"
+msgstr "تحويل"
+
+msgid "Transfer %(a)s → %(b)s"
+msgstr "تحويل %(a)s ← %(b)s"
+
+msgid "Transfer %(n)s posted."
+msgstr "تم ترحيل التحويل %(n)s."
+
+msgid "Transfer voided."
+msgstr "تم إلغاء التحويل."
+
+msgid "Transfers"
+msgstr "التحويلات"
+
+msgid "Unused credit"
+msgstr "الرصيد الدائن غير المستخدم"
+
+msgid "Use of this credit"
+msgstr "استخدامات هذا الرصيد الدائن"
+
+msgid "Weekly timesheet"
+msgstr "سجل الساعات الأسبوعي"
+
+msgid "% change"
+msgstr "نسبة التغير %"
+
+msgid "%(n)s bills are due within 7 days or overdue"
+msgstr "%(n)s فواتير موردين مستحقة خلال 7 أيام أو متأخرة"
+
+msgid "%(n)s cheque"
+msgid_plural "%(n)s cheques"
+msgstr[0] "%(n)s شيك"
+msgstr[1] "%(n)s شيك"
+msgstr[2] "%(n)s شيك"
+msgstr[3] "%(n)s شيك"
+msgstr[4] "%(n)s شيك"
+msgstr[5] "%(n)s شيك"
+
+msgid "%(n)s file"
+msgid_plural "%(n)s files"
+msgstr[0] "%(n)s ملف"
+msgstr[1] "%(n)s ملف"
+msgstr[2] "%(n)s ملف"
+msgstr[3] "%(n)s ملف"
+msgstr[4] "%(n)s ملف"
+msgstr[5] "%(n)s ملف"
+
+msgid "%(n)s item"
+msgid_plural "%(n)s items"
+msgstr[0] "%(n)s عنصر"
+msgstr[1] "%(n)s عنصر"
+msgstr[2] "%(n)s عنصر"
+msgstr[3] "%(n)s عنصر"
+msgstr[4] "%(n)s عنصر"
+msgstr[5] "%(n)s عنصر"
+
+msgid "%(n)s payments received in the last 7 days, %(a)s in total"
+msgstr "%(n)s دفعات محصلة في آخر 7 أيام، بإجمالي %(a)s"
+
+msgid "1 year"
+msgstr "سنة واحدة"
+
+msgid "12 months"
+msgstr "12 شهرًا"
+
+msgid "Account and settings"
+msgstr "الحساب والإعدادات"
+
+msgid "Account list"
+msgstr "قائمة الحسابات"
+
+msgid "Active users"
+msgstr "المستخدمون النشطون"
+
+msgid "Add bank deposit"
+msgstr "إضافة إيداع بنكي"
+
+msgid "Add or remove widgets"
+msgstr "إضافة أو إزالة العناصر"
+
+msgid "Add to favourites"
+msgstr "إضافة إلى المفضلة"
+
+msgid "Add widgets"
+msgstr "إضافة عناصر"
+
+msgid "Additional info"
+msgstr "معلومات إضافية"
+
+msgid "Adjustments for changes in balances"
+msgstr "تسويات التغير في الأرصدة"
+
+msgid "Alerts"
+msgstr "التنبيهات"
+
+msgid "All accounts"
+msgstr "كل الحسابات"
+
+msgid "All caught up"
+msgstr "لا يوجد ما يحتاج متابعة"
+
+msgid "All lists"
+msgstr "كل القوائم"
+
+msgid "Amount (base)"
+msgstr "المبلغ (العملة الأساسية)"
+
+msgid "As written in your commercial register."
+msgstr "كما هو مدون في السجل التجاري."
+
+msgid "Attached to"
+msgstr "مرفق بـ"
+
+msgid "Balance sheet comparison"
+msgstr "مقارنة الميزانية العمومية"
+
+msgid "Banking and cheques"
+msgstr "البنوك والشيكات"
+
+msgid "Bill list"
+msgstr "قائمة فواتير الموردين"
+
+msgid ""
+"Billing and plan changes are handled by Heliolink. Contact your Heliolink "
+"account manager to add users or add-ons."
+msgstr ""
+"تتولى هيليولينك الفوترة وتغيير الباقة. تواصل مع مدير حسابك في هيليولينك "
+"لإضافة مستخدمين أو إضافات."
+
+msgid "Bills in a period with what is still open."
+msgstr "فواتير الموردين خلال فترة مع المتبقي منها."
+
+msgid "Bills less supplier credits, for each supplier."
+msgstr "فواتير الموردين ناقص إشعارات الموردين، لكل مورد."
+
+msgid "Bills to pay"
+msgstr "فواتير للسداد"
+
+msgid "Bookmark"
+msgstr "إشارة مرجعية"
+
+msgid "Branch of a foreign company"
+msgstr "فرع شركة أجنبية"
+
+msgid "Budgeting"
+msgstr "إعداد الموازنات"
+
+msgid "Budgets"
+msgstr "الموازنات"
+
+msgid "Business"
+msgstr "الأعمال"
+
+msgid "Business overview"
+msgstr "نظرة عامة على النشاط"
+
+msgid "Businesses"
+msgstr "الشركات"
+
+msgid "Businesses and consumers"
+msgstr "الشركات والأفراد"
+
+msgid "By"
+msgstr "بواسطة"
+
+msgid "Cash and bank, last 12 months"
+msgstr "النقدية والبنوك، آخر 12 شهرًا"
+
+msgid "Cash at month end"
+msgstr "النقدية في نهاية الشهر"
+
+msgid "Cash at the beginning of the period"
+msgstr "النقدية في بداية الفترة"
+
+msgid "Cash at the end of the period"
+msgstr "النقدية في نهاية الفترة"
+
+msgid "Cash balance"
+msgstr "رصيد النقدية"
+
+msgid ""
+"Cash flow by month. Select a month to open its statement of cash flows."
+msgstr "التدفق النقدي بالشهر. اختر شهرًا لفتح قائمة تدفقاته النقدية."
+
+msgid "Cash flow overview"
+msgstr "نظرة عامة على التدفق النقدي"
+
+msgid "Cash flow planner"
+msgstr "مخطط التدفق النقدي"
+
+msgid "Change"
+msgstr "التغير"
+
+msgid "Chart"
+msgstr "الرسم البياني"
+
+msgid "Cheques due"
+msgstr "شيكات مستحقة"
+
+msgid "Cheques the bank sent back and what happened to them."
+msgstr "الشيكات التي ردها البنك وما تم فيها."
+
+msgid "Choose an account"
+msgstr "اختر حسابًا"
+
+msgid ""
+"Choose the period every report opens with. You can still change it on each "
+"report."
+msgstr "اختر الفترة التي تفتح بها كل التقارير. يمكنك تغييرها في كل تقرير."
+
+msgid "Clear filter"
+msgstr "إلغاء التصفية"
+
+msgid "Clear what this computer remembers"
+msgstr "مسح ما يحفظه هذا الجهاز"
+
+msgid "Cleared and outstanding cheques against the bank statement."
+msgstr "الشيكات المحصلة والمعلقة مقابل كشف البنك."
+
+msgid "Cleared. This computer no longer remembers your layout choices."
+msgstr "تم المسح. لم يعد هذا الجهاز يحفظ اختيارات العرض."
+
+msgid "Close"
+msgstr "إغلاق"
+
+msgid "Close a menu or picker"
+msgstr "إغلاق قائمة أو منتقٍ"
+
+msgid ""
+"Column widths in line grids and privacy mode are remembered in this browser,"
+" so each computer can be set up its own way. Nothing here leaves your "
+"computer."
+msgstr ""
+"يحفظ هذا المتصفح عرض الأعمدة في جداول البنود ووضع الخصوصية، ليُضبط كل جهاز "
+"على طريقته. لا يغادر شيء من ذلك جهازك."
+
+msgid "Company information saved."
+msgstr "تم حفظ بيانات الشركة."
+
+msgid "Compare with"
+msgstr "مقارنة مع"
+
+msgid "Construction and contracting"
+msgstr "التشييد والمقاولات"
+
+msgid "Consumers"
+msgstr "الأفراد"
+
+msgid "Cookies"
+msgstr "ملفات تعريف الارتباط"
+
+msgid "Cost of sales"
+msgstr "تكلفة المبيعات"
+
+msgid "Cost, accumulated depreciation and book value of every asset."
+msgstr "التكلفة ومجمع الإهلاك والقيمة الدفترية لكل أصل."
+
+msgid "Could not save. Try again."
+msgstr "تعذر الحفظ. حاول مرة أخرى."
+
+msgid "Create cheque"
+msgstr "إنشاء شيك"
+
+msgid "Custom dates"
+msgstr "تواريخ مخصصة"
+
+msgid "Custom fields"
+msgstr "حقول مخصصة"
+
+msgid "Custom form styles"
+msgstr "تصميم النماذج"
+
+msgid "Custom reports"
+msgstr "تقارير مخصصة"
+
+msgid "Customer balance detail"
+msgstr "تفاصيل أرصدة العملاء"
+
+msgid "Customer balance summary"
+msgstr "ملخص أرصدة العملاء"
+
+msgid "Customer balances"
+msgstr "أرصدة العملاء"
+
+msgid "Customer contact list"
+msgstr "قائمة جهات اتصال العملاء"
+
+msgid "Customer payments"
+msgstr "تحصيلات العملاء"
+
+msgid "Customers and sales"
+msgstr "العملاء والمبيعات"
+
+msgid "Customise dashboard"
+msgstr "تخصيص لوحة المتابعة"
+
+msgid "Customise now"
+msgstr "خصّص الآن"
+
+msgid "Customise your dashboard"
+msgstr "خصّص لوحة المتابعة"
+
+msgid "Dashboard layout saved."
+msgstr "تم حفظ ترتيب لوحة المتابعة."
+
+msgid "Default report period"
+msgstr "فترة التقارير الافتراضية"
+
+msgid "Default report settings"
+msgstr "إعدادات التقارير الافتراضية"
+
+msgid "Deposit slips paid into the bank."
+msgstr "حوافظ الإيداع المودعة في البنك."
+
+msgid "Drafts"
+msgstr "المسودات"
+
+msgid ""
+"Drag a widget by its handle to move it. Drag its corner to make it wider or "
+"narrower."
+msgstr "اسحب العنصر من مقبضه لنقله، واسحب ركنه لتوسيعه أو تضييقه."
+
+msgid ""
+"Drag it by the handle at its top corner and drop it where you want it. With "
+"the keyboard, focus the handle and use the arrow keys."
+msgstr ""
+"اسحبه من المقبض في ركنه العلوي وأفلته حيث تريد. باستخدام لوحة المفاتيح: "
+"انتقل إلى المقبض واستخدم الأسهم."
+
+msgid ""
+"Drag the corner at its bottom edge to make it one to four columns wide."
+msgstr "اسحب الركن في حافته السفلية ليصبح عرضه من عمود إلى أربعة أعمدة."
+
+msgid "Due within %(n)s days"
+msgstr "مستحق خلال %(n)s أيام"
+
+msgid "Due within 7 days"
+msgstr "مستحق خلال 7 أيام"
+
+msgid "Each FIFO cost layer: batch, expiry, quantity and value."
+msgstr "كل طبقة تكلفة (الوارد أولًا): التشغيلة والصلاحية والكمية والقيمة."
+
+msgid "Each month's run with its deductions workbook."
+msgstr "مسير كل شهر مع ملف الاستقطاعات."
+
+msgid "Employee list"
+msgstr "قائمة الموظفين"
+
+msgid "Employees and payroll"
+msgstr "الموظفون والرواتب"
+
+msgid "Every change to a posted record is kept in the audit log."
+msgstr "يُحفظ كل تعديل على قيد مرحّل في سجل التدقيق."
+
+msgid ""
+"Every number, tile and row on the dashboard opens the list or report behind "
+"it."
+msgstr ""
+"كل رقم وبطاقة وسطر في لوحة المتابعة يفتح القائمة أو التقرير الذي وراءه."
+
+msgid "Every open bill, credit and payment by supplier."
+msgstr "كل فاتورة وإشعار ودفعة مفتوحة لكل مورد."
+
+msgid "Every open invoice, credit and payment by customer."
+msgstr "كل فاتورة وإشعار ودفعة مفتوحة لكل عميل."
+
+msgid "Every posting behind the profit and loss figures."
+msgstr "كل القيود وراء أرقام الأرباح والخسائر."
+
+msgid "Every posting by account, with running balances."
+msgstr "كل القيود حسب الحساب، مع الرصيد المتحرك."
+
+msgid "Everyone on the team."
+msgstr "كل أفراد الفريق."
+
+msgid "Everything posted in the last 30 days."
+msgstr "كل ما رُحّل في آخر 30 يومًا."
+
+msgid "Expenses and suppliers"
+msgstr "المصروفات والموردون"
+
+msgid "Expenses by supplier"
+msgstr "المصروفات حسب المورد"
+
+msgid "Expired stock"
+msgstr "مخزون منتهي الصلاحية"
+
+msgid "Export data"
+msgstr "تصدير البيانات"
+
+msgid "Favourites"
+msgstr "المفضلة"
+
+msgid "Feedback"
+msgstr "الملاحظات"
+
+msgid "Feedback from your team"
+msgstr "ملاحظات فريقك"
+
+msgid "File name"
+msgstr "اسم الملف"
+
+msgid "Files stored"
+msgstr "الملفات المحفوظة"
+
+msgid "Files you attach are stored with your records, not shared with anyone."
+msgstr "تُحفظ الملفات المرفقة مع سجلاتك ولا تُشارك مع أحد."
+
+msgid "Financial planning"
+msgstr "التخطيط المالي"
+
+msgid "Financing activities"
+msgstr "الأنشطة التمويلية"
+
+msgid "Find a report"
+msgstr "ابحث عن تقرير"
+
+msgid "Fixed asset register"
+msgstr "سجل الأصول الثابتة"
+
+msgid "For my accountant"
+msgstr "للمحاسب"
+
+msgid "From %(d)s"
+msgstr "من %(d)s"
+
+msgid "From posted invoices less credit notes, at FIFO cost."
+msgstr "من الفواتير المرحّلة ناقص الإشعارات الدائنة، بتكلفة الوارد أولًا."
+
+msgid "General ledger"
+msgstr "دفتر الأستاذ العام"
+
+msgid "Give feedback"
+msgstr "أرسل ملاحظاتك"
+
+msgid "Government"
+msgstr "جهات حكومية"
+
+msgid "Gross pay, deductions and net pay for each employee."
+msgstr "إجمالي الأجر والاستقطاعات وصافي الأجر لكل موظف."
+
+msgid "Gross profit"
+msgstr "مجمل الربح"
+
+msgid "Help"
+msgstr "المساعدة"
+
+msgid "Hide amounts on the dashboard when I open it (privacy mode)"
+msgstr "إخفاء المبالغ في لوحة المتابعة عند فتحها (وضع الخصوصية)"
+
+msgid "Hide widget"
+msgstr "إخفاء العنصر"
+
+msgid "How TriB looks after your data, and your privacy choices."
+msgstr "كيف يحافظ تراي بي على بياناتك، واختياراتك للخصوصية."
+
+msgid "How do I change what is on my dashboard?"
+msgstr "كيف أغيّر محتوى لوحة المتابعة؟"
+
+msgid "How do I export a report to Excel?"
+msgstr "كيف أصدّر تقريرًا إلى إكسل؟"
+
+msgid "How do I keep a page one click away?"
+msgstr "كيف أصل إلى صفحة بنقرة واحدة؟"
+
+msgid "How do I see the detail behind a number?"
+msgstr "كيف أرى التفاصيل وراء رقم؟"
+
+msgid "How long it lasts"
+msgstr "مدة بقائه"
+
+msgid "How your data is handled"
+msgstr "كيف تُعامل بياناتك"
+
+msgid "Idea or suggestion"
+msgstr "فكرة أو اقتراح"
+
+msgid "Import data"
+msgstr "استيراد البيانات"
+
+msgid "In a line grid: go to the next line, or add one"
+msgstr "في جدول البنود: الانتقال للسطر التالي أو إضافة سطر"
+
+msgid "In a line grid: remove the line"
+msgstr "في جدول البنود: حذف السطر"
+
+msgid "In a product or account picker: move through the list"
+msgstr "في منتقي الصنف أو الحساب: التنقل في القائمة"
+
+msgid "Included"
+msgstr "مشمول"
+
+msgid "Income and expenses month by month."
+msgstr "الإيرادات والمصروفات شهرًا بشهر."
+
+msgid "Income, costs and profit for each project."
+msgstr "الإيرادات والتكاليف والربح لكل مشروع."
+
+msgid "Indirect method. Inflows are positive, outflows negative."
+msgstr "الطريقة غير المباشرة. التدفقات الداخلة موجبة والخارجة سالبة."
+
+msgid "Industry"
+msgstr "القطاع"
+
+msgid "Inventory valuation detail"
+msgstr "تفاصيل تقييم المخزون"
+
+msgid "Investing activities"
+msgstr "الأنشطة الاستثمارية"
+
+msgid "Invite your accountant"
+msgstr "ادعُ محاسبك"
+
+msgid ""
+"Invite your accountant to work in TriB with you. They sign in with their own"
+" email and see only what the Accountant role allows."
+msgstr ""
+"ادعُ محاسبك للعمل معك على تراي بي. يدخل ببريده الخاص ويرى فقط ما يسمح به دور"
+" المحاسب."
+
+msgid "Invoice list"
+msgstr "قائمة الفواتير"
+
+msgid "Invoices in a period with what is still open."
+msgstr "الفواتير خلال فترة مع المتبقي منها."
+
+msgid "Joint stock company"
+msgstr "شركة مساهمة"
+
+msgid "Journal"
+msgstr "دفتر اليومية"
+
+msgid "Journal entries with their debit and credit lines."
+msgstr "قيود اليومية بأطرافها المدينة والدائنة."
+
+msgid "Jump to the search box"
+msgstr "الانتقال إلى مربع البحث"
+
+msgid "Keeps you signed in."
+msgstr "يُبقيك مسجلًا للدخول."
+
+msgid "Keyboard shortcuts"
+msgstr "اختصارات لوحة المفاتيح"
+
+msgid "Last 12 months"
+msgstr "آخر 12 شهرًا"
+
+msgid "Last month"
+msgstr "الشهر الماضي"
+
+msgid "Last quarter"
+msgstr "الربع الماضي"
+
+msgid "Last year"
+msgstr "السنة الماضية"
+
+msgid "Learn how to customise your dashboard layout"
+msgstr "تعرّف على طريقة تخصيص لوحة المتابعة"
+
+msgid "Leave owed to employees, valued at their pay."
+msgstr "الإجازات المستحقة للموظفين مقومة بأجورهم."
+
+msgid "Legal form"
+msgstr "الشكل القانوني"
+
+msgid "Legal name (if different)"
+msgstr "الاسم القانوني (إن اختلف)"
+
+msgid "Letters asking customers to confirm their balance."
+msgstr "خطابات تطلب من العملاء تأكيد أرصدتهم."
+
+msgid "Limited liability company (LLC)"
+msgstr "شركة ذات مسؤولية محدودة"
+
+msgid "Line"
+msgstr "البند"
+
+msgid "Lists"
+msgstr "القوائم"
+
+msgid "Loading…"
+msgstr "جارٍ التحميل…"
+
+msgid "Logistics and shipping"
+msgstr "اللوجستيات والشحن"
+
+msgid "Main activity"
+msgstr "النشاط الرئيسي"
+
+msgid "Manage users"
+msgstr "إدارة المستخدمين"
+
+msgid "Management reports"
+msgstr "تقارير الإدارة"
+
+msgid "Manufacturing"
+msgstr "التصنيع"
+
+msgid "Margin %"
+msgstr "هامش الربح %"
+
+msgid "Medical and dental supplies"
+msgstr "المستلزمات الطبية وأدوات الأسنان"
+
+msgid "Money in & out"
+msgstr "الداخل والخارج"
+
+msgid ""
+"More about your business. It helps your accountant and fills in reports and "
+"letters."
+msgstr ""
+"مزيد من المعلومات عن نشاطك. تفيد محاسبك وتُستخدم في التقارير والخطابات."
+
+msgid "More actions"
+msgstr "إجراءات أخرى"
+
+msgid "Move a widget"
+msgstr "نقل عنصر"
+
+msgid "Move to the next field or cell"
+msgstr "الانتقال إلى الحقل أو الخلية التالية"
+
+msgid "Move widget"
+msgstr "نقل العنصر"
+
+msgid ""
+"Moves between your own accounts, such as transfers and deposits, are not "
+"counted as money in or out."
+msgstr ""
+"التحويلات بين حساباتك، مثل التحويلات والإيداعات، لا تُحسب ضمن الداخل أو "
+"الخارج."
+
+msgid "My accountant"
+msgstr "محاسبي"
+
+msgid "Names, phones and emails of your customers."
+msgstr "أسماء عملائك وهواتفهم وبريدهم الإلكتروني."
+
+msgid "Names, phones and emails of your suppliers."
+msgstr "أسماء مورديك وهواتفهم وبريدهم الإلكتروني."
+
+msgid "Net"
+msgstr "الصافي"
+
+msgid "Net cash from financing activities"
+msgstr "صافي النقدية من الأنشطة التمويلية"
+
+msgid "Net cash from investing activities"
+msgstr "صافي النقدية من الأنشطة الاستثمارية"
+
+msgid "Net cash from operating activities"
+msgstr "صافي النقدية من الأنشطة التشغيلية"
+
+msgid "Net change in cash"
+msgstr "صافي التغير في النقدية"
+
+msgid "Net sales and VAT for each customer."
+msgstr "صافي المبيعات وضريبة القيمة المضافة لكل عميل."
+
+msgid "No accountant has been invited yet."
+msgstr "لم تتم دعوة أي محاسب بعد."
+
+msgid "No report matches that name."
+msgstr "لا يوجد تقرير بهذا الاسم."
+
+msgid "Not included"
+msgstr "غير مشمول"
+
+msgid "Nothing to show for these dates."
+msgstr "لا توجد بيانات لهذه التواريخ."
+
+msgid "Number of employees"
+msgstr "عدد الموظفين"
+
+msgid ""
+"On the home page select Customise, next to Privacy. Add, hide, move and "
+"resize widgets, then select Save."
+msgstr ""
+"في الصفحة الرئيسية اختر «تخصيص» بجوار «الخصوصية». أضف العناصر أو أخفها أو "
+"انقلها أو غيّر حجمها، ثم اختر «حفظ»."
+
+msgid "Open amount"
+msgstr "المبلغ المفتوح"
+
+msgid "Open balance (base)"
+msgstr "الرصيد المفتوح (العملة الأساسية)"
+
+msgid "Open document"
+msgstr "فتح المستند"
+
+msgid "Open in a new tab"
+msgstr "فتح في علامة تبويب جديدة"
+
+msgid ""
+"Open the report and select Export to Excel, or use the ⋮ menu next to it on "
+"the Reports page."
+msgstr ""
+"افتح التقرير واختر «تصدير إلى إكسل»، أو استخدم قائمة ⋮ بجواره في صفحة "
+"التقارير."
+
+msgid "Operating activities"
+msgstr "الأنشطة التشغيلية"
+
+msgid "Ordered goods still to arrive."
+msgstr "بضائع مطلوبة لم تصل بعد."
+
+msgid "Orders not yet fully delivered."
+msgstr "أوامر لم تُسلّم بالكامل بعد."
+
+msgid "Overdue invoices"
+msgstr "فواتير متأخرة"
+
+msgid "Partnership"
+msgstr "شركة تضامن"
+
+msgid "Payment on account"
+msgstr "دفعة تحت الحساب"
+
+msgid "Payroll months that fall within the dates."
+msgstr "أشهر الرواتب الواقعة ضمن التواريخ."
+
+msgid "Payroll runs and deductions"
+msgstr "مسيرات الرواتب والاستقطاعات"
+
+msgid "Payroll summary by employee"
+msgstr "ملخص الرواتب حسب الموظف"
+
+msgid "Posted bills less supplier credits, in base currency."
+msgstr "فواتير الموردين المرحّلة ناقص إشعارات الموردين، بالعملة الأساسية."
+
+msgid "Posted invoices less credit notes, in base currency."
+msgstr "الفواتير المرحّلة ناقص الإشعارات الدائنة، بالعملة الأساسية."
+
+msgid "Previous period"
+msgstr "الفترة السابقة"
+
+msgid "Product categories"
+msgstr "فئات الأصناف"
+
+msgid "Products and services"
+msgstr "الأصناف والخدمات"
+
+msgid "Professional services"
+msgstr "الخدمات المهنية"
+
+msgid "Profile"
+msgstr "الملف الشخصي"
+
+msgid "Profit and loss by customer"
+msgstr "الأرباح والخسائر حسب العميل"
+
+msgid "Profit and loss by month"
+msgstr "الأرباح والخسائر حسب الشهر"
+
+msgid "Profit and loss comparison"
+msgstr "مقارنة الأرباح والخسائر"
+
+msgid "Profit and loss detail"
+msgstr "تفاصيل الأرباح والخسائر"
+
+msgid "Profit for the period (not yet closed)"
+msgstr "ربح الفترة (لم يُقفل بعد)"
+
+msgid "Project profitability"
+msgstr "ربحية المشروعات"
+
+msgid "Protects your forms from being sent by other websites."
+msgstr "يحمي نماذجك من إرسالها عبر مواقع أخرى."
+
+msgid "Purchases not yet received"
+msgstr "مشتريات لم تُستلم بعد"
+
+msgid "Quick answers"
+msgstr "إجابات سريعة"
+
+msgid "Receipts inbox"
+msgstr "صندوق الإيصالات"
+
+msgid "Recent transactions"
+msgstr "أحدث المعاملات"
+
+msgid "Reclassify transactions"
+msgstr "إعادة تصنيف المعاملات"
+
+msgid "Record expense"
+msgstr "تسجيل مصروف"
+
+msgid "Rejected vouchers"
+msgstr "سندات مرفوضة"
+
+msgid "Remembers English or Arabic."
+msgstr "يتذكر اختيار الإنجليزية أو العربية."
+
+msgid "Remove from favourites"
+msgstr "إزالة من المفضلة"
+
+msgid "Report period"
+msgstr "فترة التقرير"
+
+msgid "Report settings saved. Reports now open with these choices."
+msgstr "تم حفظ إعدادات التقارير. ستفتح التقارير بهذه الاختيارات."
+
+msgid "Report types"
+msgstr "أنواع التقارير"
+
+msgid "Reset layout"
+msgstr "استعادة الترتيب الافتراضي"
+
+msgid "Resize a widget"
+msgstr "تغيير حجم عنصر"
+
+msgid "Resize widget"
+msgstr "تغيير حجم العنصر"
+
+msgid "Retail"
+msgstr "التجزئة"
+
+msgid "Returned cheque"
+msgstr "شيك مرتجع"
+
+msgid "Review all"
+msgstr "مراجعة الكل"
+
+msgid "Review drafts"
+msgstr "مراجعة المسودات"
+
+msgid "Sales and customers"
+msgstr "المبيعات والعملاء"
+
+msgid "Sales by customer"
+msgstr "المبيعات حسب العميل"
+
+msgid "Sales, cost of sales and gross profit for each customer."
+msgstr "المبيعات وتكلفتها ومجمل الربح لكل عميل."
+
+msgid "Same period last year"
+msgstr "نفس الفترة من العام الماضي"
+
+msgid "Scroll back"
+msgstr "تمرير للخلف"
+
+msgid "Scroll for more"
+msgstr "تمرير للمزيد"
+
+msgid "See all"
+msgstr "عرض الكل"
+
+msgid "See every expense"
+msgstr "عرض كل المصروفات"
+
+msgid "See the cookies TriB uses"
+msgstr "اطلع على ملفات تعريف الارتباط التي يستخدمها تراي بي"
+
+msgid ""
+"Select Add widgets and tick the ones you want. Untick a widget, or select × "
+"on it, to hide it."
+msgstr ""
+"اختر «إضافة عناصر» وحدد ما تريده. ألغِ تحديد عنصر أو اختر × عليه لإخفائه."
+
+msgid ""
+"Select Save to keep your layout. It is saved for you only; other users keep "
+"their own."
+msgstr "اختر «حفظ» للاحتفاظ بالترتيب. يُحفظ لك وحدك، ولكل مستخدم ترتيبه."
+
+msgid "Select a month to see where the cash went."
+msgstr "اختر شهرًا لترى أين ذهبت النقدية."
+
+msgid ""
+"Select it. Every number, tile, bar and row on the dashboard opens the list "
+"or report behind it."
+msgstr ""
+"اضغط عليه. كل رقم وبطاقة وشريط وسطر في لوحة المتابعة يفتح القائمة أو التقرير"
+" الذي وراءه."
+
+msgid ""
+"Select the bookmark icon next to any menu item, or the star at the top of "
+"any page. Your bookmarks appear on the left menu."
+msgstr ""
+"اختر أيقونة الإشارة المرجعية بجوار أي عنصر في القائمة، أو النجمة أعلى أي "
+"صفحة. تظهر إشاراتك المرجعية في القائمة الجانبية."
+
+msgid "Send feedback"
+msgstr "إرسال الملاحظات"
+
+msgid "Shortcuts and quick answers for working in TriB."
+msgstr "اختصارات وإجابات سريعة للعمل على تراي بي."
+
+msgid "Show all"
+msgstr "عرض الكل"
+
+msgid "Show less"
+msgstr "عرض أقل"
+
+msgid "Showing"
+msgstr "المعروض"
+
+msgid "Size"
+msgstr "الحجم"
+
+msgid "Sole proprietorship"
+msgstr "منشأة فردية"
+
+msgid "Something I like"
+msgstr "شيء أعجبني"
+
+msgid "Something isn't working"
+msgstr "شيء لا يعمل"
+
+msgid "Standard reports"
+msgstr "التقارير القياسية"
+
+msgid "Star a report to keep it here."
+msgstr "ضع نجمة على تقرير لتحتفظ به هنا."
+
+msgid "Statement of cash flows"
+msgstr "قائمة التدفقات النقدية"
+
+msgid "Statements of account to send to customers."
+msgstr "كشوف حساب لإرسالها للعملاء."
+
+msgid "Stock on hand today at FIFO cost."
+msgstr "المخزون الحالي بتكلفة الوارد أولًا."
+
+msgid "Stock valuation summary"
+msgstr "ملخص تقييم المخزون"
+
+msgid "Stock value"
+msgstr "قيمة المخزون"
+
+msgid "Stored on this computer only"
+msgstr "محفوظ على هذا الجهاز فقط"
+
+msgid "Subscriptions and billing"
+msgstr "الاشتراكات والفوترة"
+
+msgid "Supplier balance detail"
+msgstr "تفاصيل أرصدة الموردين"
+
+msgid "Supplier balance summary"
+msgstr "ملخص أرصدة الموردين"
+
+msgid "Supplier balances"
+msgstr "أرصدة الموردين"
+
+msgid "Supplier contact list"
+msgstr "قائمة جهات اتصال الموردين"
+
+msgid "Suppliers and purchases"
+msgstr "الموردون والمشتريات"
+
+msgid "Team and assets"
+msgstr "الفريق والأصول"
+
+msgid "Technology"
+msgstr "التكنولوجيا"
+
+msgid "Tell us in Feedback"
+msgstr "أخبرنا في الملاحظات"
+
+msgid "Tell us what would make TriB better, or what isn't working."
+msgstr "أخبرنا بما يجعل تراي بي أفضل، أو بما لا يعمل."
+
+msgid "Thank you. Your feedback has been sent to the TriB team."
+msgstr "شكرًا لك. أُرسلت ملاحظاتك إلى فريق تراي بي."
+
+msgid "The balance sheet on two dates, side by side."
+msgstr "الميزانية العمومية في تاريخين جنبًا إلى جنب."
+
+msgid "The chart of accounts with balances."
+msgstr "دليل الحسابات بأرصدته."
+
+msgid "The names, codes and settings your transactions use."
+msgstr "الأسماء والأكواد والإعدادات التي تستخدمها معاملاتك."
+
+msgid "This month"
+msgstr "هذا الشهر"
+
+msgid "This period next to the previous period or last year."
+msgstr "هذه الفترة بجوار الفترة السابقة أو العام الماضي."
+
+msgid "This quarter"
+msgstr "هذا الربع"
+
+msgid "This year to date"
+msgstr "منذ بداية العام"
+
+msgid "To %(d)s"
+msgstr "حتى %(d)s"
+
+msgid "Tools"
+msgstr "الأدوات"
+
+msgid "Total for %(a)s"
+msgstr "إجمالي %(a)s"
+
+msgid "Total liabilities and equity"
+msgstr "إجمالي الالتزامات وحقوق الملكية"
+
+msgid "Trading and distribution"
+msgstr "التجارة والتوزيع"
+
+msgid ""
+"TriB does not sell data or show advertising, and uses no tracking cookies."
+msgstr "لا يبيع تراي بي البيانات ولا يعرض إعلانات ولا يستخدم ملفات تتبع."
+
+msgid ""
+"TriB uses only the cookies it needs to work. There are no advertising or "
+"tracking cookies."
+msgstr ""
+"يستخدم تراي بي فقط ملفات تعريف الارتباط اللازمة لعمله. لا توجد ملفات إعلانية"
+" أو للتتبع."
+
+msgid "Type / account"
+msgstr "النوع / الحساب"
+
+msgid "Type report name here"
+msgstr "اكتب اسم التقرير هنا"
+
+msgid "Until you sign out, or %(session_days)s days"
+msgstr "حتى تسجيل الخروج، أو %(session_days)s يومًا"
+
+msgid "Up to 24 months are shown."
+msgstr "يُعرض حتى 24 شهرًا."
+
+msgid "Up to 300 entries are shown; narrow the dates for more."
+msgstr "يُعرض حتى 300 قيد؛ ضيّق التواريخ لعرض المزيد."
+
+msgid ""
+"Useful when others can see your screen. Select Privacy on the home page to "
+"show or hide amounts at any time."
+msgstr ""
+"مفيد عندما يرى الآخرون شاشتك. اختر «الخصوصية» في الصفحة الرئيسية لإظهار "
+"المبالغ أو إخفائها في أي وقت."
+
+msgid "Valuation detail"
+msgstr "تفاصيل التقييم"
+
+msgid "Website"
+msgstr "الموقع الإلكتروني"
+
+msgid "What each customer owes today."
+msgstr "المستحق على كل عميل اليوم."
+
+msgid "What needs your attention. Select an alert to open the list behind it."
+msgstr "ما يحتاج متابعتك. اختر تنبيهًا لفتح القائمة التي وراءه."
+
+msgid "What the Accountant role can do is set in"
+msgstr "صلاحيات دور المحاسب تُضبط في"
+
+msgid "What you owe"
+msgstr "المستحق عليك"
+
+msgid "What you owe each supplier today."
+msgstr "المستحق عليك لكل مورد اليوم."
+
+msgid "What you sent"
+msgstr "ما أرسلته"
+
+msgid "Where cash came from and went: operating, investing and financing."
+msgstr "من أين جاءت النقدية وأين ذهبت: تشغيل واستثمار وتمويل."
+
+msgid "Who did what, and when."
+msgstr "من فعل ماذا، ومتى."
+
+msgid "Who owes you"
+msgstr "المستحق لك"
+
+msgid "Who you sell to"
+msgstr "لمن تبيع"
+
+msgid "Why it is needed"
+msgstr "سبب الحاجة إليه"
+
+msgid "Year established"
+msgstr "سنة التأسيس"
+
+msgid "You're all caught up. No alerts right now."
+msgstr "لا يوجد ما يحتاج متابعة. لا توجد تنبيهات الآن."
+
+msgid "Your account with each supplier."
+msgstr "حسابك مع كل مورد."
+
+msgid "Your company"
+msgstr "شركتك"
+
+msgid ""
+"Your company's records are kept in its own space. Only users you add can see"
+" them, and only what their role allows."
+msgstr ""
+"تُحفظ سجلات شركتك في مساحة خاصة بها. لا يراها إلا من تضيفهم من مستخدمين، وفي"
+" حدود صلاحيات أدوارهم."
+
+msgid "Your feedback"
+msgstr "ملاحظاتك"
+
+msgid "Your privacy choices"
+msgstr "اختياراتك للخصوصية"
+
+msgid "Your privacy choices are saved."
+msgstr "تم حفظ اختياراتك للخصوصية."
+
+msgid "%(doc)s %(number)s from %(company)s"
+msgstr "%(doc)s %(number)s من %(company)s"
+
+msgid "%(e)s is not a valid email address."
+msgstr "%(e)s ليس بريدًا إلكترونيًا صحيحًا."
+
+msgid "%(n)s bills due within 7 days or overdue · %(a)s"
+msgstr "%(n)s فواتير موردين مستحقة خلال 7 أيام أو متأخرة · %(a)s"
+
+msgid "%(n)s cheques due this week · %(a)s"
+msgstr "%(n)s شيكات مستحقة هذا الأسبوع · %(a)s"
+
+msgid "%(n)s document"
+msgid_plural "%(n)s documents"
+msgstr[0] "%(n)s مستند"
+msgstr[1] "%(n)s مستند"
+msgstr[2] "%(n)s مستند"
+msgstr[3] "%(n)s مستند"
+msgstr[4] "%(n)s مستند"
+msgstr[5] "%(n)s مستند"
+
+msgid "%(n)s invoices are overdue · %(a)s"
+msgstr "%(n)s فواتير متأخرة · %(a)s"
+
+msgid "%(number)s sent to %(to)s."
+msgstr "تم إرسال %(number)s إلى %(to)s."
+
+msgid "%(soon)s batches expire within 60 days, %(n)s expired"
+msgstr "%(soon)s تشغيلات تنتهي صلاحيتها خلال 60 يومًا، و%(n)s منتهية"
+
+msgid "Actions"
+msgstr "الإجراءات"
+
+msgid "Activity feed"
+msgstr "سجل النشاط"
+
+msgid "Add notes"
+msgstr "إضافة ملاحظات"
+
+msgid "All recurring transactions"
+msgstr "كل المعاملات المتكررة"
+
+msgid "All transactions"
+msgstr "كل المعاملات"
+
+msgid "Amounts are"
+msgstr "المبالغ"
+
+msgid "Amounts include VAT"
+msgstr "المبالغ شاملة الضريبة"
+
+msgid ""
+"Anyone with this link can view and print this document. They cannot change "
+"anything."
+msgstr ""
+"يمكن لأي شخص لديه هذا الرابط عرض المستند وطباعته، دون إمكانية تعديل أي شيء."
+
+msgid "Audit history"
+msgstr "سجل التعديلات"
+
+msgid "Batch actions"
+msgstr "إجراءات جماعية"
+
+msgid "Bcc"
+msgstr "نسخة مخفية"
+
+msgid "Bill to"
+msgstr "فاتورة إلى"
+
+msgid "Billing address"
+msgstr "عنوان الفواتير"
+
+msgid "Bills due"
+msgstr "فواتير موردين مستحقة"
+
+msgid "Cash balance by week"
+msgstr "رصيد النقدية حسب الأسبوع"
+
+msgid "Cash falls below your %(m)s minimum in the week of %(d)s"
+msgstr "تنخفض النقدية عن الحد الأدنى %(m)s في أسبوع %(d)s"
+
+msgid "Cash falls below your minimum of %(m)s in the week of %(d)s."
+msgstr "تنخفض النقدية عن الحد الأدنى %(m)s في أسبوع %(d)s."
+
+msgid "Cash flow forecast"
+msgstr "توقعات التدفق النقدي"
+
+msgid "Cash forecast"
+msgstr "توقعات النقدية"
+
+msgid "Cash today"
+msgstr "النقدية اليوم"
+
+msgid "Cc"
+msgstr "نسخة"
+
+msgid "Cc/Bcc"
+msgstr "نسخة / نسخة مخفية"
+
+msgid "Change minimum cash"
+msgstr "تغيير الحد الأدنى للنقدية"
+
+msgid "Cheques due in"
+msgstr "شيكات مستحقة التحصيل"
+
+msgid "Cheques issued"
+msgstr "شيكات صادرة"
+
+msgid "Conversations"
+msgstr "المحادثات"
+
+msgid "Copied"
+msgstr "تم النسخ"
+
+msgid "Copied to a new draft. Check it and save."
+msgstr "تم النسخ إلى مسودة جديدة. راجعها واحفظها."
+
+msgid "Copy link"
+msgstr "نسخ الرابط"
+
+msgid ""
+"Counted: received cheques by due date, unpaid invoices and bills by due date"
+" (overdue bills in the first week), cheques you issued, and payroll at each "
+"month end at the last run's net pay. Overdue customer invoices are not "
+"counted because when they will be paid is unknown."
+msgstr ""
+"المحسوب: الشيكات الواردة حسب تاريخ الاستحقاق، والفواتير غير المحصلة وفواتير "
+"الموردين غير المسددة حسب تاريخ الاستحقاق (المتأخر منها في الأسبوع الأول)، "
+"والشيكات الصادرة، والرواتب في نهاية كل شهر بصافي آخر مسير. لا تُحسب فواتير "
+"العملاء المتأخرة لأن موعد تحصيلها غير معروف."
+
+msgid "Create statement"
+msgstr "إنشاء كشف حساب"
+
+msgid "Custom"
+msgstr "مخصص"
+
+msgid "Customer PO no."
+msgstr "رقم أمر شراء العميل"
+
+msgid "Customer details"
+msgstr "بيانات العميل"
+
+msgid "Customer email"
+msgstr "بريد العميل"
+
+msgid "Delete this draft? This cannot be undone."
+msgstr "حذف هذه المسودة؟ لا يمكن التراجع عن ذلك."
+
+msgid "Documents & files"
+msgstr "المستندات والملفات"
+
+msgid "Download PDF"
+msgstr "تنزيل PDF"
+
+msgid "Draft deleted."
+msgstr "تم حذف المسودة."
+
+msgid "Due on receipt"
+msgstr "مستحق عند الاستلام"
+
+msgid "Edit customer"
+msgstr "تعديل العميل"
+
+msgid "Edit supplier"
+msgstr "تعديل المورد"
+
+msgid ""
+"Email isn't set up yet, so TriB can't send it for you. Use Share link or "
+"WhatsApp, or print it. Your administrator can add the email account in "
+"Render (EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)."
+msgstr ""
+"لم يُضبط البريد الإلكتروني بعد، لذا لا يستطيع تراي بي الإرسال عنك. استخدم "
+"رابط المشاركة أو واتساب أو الطباعة. يمكن لمسؤول النظام إضافة حساب البريد في "
+"Render ‏(EMAIL_HOST و EMAIL_HOST_USER و EMAIL_HOST_PASSWORD)."
+
+msgid "Enter the due date, or choose terms."
+msgstr "أدخل تاريخ الاستحقاق أو اختر شروط السداد."
+
+msgid "Exclusive of VAT"
+msgstr "غير شاملة الضريبة"
+
+msgid "Expected in 8 weeks"
+msgstr "المتوقع بعد 8 أسابيع"
+
+msgid "Export selected (CSV)"
+msgstr "تصدير المحدد (CSV)"
+
+msgid "Financial summary"
+msgstr "الملخص المالي"
+
+msgid ""
+"Hello %(name)s, here is %(doc)s %(number)s for %(amount)s %(cur)s from "
+"%(company)s: %(link)s"
+msgstr ""
+"مرحبًا %(name)s، مرفق %(doc)s رقم %(number)s بمبلغ %(amount)s %(cur)s من "
+"%(company)s: %(link)s"
+
+msgid "Inclusive of VAT"
+msgstr "شاملة الضريبة"
+
+msgid "Invoices due"
+msgstr "فواتير مستحقة"
+
+msgid "Last 90 days"
+msgstr "آخر 90 يومًا"
+
+msgid "Leave empty when goods go to the main address."
+msgstr "اتركه فارغًا عند الشحن إلى العنوان الرئيسي."
+
+msgid "Make a copy"
+msgstr "إنشاء نسخة"
+
+msgid "Make recurring"
+msgstr "جعلها متكررة"
+
+msgid "Message"
+msgstr "الرسالة"
+
+msgid "Minimum cash balance"
+msgstr "الحد الأدنى لرصيد النقدية"
+
+msgid "More options"
+msgstr "خيارات أخرى"
+
+msgid "More save options"
+msgstr "خيارات حفظ أخرى"
+
+msgid "More share options"
+msgstr "خيارات مشاركة أخرى"
+
+msgid "Net 15"
+msgstr "صافي 15 يومًا"
+
+msgid "Net 30"
+msgstr "صافي 30 يومًا"
+
+msgid "Net 45"
+msgstr "صافي 45 يومًا"
+
+msgid "Net 60"
+msgstr "صافي 60 يومًا"
+
+msgid "Net 90"
+msgstr "صافي 90 يومًا"
+
+msgid "Next 8 weeks"
+msgstr "الأسابيع الثمانية القادمة"
+
+msgid "No"
+msgstr "لا"
+
+msgid "No activity recorded yet."
+msgstr "لا يوجد نشاط مسجل بعد."
+
+msgid "No projects for this customer."
+msgstr "لا توجد مشروعات لهذا العميل."
+
+msgid ""
+"No recurring transactions. Open a posted document and select Make recurring."
+msgstr "لا توجد معاملات متكررة. افتح مستندًا مرحّلًا واختر «جعلها متكررة»."
+
+msgid "No transactions match these filters."
+msgstr "لا توجد معاملات مطابقة لهذه التصفية."
+
+msgid "No transactions yet."
+msgstr "لا توجد معاملات بعد."
+
+msgid "No."
+msgstr "الرقم"
+
+msgid "Notes saved."
+msgstr "تم حفظ الملاحظات."
+
+msgid ""
+"Nothing selected can be printed. Only documents with a number can be "
+"printed."
+msgstr "لا يمكن طباعة ما تم تحديده. تُطبع المستندات ذات الأرقام فقط."
+
+msgid "Only drafts can be deleted. Void a posted document instead."
+msgstr "يمكن حذف المسودات فقط. ألغِ المستند المرحّل بدلًا من ذلك."
+
+msgid "Open WhatsApp"
+msgstr "فتح واتساب"
+
+msgid "Opportunities"
+msgstr "الفرص"
+
+msgid "Overdue %(n)s days"
+msgstr "متأخر %(n)s أيام"
+
+msgid "Overdue 1 day"
+msgstr "متأخر يومًا واحدًا"
+
+msgid "Overdue invoices (not counted)"
+msgstr "فواتير متأخرة (غير محسوبة)"
+
+msgid "Overdue payment"
+msgstr "مبالغ متأخرة"
+
+msgid "Payments"
+msgstr "المدفوعات"
+
+msgid "Post the document first so it has a number."
+msgstr "رحّل المستند أولًا ليحصل على رقم."
+
+msgid "Print delivery note"
+msgstr "طباعة إذن تسليم"
+
+msgid "Print or download"
+msgstr "طباعة أو تنزيل"
+
+msgid "Print selected"
+msgstr "طباعة المحدد"
+
+msgid "Rates include VAT"
+msgstr "الأسعار شاملة الضريبة"
+
+msgid "Review and send"
+msgstr "مراجعة وإرسال"
+
+msgid "Same as billing address"
+msgstr "نفس عنوان الفواتير"
+
+msgid "Save & share (WhatsApp)"
+msgstr "حفظ ومشاركة (واتساب)"
+
+msgid "Save and close"
+msgstr "حفظ وإغلاق"
+
+msgid "Save and new"
+msgstr "حفظ وجديد"
+
+msgid "Save and review to send"
+msgstr "حفظ ومراجعة للإرسال"
+
+msgid "Save and share link"
+msgstr "حفظ ومشاركة الرابط"
+
+msgid "Save notes"
+msgstr "حفظ الملاحظات"
+
+msgid "Save or post the document first so it has a number."
+msgstr "احفظ المستند أو رحّله أولًا ليحصل على رقم."
+
+msgid "See forecast"
+msgstr "عرض التوقعات"
+
+msgid "Send"
+msgstr "إرسال"
+
+msgid "Separate several addresses with commas."
+msgstr "افصل بين العناوين بفواصل."
+
+msgid "Separate tags with commas."
+msgstr "افصل بين الوسوم بفواصل."
+
+msgid "Set a minimum cash balance"
+msgstr "تحديد حد أدنى لرصيد النقدية"
+
+msgid "Share"
+msgstr "مشاركة"
+
+msgid "Share link"
+msgstr "رابط المشاركة"
+
+msgid "Share on WhatsApp"
+msgstr "مشاركة على واتساب"
+
+msgid "Ship to"
+msgstr "الشحن إلى"
+
+msgid "Ship via"
+msgstr "طريقة الشحن"
+
+msgid "Shipping"
+msgstr "الشحن"
+
+msgid "Shipping address"
+msgstr "عنوان الشحن"
+
+msgid "Shipping date"
+msgstr "تاريخ الشحن"
+
+msgid "Start typing to add a tag"
+msgstr "ابدأ الكتابة لإضافة وسم"
+
+msgid ""
+"Statements list every invoice, payment and credit in a period with the "
+"running balance, ready to print or send."
+msgstr ""
+"يعرض كشف الحساب كل فاتورة ودفعة وإشعار خلال فترة مع الرصيد المتحرك، جاهزًا "
+"للطباعة أو الإرسال."
+
+msgid "Stock expiry"
+msgstr "صلاحية المخزون"
+
+msgid "Subject"
+msgstr "الموضوع"
+
+msgid "Supplier details"
+msgstr "بيانات المورد"
+
+msgid "Switch link off"
+msgstr "إيقاف الرابط"
+
+msgid ""
+"Switch this link off? Anyone who has it will no longer be able to open the "
+"document."
+msgstr "إيقاف هذا الرابط؟ لن يتمكن أي شخص لديه من فتح المستند بعد ذلك."
+
+msgid "Tag: %(t)s"
+msgstr "الوسم: %(t)s"
+
+msgid "Tags"
+msgstr "الوسوم"
+
+msgid "Tasks"
+msgstr "المهام"
+
+msgid "The business feed warns you when the cash forecast falls below this."
+msgstr "ينبهك آخر المستجدات عندما تنخفض توقعات النقدية عن هذا الحد."
+
+msgid "The email could not be sent: %(e)s"
+msgstr "تعذر إرسال البريد: %(e)s"
+
+msgid ""
+"The email includes a private link where your customer can view, print and "
+"save the document."
+msgstr "يتضمن البريد رابطًا خاصًا يتيح لعميلك عرض المستند وطباعته وحفظه."
+
+msgid "This year"
+msgstr "هذا العام"
+
+msgid "To download, choose “Save as PDF” as the printer."
+msgstr "للتنزيل، اختر «حفظ بتنسيق PDF» كطابعة."
+
+msgid "Tracking no."
+msgstr "رقم التتبع"
+
+msgid "Transaction journal"
+msgstr "قيد المعاملة"
+
+msgid "Transaction list"
+msgstr "قائمة المعاملات"
+
+msgid ""
+"Until you sign out or close the browser (at most %(session_hours)s hours)"
+msgstr "حتى تسجيل الخروج أو إغلاق المتصفح (بحد أقصى %(session_hours)s ساعات)"
+
+msgid "View/Edit"
+msgstr "عرض/تعديل"
+
+msgid "Void this document? Its ledger entry is reversed."
+msgstr "إلغاء هذا المستند؟ سيُعكس قيده المحاسبي."
+
+msgid "Week of"
+msgstr "أسبوع"
+
+msgid "Yes"
+msgstr "نعم"
+
+msgid ""
+"Your account with this supplier: every bill, payment and credit in a period "
+"with the running balance."
+msgstr ""
+"حسابك مع هذا المورد: كل فاتورة ودفعة وإشعار خلال فترة مع الرصيد المتحرك."

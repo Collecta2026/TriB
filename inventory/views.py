@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Q, Sum
+from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -208,8 +209,16 @@ def _doc_form(request, kind, doc):
                 messages.error(request, str(exc))
         else:
             messages.success(request, _("Saved."))
-        return redirect(cfg["detail"], pk=doc.pk)
-    return render(request, "inventory/doc_form.html", {"form": form, "formset": formset, "doc": doc, "kind": kind,
+        from core.doc_actions import saved_redirect
+        return saved_redirect(request, reverse(cfg["detail"], args=[doc.pk]), reverse(f"inventory:{kind}_new"),
+                              reverse(cfg["list"]))
+    from core.doc_actions import audit_url
+    bar = {"mode": "form", "save_label": _("Save draft"), "more": [],
+           "cancel": reverse(cfg["detail"], args=[doc.pk]) if doc.pk else reverse(cfg["list"]),
+           "primary": _("Save and post") if request.membership.has_perm("inventory.post") else ""}
+    if doc.pk and request.membership.has_perm("audit.view"):
+        bar["more"].append({"label": _("Audit history"), "url": audit_url(doc)})
+    return render(request, "inventory/doc_form.html", {"form": form, "formset": formset, "doc": doc, "kind": kind, "bar": bar,
                                                        "list_url": cfg["list"]})
 
 
