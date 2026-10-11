@@ -12,6 +12,7 @@ from django.utils.translation import gettext_lazy
 from django.views.decorators.http import require_POST
 
 from contacts.models import Supplier
+from core import access
 from core.docviews import DocSpec, doc_detail, doc_form, doc_list, doc_print, get_doc
 from inventory.models import Warehouse
 from sales.forms import StatementForm
@@ -37,7 +38,7 @@ def _defaults(request, due=False, warehouse=False):
     if due and "due_date" not in out:
         out["due_date"] = today + timedelta(days=30)
     if warehouse:
-        out["warehouse"] = Warehouse.objects.filter(company=request.company, is_active=True).first()
+        out["warehouse"] = access.scope(Warehouse.objects.filter(company=request.company, is_active=True)).first()
     return out
 
 
@@ -80,15 +81,31 @@ def _info(doc):
             rows.append((label, getattr(doc, attr).strftime("%d/%m/%Y")))
     if doc.warehouse_id:
         rows.append((_("Warehouse"), doc.warehouse))
+    from django.utils.dateparse import parse_datetime
+
+    for n, a in enumerate(getattr(doc, "approvals", None) or [], start=1):
+        at = parse_datetime(a.get("at") or "")
+        limit = _("no limit") if a.get("limit") is None else f"{Decimal(a['limit']):,.0f}"
+        rows.append((_("Approval %(n)s") % {"n": n},
+                     f"{a.get('name')} · {timezone.localtime(at):%d/%m/%Y %H:%M} · {_('limit')} {limit}" if at else a.get("name")))
     if getattr(doc, "approved_by_id", None):
         rows.append((_("Approved by"), f"{doc.approved_by} · {doc.approved_at:%d/%m/%Y %H:%M}"))
+    if getattr(doc, "approval_requested_at", None) and doc.status == "draft":
+        rows.append((_("Waiting for approval"), f"{doc.approval_requested_by} · "
+                                                f"{timezone.localtime(doc.approval_requested_at):%d/%m/%Y %H:%M}"))
     return rows
 
 
 def _detail(request, spec, pk):
     doc = get_doc(request, spec, pk)
-    return doc_detail(request, spec, doc, {"info": _info(doc), "party": doc.supplier,
-                                           "party_url": reverse("contacts:supplier", args=[doc.supplier_id])})
+    extra = {"info": _info(doc), "party": doc.supplier, "party_url": reverse("contacts:supplier", args=[doc.supplier_id]),
+             "amount_base": doc.amount_base if hasattr(doc, "amount_base") else None}
+    if spec is ORDER and doc.status == "submitted":
+        extra["approve_block"] = services.order_approval_block(doc, request.user, request.membership)
+        extra["approve_limit"] = request.membership.approval_limit("purchase_order")
+    if spec is BILL and doc.status == "draft":
+        extra["bill_limit"] = services.bill_over_limit(doc, request.membership)
+    return doc_detail(request, spec, doc, extra)
 
 
 # ---------- Purchase orders ----------
@@ -132,8 +149,12 @@ def order_action(request, pk):
             services.submit_order(doc, request.user)
             messages.success(request, _("Sent for approval."))
         elif action == "approve":
-            services.approve_order(doc, request.user, m)
-            messages.success(request, _("Purchase order approved."))
+            if services.approve_order(doc, request.user, m) == "approved":
+                messages.success(request, _("Purchase order approved."))
+            else:
+                messages.warning(request, _("Approved at your level. The amount is above your limit, so it now goes to "
+                                            "someone whose purchase order limit covers %(a)s.") % {
+                    "a": f"{doc.amount_base:,.2f} {request.company.base_currency_id}"})
         elif action == "reject":
             services.reject_order(doc, request.user, request.POST.get("reason", ""))
             messages.success(request, _("Returned to the creator."))
@@ -159,7 +180,7 @@ def order_action(request, pk):
 # ---------- Item receipts (GRN) ----------
 @require_perm("purchases.view")
 def receipts(request):
-    qs = GoodsReceipt.objects.filter(company=request.company).select_related("supplier", "warehouse", "purchase_order")
+    qs = access.scope(GoodsReceipt.objects.filter(company=request.company)).select_related("supplier", "warehouse", "purchase_order")
     page = Paginator(qs, 40).get_page(request.GET.get("page"))
     return render(request, "purchases/receipts.html", {"page": page})
 
@@ -200,13 +221,13 @@ def _receipt_form(request, grn):
 @require_perm("purchases.create")
 def receipt_new(request):
     grn = GoodsReceipt(company=request.company, created_by=request.user, date=timezone.localdate(),
-                       warehouse=Warehouse.objects.filter(company=request.company, is_active=True).first())
+                       warehouse=access.scope(Warehouse.objects.filter(company=request.company, is_active=True)).first())
     return _receipt_form(request, grn)
 
 
 @require_perm("purchases.edit")
 def receipt_edit(request, pk):
-    grn = get_object_or_404(GoodsReceipt, pk=pk, company=request.company)
+    grn = get_object_or_404(access.scope(GoodsReceipt.objects.filter(company=request.company)), pk=pk)
     if grn.status != "draft":
         messages.error(request, _("This document can no longer be changed."))
         return redirect("purchases:receipt", pk=pk)
@@ -215,14 +236,14 @@ def receipt_edit(request, pk):
 
 @require_perm("purchases.view")
 def receipt(request, pk):
-    grn = get_object_or_404(GoodsReceipt, pk=pk, company=request.company)
+    grn = get_object_or_404(access.scope(GoodsReceipt.objects.filter(company=request.company)), pk=pk)
     return render(request, "purchases/receipt_detail.html", {"grn": grn, "lines": grn.lines.select_related("item", "order_line")})
 
 
 @require_POST
 @require_perm("inventory.post")
 def receipt_post(request, pk):
-    grn = get_object_or_404(GoodsReceipt, pk=pk, company=request.company)
+    grn = get_object_or_404(access.scope(GoodsReceipt.objects.filter(company=request.company)), pk=pk)
     try:
         services.post_receipt(grn, request.user)
         messages.success(request, _("Item receipt %(n)s posted. Stock is in the warehouse.") % {"n": grn.number})
@@ -233,7 +254,7 @@ def receipt_post(request, pk):
 
 @require_perm("purchases.view")
 def receipt_print(request, pk):
-    grn = get_object_or_404(GoodsReceipt, pk=pk, company=request.company)
+    grn = get_object_or_404(access.scope(GoodsReceipt.objects.filter(company=request.company)), pk=pk)
     return render(request, "purchases/receipt_print.html", {"grn": grn, "lines": grn.lines.select_related("item")})
 
 
@@ -241,6 +262,14 @@ def receipt_print(request, pk):
 def _post_after_save(request, doc):
     if not request.membership.has_perm("purchases.post"):
         return None
+    limit = services.bill_over_limit(doc, request.membership)
+    if limit is not None:
+        # Above this person's limit: it waits, as a draft, for someone whose bill limit covers it.
+        services.request_bill_approval(doc, request.user)
+        messages.warning(request, _("This bill (%(a)s) is above your posting limit of %(l)s. It has been sent for approval "
+                                    "and will be posted by someone whose limit covers it.") % {
+            "a": f"{doc.amount_base:,.2f} {request.company.base_currency_id}", "l": f"{limit:,.2f}"})
+        return redirect("purchases:bill", pk=doc.pk)
     try:
         services.post_bill(doc, request.user)
     except services.PurchaseError as exc:

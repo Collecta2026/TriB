@@ -7407,3 +7407,160 @@ msgstr "أُرسل بالبريد الإلكتروني"
 
 msgid "Shared by link or WhatsApp"
 msgstr "تمت مشاركته برابط أو واتساب"
+
+msgid "%(n)s approval so far"
+msgid_plural "%(n)s approvals so far"
+msgstr[0] "عدد الموافقات حتى الآن: %(n)s"
+msgstr[1] "عدد الموافقات حتى الآن: %(n)s"
+msgstr[2] "عدد الموافقات حتى الآن: %(n)s"
+msgstr[3] "عدد الموافقات حتى الآن: %(n)s"
+msgstr[4] "عدد الموافقات حتى الآن: %(n)s"
+msgstr[5] "عدد الموافقات حتى الآن: %(n)s"
+
+msgid "Above your limit: approves your level and passes it up"
+msgstr "أعلى من حدّك: توافق على مستواك ويُرفع لمن يليك"
+
+msgid "Above your posting limit: sends it for approval"
+msgstr "أعلى من حد الترحيل الخاص بك: تُرسل للموافقة"
+
+msgid "Account manager"
+msgstr "مسؤول الحساب"
+
+msgid "All records"
+msgstr "كل السجلات"
+
+msgid "Approval %(n)s"
+msgstr "الموافقة %(n)s"
+
+msgid ""
+"Approval limits are the largest amount, in the base currency, the person may"
+" approve or post. Purchase orders and bills above it go to someone whose "
+"limit covers them."
+msgstr ""
+"حدود الموافقة هي أكبر مبلغ بالعملة الأساسية يمكن للشخص اعتماده أو ترحيله. "
+"أوامر الشراء وفواتير الموردين الأعلى منه تُرفع لمن يغطيها حدّه."
+
+msgid "Approve and post"
+msgstr "اعتماد وترحيل"
+
+msgid "Approve my level"
+msgstr "موافقة على مستواي"
+
+msgid ""
+"Approved at your level. The amount is above your limit, so it now goes to "
+"someone whose purchase order limit covers %(a)s."
+msgstr ""
+"تمت الموافقة على مستواك. المبلغ أعلى من حدّك، لذلك يُرفع الآن إلى من يغطي "
+"حدّه لأوامر الشراء مبلغ %(a)s."
+
+msgid "Delete drafts"
+msgstr "حذف المسودات"
+
+msgid ""
+"Every user's roles, warehouses, approval limits and permissions, for review "
+"and sign-off."
+msgstr "أدوار كل مستخدم ومخازنه وحدود موافقته وصلاحياته، للمراجعة والاعتماد."
+
+msgid "Key"
+msgstr "المفتاح"
+
+msgid ""
+"Largest amount in base currency. Empty means cannot approve; 999999999999 "
+"means no limit."
+msgstr ""
+"أكبر مبلغ بالعملة الأساسية. الفراغ يعني لا يمكنه الاعتماد، و999999999999 "
+"تعني بلا حد."
+
+msgid "Leave empty to allow every warehouse."
+msgstr "اتركه فارغًا للسماح بكل المخازن."
+
+msgid ""
+"Leave empty to allow every warehouse. Stock and documents for other "
+"warehouses are hidden."
+msgstr ""
+"اتركه فارغًا للسماح بكل المخازن. يُخفى المخزون والمستندات الخاصة بالمخازن "
+"الأخرى."
+
+msgid "No limit"
+msgstr "بلا حد"
+
+msgid "Own records only"
+msgstr "سجلاته فقط"
+
+msgid "Payment voucher (expenses)"
+msgstr "سند صرف (المصروفات)"
+
+msgid "People"
+msgstr "الأشخاص"
+
+msgid "Permissions by person"
+msgstr "الصلاحيات لكل شخص"
+
+msgid "Records"
+msgstr "السجلات"
+
+msgid "Review and sign-off"
+msgstr "المراجعة والاعتماد"
+
+msgid "Reviewed by"
+msgstr "راجعه"
+
+msgid "Role permissions"
+msgstr "صلاحيات الأدوار"
+
+msgid "See costs & margins"
+msgstr "رؤية التكلفة والهامش"
+
+msgid ""
+"Sees only the customers they manage, their own leads and opportunities, and "
+"the sales documents for those customers."
+msgstr ""
+"يرى فقط العملاء الذين يتولاهم، وعملاءه المحتملين وفرصه، ومستندات المبيعات "
+"الخاصة بهؤلاء العملاء."
+
+msgid "Send for approval"
+msgstr "إرسال للموافقة"
+
+msgid "Sent for approval by"
+msgstr "أُرسلت للموافقة بواسطة"
+
+msgid "Signature"
+msgstr "التوقيع"
+
+msgid "Starter role"
+msgstr "دور أساسي"
+
+msgid ""
+"The salesperson for this customer. Staff limited to their own records see "
+"only their customers."
+msgstr ""
+"مندوب المبيعات المسؤول عن هذا العميل. الموظفون المقيدون بسجلاتهم يرون "
+"عملاءهم فقط."
+
+msgid ""
+"This bill (%(a)s) is above your posting limit of %(l)s. It has been sent for"
+" approval and will be posted by someone whose limit covers it."
+msgstr ""
+"فاتورة المورد هذه (%(a)s) أعلى من حد الترحيل الخاص بك وهو %(l)s. أُرسلت "
+"للموافقة وسيرحّلها من يغطي حدّه مبلغها."
+
+msgid "Who can do what"
+msgstr "من يستطيع ماذا"
+
+msgid ""
+"You have already approved this purchase order; it is waiting for the next "
+"approver."
+msgstr "سبق أن وافقت على أمر الشراء هذا، وهو بانتظار الموافق التالي."
+
+msgid ""
+"Your role has no approval limit for purchase orders. An administrator can "
+"set one in Users & roles."
+msgstr ""
+"ليس لدورك حد موافقة لأوامر الشراء. يمكن لمدير النظام ضبطه من المستخدمون "
+"والأدوار."
+
+msgid "limit"
+msgstr "الحد"
+
+msgid "no limit"
+msgstr "بلا حد"

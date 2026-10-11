@@ -87,7 +87,7 @@ def run(request, pk):
 
 ACTION_PERMS = {"recompute": "payroll.create", "submit": "payroll.create", "approve": "payroll.approve",
                 "authorise": "payroll.authorise", "reject": "payroll.approve", "pay": "payroll.post",
-                "remit": "payroll.post", "delete": "payroll.edit"}
+                "remit": "payroll.post", "delete": "payroll.delete"}
 
 
 @require_POST

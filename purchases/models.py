@@ -24,6 +24,13 @@ class PurchaseOrder(TradeDocument):
     status = models.CharField(_("Status"), max_length=10, choices=STATUSES, default="draft")
     approved_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name="+")
     approved_at = models.DateTimeField(null=True, blank=True)
+    # Approvals so far: [{"user": id, "name": str, "at": iso, "limit": str|None}]. An approver whose limit is below the
+    # order's amount approves their level and passes it up; it is fully approved by someone whose limit covers it.
+    approvals = models.JSONField(default=list, blank=True)
+
+    @property
+    def amount_base(self):
+        return (self.total * self.rate).quantize(Decimal("0.01"))
 
     def refresh_status(self):
         if self.status not in ("open", "partial", "received"):
@@ -121,6 +128,14 @@ class Bill(TradeDocument):
     status = models.CharField(_("Status"), max_length=6, choices=STATUSES, default="draft")
     amount_paid = models.DecimalField(default=0, **MONEY)
     journal_entry = models.OneToOneField(JournalEntry, on_delete=models.PROTECT, null=True, blank=True, related_name="+")
+    # A bill above the poster's limit waits here for someone whose bill limit covers it.
+    approval_requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+                                              related_name="+")
+    approval_requested_at = models.DateTimeField(null=True, blank=True)
+
+    @property
+    def amount_base(self):
+        return (self.total * self.rate).quantize(Decimal("0.01"))
 
     @property
     def balance_due(self):

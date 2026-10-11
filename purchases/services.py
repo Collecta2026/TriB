@@ -46,20 +46,61 @@ def submit_order(order, user):
         raise PurchaseError(_("Add at least one line."))
     order.number = order.number or NumberSeries.next(order.company, "PO", order.date)
     order.status = "submitted"
-    order.save(update_fields=["number", "status"])
+    order.approvals = []
+    order.save(update_fields=["number", "status", "approvals"])
     AuditLog.record(order.company, user, "po.submitted", order, order.number)
+
+
+def order_approval_block(order, user, membership):
+    """Why `user` cannot approve `order` now, or None. Approving below one's limit is allowed: it passes the order up."""
+    if order.status != "submitted":
+        return _("This purchase order is not waiting for approval.")
+    if not membership.has_perm("purchases.approve"):
+        return _("You do not have permission to approve documents.")
+    if order.company.enforce_sod and order.created_by_id == user.id and not membership.is_owner:
+        return _("You created this document, so someone else must approve it.")
+    if any(a.get("user") == user.id for a in order.approvals or []):
+        return _("You have already approved this purchase order; it is waiting for the next approver.")
+    limit = membership.approval_limit("purchase_order")
+    if limit is not None and limit <= 0:
+        return _("Your role has no approval limit for purchase orders. An administrator can set one in Users & roles.")
+    return None
 
 
 @transaction.atomic
 def approve_order(order, user, membership):
-    if order.status != "submitted":
-        raise PurchaseError(_("This purchase order is not waiting for approval."))
-    if order.company.enforce_sod and order.created_by_id == user.id and not membership.is_owner:
-        raise PurchaseError(_("You created this document, so someone else must approve it."))
-    order.status = "open"
-    order.approved_by, order.approved_at = user, timezone.now()
-    order.save(update_fields=["status", "approved_by", "approved_at"])
-    AuditLog.record(order.company, user, "po.approved", order, order.number)
+    """Approve within the user's limit. Returns "approved", or "passed_up" when the amount is above their limit.
+    The order passed in is updated too."""
+    locked = PurchaseOrder.objects.select_for_update().get(pk=order.pk)
+    reason = order_approval_block(locked, user, membership)
+    if reason:
+        raise PurchaseError(reason)
+    limit = membership.approval_limit("purchase_order")
+    now = timezone.now()
+    locked.approvals = list(locked.approvals or []) + [
+        {"user": user.id, "name": str(user), "at": now.isoformat(), "limit": None if limit is None else str(limit)}]
+    if limit is None or locked.amount_base <= limit:
+        locked.status = "open"
+        locked.approved_by, locked.approved_at = user, now
+        locked.save(update_fields=["status", "approved_by", "approved_at", "approvals"])
+        AuditLog.record(locked.company, user, "po.approved", locked, locked.number)
+        result = "approved"
+    else:
+        locked.save(update_fields=["approvals"])
+        AuditLog.record(locked.company, user, "po.approved_level", locked,
+                        f"{locked.number}: approved up to {limit}; amount {locked.amount_base}")
+        result = "passed_up"
+    order.status, order.approvals = locked.status, locked.approvals
+    order.approved_by_id, order.approved_at = locked.approved_by_id, locked.approved_at
+    return result
+
+
+def orders_waiting_for(company, user, membership):
+    """Purchase orders this user can approve (or approve their level of) right now."""
+    if not membership.has_perm("purchases.approve"):
+        return []
+    rows = PurchaseOrder.objects.filter(company=company, status="submitted").select_related("supplier", "currency")
+    return [o for o in rows.prefetch_related("lines__tax_rate") if order_approval_block(o, user, membership) is None]
 
 
 @transaction.atomic
@@ -67,9 +108,35 @@ def reject_order(order, user, reason):
     if order.status != "submitted":
         raise PurchaseError(_("This purchase order is not waiting for approval."))
     order.status = "draft"
+    order.approvals = []
     order.notes = (order.notes + "\n" if order.notes else "") + _("Returned: %(r)s") % {"r": reason}
-    order.save(update_fields=["status", "notes"])
+    order.save(update_fields=["status", "notes", "approvals"])
     AuditLog.record(order.company, user, "po.rejected", order, reason)
+
+
+# ---------- Bill posting limits ----------
+def bill_over_limit(bill, membership):
+    """The user's bill limit when this bill is above it, else None."""
+    limit = membership.approval_limit("bill")
+    if limit is not None and bill.amount_base > limit:
+        return limit
+    return None
+
+
+@transaction.atomic
+def request_bill_approval(bill, user):
+    bill.approval_requested_by, bill.approval_requested_at = user, timezone.now()
+    bill.save(update_fields=["approval_requested_by", "approval_requested_at"])
+    AuditLog.record(bill.company, user, "bill.approval_requested", bill, f"{bill.supplier_invoice_no} {bill.amount_base}")
+
+
+def bills_waiting_for(company, user, membership):
+    """Draft bills sent for approval that this user's bill limit covers."""
+    if not membership.has_perm("purchases.post"):
+        return []
+    rows = (Bill.objects.filter(company=company, status="draft", approval_requested_at__isnull=False)
+            .exclude(approval_requested_by=user).select_related("supplier", "currency").prefetch_related("lines__tax_rate"))
+    return [b for b in rows if bill_over_limit(b, membership) is None]
 
 
 def outstanding_lines(company, supplier=None):
@@ -231,7 +298,8 @@ def post_bill(bill, user):
     except PostingError as exc:
         raise PurchaseError(str(exc)) from exc
     bill.status = "posted"
-    bill.save(update_fields=["number", "status", "journal_entry"])
+    bill.approval_requested_by, bill.approval_requested_at = None, None
+    bill.save(update_fields=["number", "status", "journal_entry", "approval_requested_by", "approval_requested_at"])
     AuditLog.record(company, user, "bill.posted", bill, f"{bill.number} {bill.total}")
     return bill
 
