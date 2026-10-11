@@ -86,14 +86,34 @@ Tip: Set the **lock date** after closing a month. Nothing can then be posted on 
     ("users", "start", "Users, roles and approval limits", ["/accounts/users/", "/accounts/roles/", "/settings/accountant/"], """
 1. Open the gear and choose **Manage users**, then **+ Add user**.
 2. Enter the full name, email (used to sign in), language and a temporary password of at least 10 characters.
-3. Tick one or more **roles**, for example Accountant, Cashier, Sales officer, Storekeeper, HR officer or Managing director.
-4. Leave **Branches** empty to allow every branch, then **Save**.
+3. Tick one or more **roles**, for example Accountant, Cashier, Sales officer, Purchasing officer, Storekeeper, HR officer or Managing director.
+4. Leave **Branches** and **Warehouses** empty to allow all of them, or tick the ones this person works in. Then **Save**.
 
-Select a role's name to change what it can do (view, create, edit, approve, post, void, export) and its **approval limits**: the largest voucher that role may approve.
+Select a role's name to change it. The **authority matrix** has one row per module and these columns:
+
+- **View, Create, Edit**: open, add and change records.
+- **Delete drafts**: delete a draft invoice, bill, order or payroll run. Posted documents are voided, never deleted.
+- **Approve, Authorise, Post, Void, Export**: as their names say.
+- **See costs & margins** (Inventory): purchase costs, stock values, gross margin and the valuation reports. Without it, staff see quantities and selling prices only.
+
+**Own records only**: tick it on a role (for example Sales officer) and its people see only the customers they look after (the customer's **Account manager**), their own leads and opportunities, and the sales documents for those customers. Customers they add are theirs automatically. A person sees everything as soon as one of their roles is not limited.
+
+**Warehouses**: a person limited to some warehouses sees stock, movements, transfers, adjustments, stock takes, item receipts and orders for those warehouses only, and can only pick those. Transfers may still send stock to any warehouse.
+
+**Approval limits** (amounts in your base currency) are set per role and per document: receipt, payment (expenses) and journal vouchers, **purchase orders** and **bills**.
+
+- A purchase order above an approver's limit can be **approved at their level**. It then goes to someone whose limit covers it, and is approved when they approve it. Every approval is listed on the order.
+- A bill above the poster's limit is **sent for approval** instead of posted, and someone whose bill limit covers it posts it.
+- Waiting orders and bills appear in **Approvals → Waiting for me**, the Approvals card in the business feed and the bell.
+- An empty limit means the role cannot approve that document; 999999999999 means no limit.
+
+**Who can do what** (Users & roles, or Reports → For my accountant) lists every person's roles, branches, warehouses, record scope, limits and permissions, and each role's matrix. Print it or export it to Excel for review and sign-off.
 
 **My accountant** invites your outside accountant with the Accountant role already ticked.
 
 To remove access, open the user and untick **Active**. Their history stays in the audit log.
+
+Tip: Give the person who raises purchase orders (for example Logistics) the Purchasing officer and Storekeeper roles, limited to their warehouse, and give the managers who approve them a purchase order limit.
 """),
 
     # ---------------- Sales ----------------

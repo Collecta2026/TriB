@@ -105,7 +105,7 @@ APPS = [
         (_("VAT rates"), "ledger:tax_rates", "setup.view"),
     ]},
     {"key": "approvals", "label": _("Approvals"), "icon": "shield", "items": [
-        (_("Waiting for me"), "approvals:inbox", "vouchers.approve"),
+        (_("Waiting for me"), "approvals:inbox", "vouchers.approve|purchases.approve|purchases.post"),
         (_("Approval rules"), "approvals:rules", "setup.view"),
     ]},
     {"key": "capital", "label": _("Capital"), "icon": "capital", "items": [
@@ -151,7 +151,7 @@ def visible_apps(membership, path=""):
         for label, url_name, perm in app["items"]:
             if url_name is None:
                 items.append({"label": label, "url": None})
-            elif membership and membership.has_perm(perm):
+            elif membership and any(membership.has_perm(p) for p in perm.split("|")):  # "a|b": either permission
                 url = _reverse(url_name)
                 items.append({"label": label, "url": url})
                 active = active or (url != "/" and path.startswith(url))
@@ -169,7 +169,7 @@ def seed_bookmarks(user, company, membership):
     rows = []
     for position, (title, url_name) in enumerate(DEFAULT_BOOKMARKS):
         perm = PERMS.get(url_name)
-        if perm and membership.has_perm(perm):
+        if perm and any(membership.has_perm(p) for p in perm.split("|")):
             rows.append(Bookmark(user=user, company=company, title=str(title), url=_reverse(url_name), position=position))
     Bookmark.objects.bulk_create(rows)
 

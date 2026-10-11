@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 
+from core import access
 from core.models import AuditLog, NumberSeries, client_ip
 from users.permissions import require_perm
 
@@ -28,9 +29,15 @@ def _balances(kind, contacts):
     return {c.id: balance(c) for c in contacts}
 
 
+def _get(request, kind, pk):
+    """One customer or supplier, if this user may see it."""
+    cfg = KINDS[kind]
+    return get_object_or_404(access.scope(cfg["model"].objects.filter(company=request.company)), pk=pk)
+
+
 def contact_list(request, kind):
     cfg = KINDS[kind]
-    qs = cfg["model"].objects.filter(company=request.company).select_related("currency")
+    qs = access.scope(cfg["model"].objects.filter(company=request.company).select_related("currency"))
     q = request.GET.get("q", "").strip()
     if q:
         qs = qs.filter(Q(name_en__icontains=q) | Q(name_ar__icontains=q) | Q(code__icontains=q) | Q(phone__icontains=q))
@@ -44,12 +51,14 @@ def contact_list(request, kind):
 
 def contact_form(request, kind, pk=None):
     cfg = KINDS[kind]
-    obj = get_object_or_404(cfg["model"], pk=pk, company=request.company) if pk else \
+    obj = _get(request, kind, pk) if pk else \
         cfg["model"](company=request.company, currency=request.company.base_currency)
     form = cfg["form"](request.POST or None, instance=obj, company=request.company)
     if request.method == "POST" and form.is_valid():
         obj = form.save(commit=False)
         obj.company = request.company
+        if kind == "customer" and access.own_only(request.membership) and not obj.account_manager_id:
+            obj.account_manager = request.user
         if not obj.code:
             obj.code = NumberSeries.next_plain(request.company, cfg["prefix"])
         obj.save()
@@ -69,7 +78,7 @@ def contact_detail(request, kind, pk):
     from . import hub
 
     cfg = KINDS[kind]
-    obj = get_object_or_404(cfg["model"], pk=pk, company=request.company)
+    obj = _get(request, kind, pk)
     can = request.membership.has_perm
     all_rows = hub.customer_rows(obj, can) if kind == "customer" else hub.supplier_rows(obj, can)
     rows, filters = hub.filtered(all_rows, request)
@@ -99,8 +108,8 @@ def contact_detail(request, kind, pk):
     else:
         from purchases.services import ap_aging as aging
     owed = {r["contact"].pk: r["total"] for r in aging(request.company)}
-    side = [{"c": c, "balance": owed.get(c.pk, 0)} for c in cfg["model"].objects.filter(company=request.company, is_active=True)
-            .order_by("name_en")[:500]]
+    side = [{"c": c, "balance": owed.get(c.pk, 0)}
+            for c in access.scope(cfg["model"].objects.filter(company=request.company, is_active=True)).order_by("name_en")[:500]]
     return render(request, "contacts/detail.html", {
         "kind": kind, "cfg": cfg, "obj": obj, "rows": rows, "filters": filters, "total_rows": len(all_rows),
         "types": hub.TYPES[kind], "statuses": hub.STATUSES, "periods": hub.PERIODS,
@@ -117,8 +126,7 @@ def contact_detail(request, kind, pk):
 def contact_notes(request, kind, pk):
     from django.views.decorators.http import require_POST  # noqa: F401 (POST only, checked below)
 
-    cfg = KINDS[kind]
-    obj = get_object_or_404(cfg["model"], pk=pk, company=request.company)
+    obj = _get(request, kind, pk)
     if request.method == "POST":
         obj.notes = request.POST.get("notes", "")[:5000]
         obj.save(update_fields=["notes"])
@@ -137,8 +145,7 @@ supplier_edit = require_perm("contacts.edit")(lambda r, pk: contact_form(r, "sup
 supplier = require_perm("contacts.view")(lambda r, pk: contact_detail(r, "supplier", pk))
 @require_perm("contacts.edit")
 def contact_active(request, kind, pk):
-    cfg = KINDS[kind]
-    obj = get_object_or_404(cfg["model"], pk=pk, company=request.company)
+    obj = _get(request, kind, pk)
     if request.method == "POST":
         obj.is_active = not obj.is_active
         obj.save(update_fields=["is_active"])

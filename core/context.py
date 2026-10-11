@@ -30,10 +30,10 @@ def trib(request):
         "my_companies": [],
     }
     if membership is not None:
-        from approvals.services import pending_for
+        from approvals.services import waiting_for
         from core.navigation import menu_for
 
-        ctx["pending_approvals"] = len(pending_for(request.user, request.company))
+        ctx["pending_approvals"] = waiting_for(request.user, request.company, membership)["count"]
         ctx["my_companies"] = [m.company for m in request.user.memberships.filter(is_active=True).select_related("company")]
         ctx["nav"] = menu_for(request.user, request.company, membership, request.path)
     return ctx

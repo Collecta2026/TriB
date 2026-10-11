@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 
+from . import access
 
 REGISTRY = {}  # (ns, key) -> DocSpec, for the shared More actions (copy, delete, share)
 
@@ -70,7 +71,8 @@ def require(request, spec, action):
 
 
 def get_doc(request, spec, pk):
-    return get_object_or_404(spec.model, pk=pk, company=request.company)
+    """The document, if this user may see it (own records only, warehouses)."""
+    return get_object_or_404(access.scope(spec.model.objects.filter(company=request.company)), pk=pk)
 
 
 def picker_data(company, source, party=""):
@@ -92,7 +94,7 @@ def picker_data(company, source, party=""):
     parties = {}
     if party == "customer":
         from contacts.models import Customer
-        for c in Customer.objects.filter(company=company, is_active=True):
+        for c in access.scope(Customer.objects.filter(company=company, is_active=True)):
             parties[c.id] = {"email": c.email, "bill": "\n".join(x for x in (c.name, c.address, c.city) if x),
                              "ship": c.shipping_address, "days": c.payment_terms_days,
                              "edit": reverse("contacts:customer_edit", args=[c.id])}
@@ -139,7 +141,7 @@ def filter_delivery(company, qs, method):
 
 def doc_list(request, spec, template="docs/list.html", extra=None):
     require(request, spec, "view")
-    qs = spec.model.objects.filter(company=request.company)
+    qs = access.scope(spec.model.objects.filter(company=request.company))
     party = spec.party
     if party:
         qs = qs.select_related(party, "currency")
@@ -172,7 +174,7 @@ def doc_list(request, spec, template="docs/list.html", extra=None):
     party_model = spec.model._meta.get_field(party).related_model if party else None
     ctx = {"spec": spec, "page": page, "rows": rows, "status": status, "q": q, "drill": drill,
            "filter_statuses": spec.statuses, "filter_dates": DATES, "list_key": f"{spec.ns}-{spec.key}",
-           "filter_party": list(party_model.objects.filter(company=request.company, is_active=True)
+           "filter_party": list(access.scope(party_model.objects.filter(company=request.company, is_active=True))
                                 .values_list("pk", "name_en")) if party_model else [],
            "filter_party_label": party_model._meta.verbose_name.capitalize() if party_model else "",
            "projects": Project.objects.filter(company=request.company), "delivery_methods": delivery_methods,

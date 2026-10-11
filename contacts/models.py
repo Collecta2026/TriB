@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -34,6 +35,10 @@ class Contact(Bilingual):
 class Customer(Contact):
     credit_limit = models.DecimalField(_("Credit limit"), max_digits=19, decimal_places=2, default=0,
                                        help_text=_("0 means no limit."))
+    account_manager = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="+",
+        verbose_name=_("Account manager"),
+        help_text=_("The salesperson for this customer. Staff limited to their own records see only their customers."))
 
     class Meta(Contact.Meta):
         constraints = [models.UniqueConstraint(fields=["company", "code"], name="uniq_customer_code")]

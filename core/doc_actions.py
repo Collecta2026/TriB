@@ -18,7 +18,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from django.views.decorators.http import require_POST
 
-from .docviews import REGISTRY, require
+from .docviews import REGISTRY, get_doc, require
 from .models import AuditLog, ShareLink, client_ip
 
 
@@ -70,7 +70,7 @@ def bar_for(request, spec, doc, mode):
     if doc.pk:
         if can(f"{spec.perm}.create"):
             bar["more"].append({"label": _("Make a copy"), "post": reverse("core:doc_copy", args=[spec.ns, spec.key, doc.pk])})
-        if doc.status == "draft" and can(f"{spec.perm}.edit"):
+        if doc.status == "draft" and can(f"{spec.perm}.delete"):
             bar["more"].append({"label": _("Delete"), "post": reverse("core:doc_delete", args=[spec.ns, spec.key, doc.pk]),
                                 "confirm": _("Delete this draft? This cannot be undone."), "danger": True})
         if spec.voidable and doc.status == "posted" and can(f"{spec.perm}.void") and not getattr(doc, "amount_paid", 0):
@@ -106,7 +106,7 @@ LINE_FKS = {"item", "tax_rate", "project", "account"}
 def doc_copy(request, ns, key, pk):
     spec = _spec(ns, key)
     require(request, spec, "create")
-    src = get_object_or_404(spec.model, pk=pk, company=request.company)
+    src = get_doc(request, spec, pk)
     copy = spec.model()
     for f in spec.model._meta.concrete_fields:
         if f.name in COPY_SKIP or f.primary_key or f.one_to_one or (f.is_relation and f.name not in COPY_FKS):
@@ -137,8 +137,8 @@ def doc_copy(request, ns, key, pk):
 @transaction.atomic
 def doc_delete(request, ns, key, pk):
     spec = _spec(ns, key)
-    require(request, spec, "edit")
-    doc = get_object_or_404(spec.model, pk=pk, company=request.company)
+    require(request, spec, "delete")
+    doc = get_doc(request, spec, pk)
     if doc.status != "draft":
         messages.error(request, _("Only drafts can be deleted. Void a posted document instead."))
         return redirect(spec.url("detail", doc.pk))
@@ -172,7 +172,7 @@ def share_message(spec, doc, link):
 def doc_share(request, ns, key, pk):
     spec = _spec(ns, key)
     require(request, spec, "view")
-    doc = get_object_or_404(spec.model, pk=pk, company=request.company)
+    doc = get_doc(request, spec, pk)
     if not doc.number:
         return JsonResponse({"error": _("Save or post the document first so it has a number.")}, status=400)
     if request.POST.get("revoke") == "1":
@@ -244,7 +244,7 @@ class SendForm(forms.Form):
 def doc_send(request, ns, key, pk):
     spec = _spec(ns, key)
     require(request, spec, "view")
-    doc = get_object_or_404(spec.model, pk=pk, company=request.company)
+    doc = get_doc(request, spec, pk)
     if not doc.number:
         messages.error(request, _("Post the document first so it has a number."))
         return redirect(spec.url("detail", doc.pk))

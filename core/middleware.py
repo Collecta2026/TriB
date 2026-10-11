@@ -1,5 +1,7 @@
 from users.models import Membership
 
+from . import access
+
 
 class CompanyMiddleware:
     """Attach the signed-in user's current company and membership to every request."""
@@ -23,4 +25,9 @@ class CompanyMiddleware:
                 request.company = membership.company
                 request.membership = membership
                 request.session["company_id"] = membership.company_id
-        return self.get_response(request)
+        # Forms and lists read the user's record-level access (own records, warehouses) from here.
+        token = access.set_current(request.membership)
+        try:
+            return self.get_response(request)
+        finally:
+            access.reset_current(token)

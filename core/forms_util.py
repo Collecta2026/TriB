@@ -3,6 +3,8 @@ from django import forms
 from django.forms import BaseInlineFormSet, inlineformset_factory
 from django.utils.translation import gettext_lazy as _
 
+from . import access
+
 DATE = forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d")
 
 
@@ -29,7 +31,8 @@ def scope_fields(form, company):
             qs = model.objects.filter(company=company)
             if hasattr(model, "is_active"):
                 qs = qs.filter(is_active=True)
-            field.queryset = qs
+            # Own records only / warehouse restriction of the signed-in user.
+            field.queryset = access.scope(qs)
 
 
 class TagsField(forms.CharField):
@@ -122,6 +125,9 @@ class LineForm(CompanyModelForm):
         if "position" in self.fields:
             self.fields["position"].widget = forms.HiddenInput(attrs={"data-position": ""})
             self.fields["position"].required = False
+        if ("unit_cost" in self.fields and self._meta.model.__name__ == "StockAdjustmentLine"
+                and not access.sees_costs(access.current())):
+            self.fields.pop("unit_cost")  # stock added by an adjustment then comes in at the product's purchase cost
 
     def has_changed(self):
         # The line order is set on every row when the form is sent; that alone does not make a blank row a line.

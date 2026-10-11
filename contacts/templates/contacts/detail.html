@@ -44,6 +44,7 @@
     <div><dt>{% translate "Shipping address" %}</dt><dd>{% if obj.shipping_address %}{{ obj.shipping_address|linebreaksbr }}{% else %}<span class="lbl">{% translate "Same as billing address" %}</span>{% endif %}</dd></div>
     {% if kind == "supplier" %}<div><dt>{% translate "Bill payment info" %}</dt><dd>{{ obj.bank_details|default:"—"|linebreaksbr }}</dd></div>{% endif %}
     <div><dt>{% translate "Terms" %}</dt><dd>{{ obj.payment_terms_days }} {% translate "days" %} · {{ obj.currency_id }}</dd></div>
+    {% if kind == "customer" %}<div><dt>{% translate "Account manager" %}</dt><dd>{{ obj.account_manager|default:"—" }}</dd></div>{% endif %}
     <div><dt>{% translate "Notes" %}</dt><dd>{% if obj.notes %}{{ obj.notes|truncatechars:120 }}{% else %}<a class="link" href="?tab=notes">{% translate "Add notes" %}</a>{% endif %}</dd></div>
   </dl>
   <aside class="hub-sum">
