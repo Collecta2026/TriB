@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Bank deposits" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Bank deposits" %}</h1><div class="sub">{% translate "Received cheques and cash paid into the bank on one deposit slip." %}</div></div>
+  {% if can.banking.post %}<a class="btn primary" href="{% url 'banking:deposit_new' %}">+ {% translate "Bank deposit" %}</a>{% endif %}</div>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Number" %}</th><th>{% translate "Date" %}</th><th>{% translate "Deposit to" %}</th><th>{% translate "Deposit slip number" %}</th><th class="num">{% translate "Cheques" %}</th><th class="num">{% translate "Cash amount" %}</th><th class="num">{% translate "Total" %}</th></tr></thead>
+  <tbody>{% for d in page %}<tr><td><a href="{% url 'banking:deposit' d.pk %}">{{ d.number }}</a></td><td>{{ d.date|date:"d/m/Y" }}</td><td>{{ d.bank_account.name }}</td><td>{{ d.reference }}</td>
+    <td class="num">{{ d.cheque_total|num }}</td><td class="num">{{ d.cash_amount|num }}</td><td class="num"><b>{{ d.total|num }}</b></td></tr>
+  {% empty %}<tr><td colspan="7" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% include "partials/pager.html" %}
+{% endblock %}

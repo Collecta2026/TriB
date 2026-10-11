@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import cheque_views, feed_views, views
+from . import cheque_views, feed_views, money_views, views
 
 app_name = "banking"
 
@@ -13,6 +13,11 @@ urlpatterns = [
     path("cheques/returned/", cheque_views.bounced, name="bounced"),
     path("cheques/returned/<int:pk>/", cheque_views.returned_action, name="returned_action"),
     path("cheques/reconciliation/", cheque_views.cheque_reconciliation, name="cheque_reconciliation"),
+    path("transfers/", money_views.transfers, name="transfers"),
+    path("transfers/<int:pk>/void/", money_views.transfer_void, name="transfer_void"),
+    path("deposits/", money_views.deposits, name="deposits"),
+    path("deposits/new/", money_views.deposit_new, name="deposit_new"),
+    path("deposits/<int:pk>/", money_views.deposit, name="deposit"),
     path("transactions/", feed_views.transactions, name="transactions"),
     path("transactions/upload/", feed_views.transactions_import, name="transactions_import"),
     path("transactions/columns/", feed_views.transactions_map, name="transactions_map"),

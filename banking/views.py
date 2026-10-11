@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib import messages
 from django.db.models import Count, Q, Sum
 from django.shortcuts import get_object_or_404, redirect, render
@@ -70,13 +72,28 @@ def cheque_list(request):
     cheques = Cheque.objects.filter(company=company, direction=direction).select_related("currency", "bank_account")
     if status:
         cheques = cheques.filter(status=status)
+    drill = []
+    today = timezone.localdate()
+    if request.GET.get("due", "").isdigit():
+        days = int(request.GET["due"])
+        cheques = cheques.filter(status__in=("in_safe", "under_collection", "issued"), due_date__lte=today + timedelta(days=days))
+        drill.append(_("Due within %(n)s days") % {"n": days})
+    if request.GET.get("bounced") == "month":
+        cheques = cheques.filter(bounced_on__gte=today.replace(day=1))
+        drill.append(_("Bounced this month"))
+    q = request.GET.get("q", "").strip()
+    if q:
+        cheques = cheques.filter(number__icontains=q)
+        drill.append(q)
+    if status:
+        drill.insert(0, dict(Cheque.STATUSES).get(status, status))
     summary = (
         Cheque.objects.filter(company=company, direction=direction).values("status")
         .annotate(n=Count("id"), total=Sum("amount")).order_by("status")
     )
     form = ChequeActionForm(company=company, initial={"date": timezone.localdate()})
     return render(request, "banking/cheques.html", {
-        "cheques": cheques, "direction": direction, "status": status, "summary": summary, "form": form,
+        "cheques": cheques, "direction": direction, "status": status, "drill": drill, "summary": summary, "form": form,
         "statuses": [s for s in Cheque.STATUSES if (s[0] in ("in_safe", "under_collection", "cleared", "bounced", "settled")) == (direction == "in")],
     })
 

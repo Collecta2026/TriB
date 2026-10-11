@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ d.number }}{% endblock %}
+{% block content %}
+<div class="toolbar no-print"><a class="btn" href="{% url 'banking:deposits' %}">‹ {% translate "Bank deposits" %}</a><button class="btn primary" type="button" onclick="window.print()">{% translate "Print / save as PDF" %}</button>
+  {% if d.journal_entry_id %}<a class="btn" href="{% url 'ledger:journal' d.journal_entry_id %}">{{ d.journal_entry.number }}</a>{% endif %}</div>
+<div class="voucher-doc">
+  <div class="vh"><div><b>{{ company.name_en }}</b></div>
+    <div class="vt"><h1>Deposit Slip</h1><h1 class="ar">حافظة إيداع</h1><div><b>{{ d.number }}</b></div></div>
+    <div class="ar" style="text-align:start"><b>{{ company.name_ar }}</b></div></div>
+  <div class="bi"><div>Bank / البنك: <b>{{ d.bank_account.name_en }}</b><br>Account / الحساب: {{ d.bank_account.account_number }}{% if d.bank_account.iban %} · IBAN {{ d.bank_account.iban }}{% endif %}</div>
+    <div style="text-align:end">Date / التاريخ: {{ d.date|date:"d/m/Y" }}{% if d.reference %}<br>Slip no. / رقم الحافظة: {{ d.reference }}{% endif %}</div></div>
+  <table><thead><tr><th>#</th><th>Cheque no. / رقم الشيك</th><th>Drawn on / البنك المسحوب عليه</th><th>Drawer / الساحب</th><th>Due / الاستحقاق</th><th class="num">Amount / المبلغ</th></tr></thead>
+    <tbody>{% for c in cheques %}<tr><td>{{ forloop.counter }}</td><td>{{ c.number }}</td><td>{{ c.drawee_bank }}</td><td>{{ c.party_name }}</td><td>{{ c.due_date|date:"d/m/Y" }}</td><td class="num">{{ c.amount|num }}</td></tr>{% endfor %}
+      {% if d.cash_amount %}<tr><td colspan="5">Cash / نقدية</td><td class="num">{{ d.cash_amount|num }}</td></tr>{% endif %}</tbody>
+    <tfoot><tr><th colspan="5">Total / الإجمالي ({{ d.bank_account.currency_id }})</th><th class="num">{{ d.total|num }}</th></tr></tfoot></table>
+  <div class="sigs"><div class="sig">Deposited by / المودِع<br><b>{{ d.created_by }}</b></div><div class="sig">Bank stamp / ختم البنك</div><div class="sig">Bank cashier / صراف البنك</div></div>
+</div>
+{% endblock %}

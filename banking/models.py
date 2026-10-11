@@ -178,3 +178,51 @@ class Reconciliation(models.Model):
 
     class Meta:
         ordering = ["-statement_date", "-id"]
+
+class BankTransfer(models.Model):
+    """Money moved between two of the company's own accounts (bank to bank, bank to cash box, EGP to USD…)."""
+
+    STATUSES = [("posted", _("Posted")), ("void", _("Void"))]
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="+")
+    number = models.CharField(_("Number"), max_length=30, blank=True)
+    date = models.DateField(_("Date"))
+    from_account = models.ForeignKey(BankAccount, on_delete=models.PROTECT, related_name="+", verbose_name=_("From"))
+    to_account = models.ForeignKey(BankAccount, on_delete=models.PROTECT, related_name="+", verbose_name=_("To"))
+    amount = models.DecimalField(_("Amount sent"), max_digits=19, decimal_places=2)
+    amount_to = models.DecimalField(_("Amount received"), max_digits=19, decimal_places=2,
+                                    help_text=_("Only when the two accounts are in different currencies."))
+    reference = models.CharField(_("Reference"), max_length=80, blank=True)
+    memo = models.CharField(_("Memo"), max_length=200, blank=True)
+    status = models.CharField(_("Status"), max_length=6, choices=STATUSES, default="posted")
+    journal_entry = models.OneToOneField("ledger.JournalEntry", on_delete=models.PROTECT, null=True, blank=True, related_name="+")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-id"]
+
+
+class BankDeposit(models.Model):
+    """A deposit slip: received cheques and/or cash from a cash box paid into one bank account together."""
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="+")
+    number = models.CharField(_("Number"), max_length=30, blank=True)
+    date = models.DateField(_("Date"))
+    bank_account = models.ForeignKey(BankAccount, on_delete=models.PROTECT, related_name="deposits", verbose_name=_("Deposit to"))
+    reference = models.CharField(_("Deposit slip number"), max_length=80, blank=True)
+    cash_from = models.ForeignKey(BankAccount, on_delete=models.PROTECT, null=True, blank=True, related_name="+",
+                                  verbose_name=_("Cash from"))
+    cash_amount = models.DecimalField(_("Cash amount"), max_digits=19, decimal_places=2, default=0)
+    cheques = models.ManyToManyField(Cheque, blank=True, related_name="deposits")
+    cheque_total = models.DecimalField(max_digits=19, decimal_places=2, default=0)
+    journal_entry = models.OneToOneField("ledger.JournalEntry", on_delete=models.PROTECT, null=True, blank=True, related_name="+")
+    notes = models.CharField(_("Notes"), max_length=200, blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-id"]
+
+    @property
+    def total(self):
+        return self.cheque_total + self.cash_amount

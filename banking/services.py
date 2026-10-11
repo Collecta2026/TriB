@@ -1,12 +1,14 @@
-"""Bank accounts and the post-dated cheque lifecycle."""
+"""Bank accounts, the post-dated cheque lifecycle, transfers between own accounts and bank deposits."""
+from decimal import Decimal
+
 from django.db import transaction
 from django.utils.translation import gettext as _
 
-from core.models import AuditLog, ExchangeRate
+from core.models import AuditLog, ExchangeRate, NumberSeries
 from ledger.models import Account
 from ledger.services import Line, PostingError, next_child_code, post_journal, q2, system_account
 
-from .models import BankAccount, Cheque, ChequeEvent
+from .models import BankAccount, BankDeposit, BankTransfer, Cheque, ChequeEvent
 
 
 @transaction.atomic
@@ -62,7 +64,7 @@ def _owed_by(cheque):
 
 
 @transaction.atomic
-def deposit_for_collection(cheque, bank_account, date, user=None):
+def deposit_for_collection(cheque, bank_account, date, user=None, reference=""):
     if cheque.direction != "in" or cheque.status != "in_safe":
         raise PostingError(_("Only received cheques in the safe can be deposited."))
     memo = _("Cheque %(n)s deposited for collection") % {"n": cheque.number}
@@ -70,7 +72,7 @@ def deposit_for_collection(cheque, bank_account, date, user=None):
                   system_account(cheque.company, "notes_receivable"), memo, user)
     cheque.status, cheque.bank_account = "under_collection", bank_account
     cheque.save(update_fields=["status", "bank_account"])
-    _event(cheque, "deposited", date, user, entry, bank_account)
+    _event(cheque, "deposited", date, user, entry, bank_account, reference=reference)
     AuditLog.record(cheque.company, user, "cheque.deposited", cheque, memo)
 
 
@@ -176,3 +178,93 @@ def returned_cheques_balance(customer, as_of=None):
     for e in events:
         total += e.amount if e.action == "bounced" else -e.amount
     return total
+
+# ---------- Transfers between own accounts ----------
+def _base_rate(company, currency_id, date):
+    if currency_id == company.base_currency_id:
+        return Decimal("1")
+    rate = ExchangeRate.rate_for(company, currency_id, date)
+    if rate is None:
+        raise PostingError(_("Save an exchange rate for %(c)s first.") % {"c": currency_id})
+    return rate
+
+
+@transaction.atomic
+def post_transfer(transfer, user):
+    """Dr receiving account / Cr sending account, each in its own currency; any rate difference to FX gain or loss."""
+    company = transfer.company
+    src, dst = transfer.from_account, transfer.to_account
+    if src.pk == dst.pk:
+        raise PostingError(_("Choose two different accounts."))
+    if transfer.amount <= 0:
+        raise PostingError(_("The amount must be greater than zero."))
+    if src.currency_id == dst.currency_id:
+        transfer.amount_to = transfer.amount
+    elif not transfer.amount_to or transfer.amount_to <= 0:
+        raise PostingError(_("Enter the amount received in %(c)s.") % {"c": dst.currency_id})
+    rate_from = _base_rate(company, src.currency_id, transfer.date)
+    rate_to = _base_rate(company, dst.currency_id, transfer.date)
+    base_from, base_to = q2(transfer.amount * rate_from), q2(transfer.amount_to * rate_to)
+    transfer.number = transfer.number or NumberSeries.next(company, "TR", transfer.date)
+    memo = transfer.memo or _("Transfer %(a)s → %(b)s") % {"a": src.name_en, "b": dst.name_en}
+    lines = [Line(dst.gl_account, debit=base_to, description=memo, currency=dst.currency_id, amount_fc=transfer.amount_to, rate=rate_to),
+             Line(src.gl_account, credit=base_from, description=memo, currency=src.currency_id, amount_fc=transfer.amount, rate=rate_from)]
+    diff = base_from - base_to
+    if diff > 0:
+        lines.append(Line(system_account(company, "fx_loss"), debit=diff, description=_("Exchange difference")))
+    elif diff < 0:
+        lines.append(Line(system_account(company, "fx_gain"), credit=-diff, description=_("Exchange difference")))
+    transfer.journal_entry = post_journal(company, transfer.date, lines, memo=memo, source="bank",
+                                          source_ref=transfer.number, user=user)
+    transfer.save()
+    AuditLog.record(company, user, "bank.transfer", transfer, f"{transfer.number} {transfer.amount}")
+    return transfer
+
+
+@transaction.atomic
+def void_transfer(transfer, user, date=None):
+    from django.utils import timezone
+    from ledger.services import reverse_journal
+    if transfer.status != "posted":
+        raise PostingError(_("This transfer is already void."))
+    reverse_journal(transfer.journal_entry, date or timezone.localdate(), user, _("Void %(n)s") % {"n": transfer.number})
+    transfer.status = "void"
+    transfer.save(update_fields=["status"])
+    AuditLog.record(transfer.company, user, "bank.transfer_void", transfer, transfer.number)
+
+
+# ---------- Bank deposits ----------
+@transaction.atomic
+def post_deposit(deposit, cheques, user):
+    """Pay received cheques (deposited for collection) and cash from a cash box into the bank on one slip."""
+    company = deposit.company
+    bank = deposit.bank_account
+    if bank.kind != "bank":
+        raise PostingError(_("Deposits go into a bank account."))
+    if not cheques and not deposit.cash_amount:
+        raise PostingError(_("Tick at least one cheque or enter a cash amount."))
+    if deposit.cash_amount and (deposit.cash_from is None or deposit.cash_from.currency_id != bank.currency_id):
+        raise PostingError(_("Choose the cash box the cash comes from, in %(c)s.") % {"c": bank.currency_id})
+    deposit.number = deposit.number or NumberSeries.next(company, "DEP", deposit.date)
+    deposit.save()
+    total = Decimal("0")
+    for cheque in cheques:
+        if cheque.currency_id != bank.currency_id:
+            raise PostingError(_("Cheque %(n)s is in %(c)s; deposit it into an account in that currency.") % {
+                "n": cheque.number, "c": cheque.currency_id})
+        deposit_for_collection(cheque, bank, deposit.date, user, reference=deposit.number)
+        total += cheque.amount
+    deposit.cheques.set(cheques)
+    deposit.cheque_total = total
+    if deposit.cash_amount:
+        rate = _base_rate(company, bank.currency_id, deposit.date)
+        base = q2(deposit.cash_amount * rate)
+        memo = _("Cash deposited %(n)s") % {"n": deposit.number}
+        deposit.journal_entry = post_journal(company, deposit.date, [
+            Line(bank.gl_account, debit=base, description=memo, currency=bank.currency_id, amount_fc=deposit.cash_amount, rate=rate),
+            Line(deposit.cash_from.gl_account, credit=base, description=memo, currency=bank.currency_id,
+                 amount_fc=deposit.cash_amount, rate=rate),
+        ], memo=memo, source="bank", source_ref=deposit.number, user=user)
+    deposit.save()
+    AuditLog.record(company, user, "bank.deposit", deposit, f"{deposit.number} {deposit.total}")
+    return deposit

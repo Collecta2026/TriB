@@ -142,6 +142,15 @@ STORAGES = {
 }
 
 SESSION_COOKIE_AGE = 60 * 60 * 10  # a working day
+
+# Email (Review and send). Set these on Render; without EMAIL_HOST, TriB offers preview, print, share link and WhatsApp.
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "").strip()
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587") or 587)
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "").strip()
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", True)
+EMAIL_TIMEOUT = 20
+DEFAULT_FROM_EMAIL = os.environ.get("EMAIL_FROM", "").strip() or EMAIL_HOST_USER or "no-reply@localhost"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 if not DEBUG and "pytest" not in sys.modules:

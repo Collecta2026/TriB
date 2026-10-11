@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Bank deposit" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'banking:deposits' %}">{% translate "Bank deposits" %}</a></div><h1>{% translate "Bank deposit" %}</h1>
+  <div class="sub">{% translate "Tick the cheques you are paying in, add any cash from the cash box, and print the slip for the bank." %}</div></div></div>
+<form method="post" class="form doc-entry">{% csrf_token %}
+  <div class="panel doc-head">{% include "partials/form_fields.html" %}</div>
+  <div class="panel"><div class="panel-h"><h2>{% translate "Cheques in the safe" %}</h2><span class="lbl" data-dep-total>0.00</span></div>
+    <div class="table-wrap"><table class="tbl">
+      <thead><tr><th class="sel-col"><input type="checkbox" aria-label="{% translate 'Select all' %}" onclick="document.querySelectorAll('[name=cheque]').forEach(b => { b.checked = this.checked; }); window.depTotal()"></th>
+        <th>{% translate "Cheque" %}</th><th>{% translate "Customer" %}</th><th>{% translate "Drawn on bank" %}</th><th>{% translate "Due date" %}</th><th class="num">{% translate "Amount" %}</th></tr></thead>
+      <tbody>{% for c in waiting %}<tr><td><input type="checkbox" name="cheque" value="{{ c.pk }}" data-amount="{{ c.amount }}" {% if c.pk|stringformat:'s' in chosen %}checked{% endif %} onchange="window.depTotal()"></td>
+        <td>#{{ c.number }}</td><td>{{ c.party_name }}</td><td>{{ c.drawee_bank }}</td><td>{% if c.due_date > today %}<span class="pill warn">{{ c.due_date|date:"d/m/Y" }}</span>{% else %}{{ c.due_date|date:"d/m/Y" }}{% endif %}</td>
+        <td class="num">{{ c.amount|money:c.currency }}</td></tr>
+      {% empty %}<tr><td colspan="6" class="lbl">{% translate "No received cheques are waiting in the safe." %}</td></tr>{% endfor %}</tbody>
+    </table></div></div>
+  <div class="doc-totals"><div class="form-actions"><button class="btn primary" type="submit">{% translate "Save deposit" %}</button><a class="btn" href="{% url 'banking:deposits' %}">{% translate "Cancel" %}</a></div>
+    <dl class="totals"><div class="grand"><dt>{% translate "Total" %}</dt><dd data-dep-grand>0.00</dd></div></dl></div>
+</form>
+<script>
+window.depTotal = function () {
+  const fmt = (n) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  let cheques = 0;
+  document.querySelectorAll("[name=cheque]:checked").forEach((b) => { cheques += parseFloat(b.dataset.amount) || 0; });
+  const cash = parseFloat((document.getElementById("id_cash_amount") || {}).value) || 0;
+  document.querySelector("[data-dep-total]").textContent = fmt(cheques);
+  document.querySelector("[data-dep-grand]").textContent = fmt(cheques + cash);
+};
+document.addEventListener("input", (e) => { if (e.target.id === "id_cash_amount") window.depTotal(); });
+window.depTotal();
+</script>
+{% endblock %}

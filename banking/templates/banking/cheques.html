@@ -15,10 +15,11 @@
   {% for s in summary %}<a class="tile {% if s.status == 'bounced' %}crit{% elif s.status == 'in_safe' or s.status == 'issued' %}warn{% endif %}" href="?direction={{ direction }}&status={{ s.status }}" style="color:inherit">
     <span class="lbl">{% for k, label in statuses %}{% if k == s.status %}{{ label }}{% endif %}{% endfor %}</span><span class="n">{{ s.n }}</span><span class="a">{{ s.total|num }}</span></a>{% endfor %}
 </div>
+{% include "partials/filter_note.html" %}
 <div class="table-wrap"><table class="tbl">
   <thead><tr><th>{% translate "Cheque" %}</th><th>{% translate "Customer / supplier" %}</th><th>{% translate "Drawn on bank" %}</th><th>{% translate "Due date" %}</th><th class="num">{% translate "Amount" %}</th><th>{% translate "Status" %}</th><th>{% translate "Action" %}</th></tr></thead>
   <tbody>{% for c in cheques %}<tr>
-    <td>#{{ c.number }}<div class="lbl">{{ c.source_ref }}</div></td><td>{{ c.party_name }}</td><td>{{ c.drawee_bank|default:c.bank_account.name|default:"" }}</td>
+    <td>#{{ c.number }}<div class="lbl">{{ c.source_ref }}</div></td><td>{{ c.party_name }}</td><td>{% if c.drawee_bank %}{{ c.drawee_bank }}{% elif c.bank_account %}{{ c.bank_account.name }}{% endif %}</td>
     <td>{{ c.due_date }}</td><td class="num">{{ c.amount|money:c.currency }}</td>
     <td><span class="pill {{ c.status }}">{{ c.get_status_display }}</span></td>
     <td>{% if c.status == "bounced" %}<a class="btn sm" href="{% url 'banking:bounced' %}">{% translate "Resubmit or settle" %}</a>{% endif %}{% if can.cheques.post %}{% if c.status == "in_safe" or c.status == "under_collection" or c.status == "issued" %}

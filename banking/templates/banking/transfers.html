@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Transfers" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Transfers" %}</h1><div class="sub">{% translate "Move money between your own bank accounts and cash boxes. Between currencies, enter the amount that arrived; any rate difference goes to exchange gain or loss." %}</div></div></div>
+<div class="cols">
+  <div class="table-wrap"><table class="tbl">
+    <thead><tr><th>{% translate "Number" %}</th><th>{% translate "Date" %}</th><th>{% translate "From" %}</th><th>{% translate "To" %}</th><th class="num">{% translate "Amount" %}</th><th>{% translate "Status" %}</th><th></th></tr></thead>
+    <tbody>{% for t in page %}<tr><td>{% if t.journal_entry_id %}<a href="{% url 'ledger:journal' t.journal_entry_id %}">{{ t.number }}</a>{% else %}{{ t.number }}{% endif %}<div class="lbl">{{ t.reference }}</div></td>
+      <td>{{ t.date|date:"d/m/Y" }}</td><td>{{ t.from_account.name }}</td><td>{{ t.to_account.name }}</td>
+      <td class="num">{{ t.amount|money:t.from_account.currency }}{% if t.amount_to != t.amount %}<div class="lbl">→ {{ t.amount_to|money:t.to_account.currency }}</div>{% endif %}</td>
+      <td><span class="pill {{ t.status|pill_class }}">{{ t.get_status_display }}</span></td>
+      <td>{% if t.status == "posted" and can.banking.post %}<form method="post" action="{% url 'banking:transfer_void' t.pk %}">{% csrf_token %}<button class="btn sm danger" type="submit">{% translate "Void" %}</button></form>{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="7" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody></table></div>
+  {% if can.banking.post %}<div class="panel"><h2>{% translate "New transfer" %}</h2>
+    <form method="post" class="form doc-entry">{% csrf_token %}{% include "partials/form_fields.html" %}
+      <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save transfer" %}</button></div></form></div>{% endif %}
+</div>
+{% include "partials/pager.html" %}
+{% endblock %}
