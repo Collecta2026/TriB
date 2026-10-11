@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load i18n trib %}
-{% block title %}{{ doc.number }}{% endblock %}
+{% block title %}{% if doc.number %}{{ doc.number }}{% else %}{{ spec.title }} · {% translate "Draft" %}{% endif %}{% endblock %}
 {% block content %}
 <div class="toolbar no-print"><a class="btn" href="javascript:history.back()">‹ {% translate "Back" %}</a>
   <button class="btn primary" type="button" data-print>{% include "partials/icon.html" with name="print" %} {% translate "Print" %}</button>

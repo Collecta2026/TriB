@@ -1,0 +1,6 @@
+{% load i18n %}<div class="list-tools no-print">
+  <button type="button" class="iconbtn" data-print title="{% translate 'Print' %}" aria-label="{% translate 'Print' %}">{% include "partials/icon.html" with name="print" %}</button>
+  {% if can.reports.export %}<a class="iconbtn" href="{% url 'reports:export' %}?url={{ request.get_full_path|urlencode }}" title="{% translate 'Export to Excel' %}" aria-label="{% translate 'Export to Excel' %}">{% include "partials/icon.html" with name="download" %}</a>{% endif %}
+  <div class="hov"><button type="button" class="iconbtn" title="{% translate 'Columns' %}" aria-label="{% translate 'Columns' %}" aria-haspopup="true">{% include "partials/icon.html" with name="gear" %}</button>
+    <div class="hov-pop cols-pop" data-list-cols="{{ list_key }}"></div></div>
+</div>

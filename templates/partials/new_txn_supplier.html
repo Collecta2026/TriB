@@ -1,0 +1,17 @@
+{% load i18n %}{# New transaction ▾ for suppliers. Optional: sid (supplier id) #}
+<div class="hov split new-txn">
+  <button type="button" class="btn primary" aria-haspopup="true">{% translate "New transaction" %} ▾</button>
+  <div class="hov-pop">
+    <span class="soon">{% translate "Time activity" %} · {% translate "soon" %}</span>
+    {% if can.purchases.create %}<a href="{% url 'purchases:bill_new' %}{% if sid %}?supplier={{ sid }}{% endif %}">{% translate "Bill" %}</a>{% endif %}
+    {% if can.vouchers.create %}<a href="{% url 'vouchers:new' 'payment' %}">{% translate "Expense" %}</a>
+    <a href="{% url 'vouchers:new' 'payment' %}?method=cheque">{% translate "Cheque" %}</a>{% endif %}
+    {% if can.purchases.create %}<a href="{% url 'purchases:order_new' %}{% if sid %}?supplier={{ sid }}{% endif %}">{% translate "Purchase order" %}</a>
+    <a href="{% url 'purchases:supplier_credit_new' %}{% if sid %}?supplier={{ sid }}{% endif %}">{% translate "Supplier credit" %}</a>
+    <a href="{% url 'purchases:receipt_new' %}{% if sid %}?supplier={{ sid }}{% endif %}">{% translate "Item receipt" %}</a>
+    <a href="{% url 'purchases:payment_new' %}{% if sid %}?supplier={{ sid }}{% endif %}">{% translate "Pay bills" %}</a>{% endif %}
+    <span class="soon">{% translate "Credit card credit" %} · {% translate "soon" %}</span>
+    <span class="soon">{% translate "Pay down credit card" %} · {% translate "soon" %}</span>
+    {% if can.purchases.create %}<a href="{% url 'purchases:import_bills' %}">{% translate "Import bills" %}</a>{% endif %}
+  </div>
+</div>

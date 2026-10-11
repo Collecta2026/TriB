@@ -56,10 +56,12 @@ class VoucherForm(forms.ModelForm):
 class LineForm(forms.ModelForm):
     class Meta:
         model = VoucherLine
-        fields = ["account", "cost_center", "description", "amount", "debit", "credit"]
+        fields = ["account", "cost_center", "description", "amount", "debit", "credit", "position"]
 
     def __init__(self, *args, company, kind, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["position"].widget = forms.HiddenInput(attrs={"data-position": ""})
+        self.fields["position"].required = False
         self.fields["account"].queryset = Account.objects.filter(company=company, is_group=False, is_active=True)
         self.fields["cost_center"].queryset = CostCenter.objects.filter(company=company, is_active=True)
         for name in ("amount", "debit", "credit"):
@@ -77,6 +79,14 @@ class LineForm(forms.ModelForm):
             if name in self.fields and data.get(name) is None:
                 data[name] = Decimal("0")
         return data
+
+
+def _voucher_line_changed(form):
+    return any(name != "position" for name in form.changed_data)
+
+
+LineForm.has_changed = _voucher_line_changed
+LineForm.clean_position = lambda form: form.cleaned_data.get("position") or 0
 
 
 class BaseLineFormSet(BaseInlineFormSet):

@@ -38,7 +38,7 @@ DEFAULT_ROLES = [
                         "cheques.view,create,edit,post", "vouchers.view,create,edit,post,export", "reports.view,export",
                         "contacts.view,create,edit,export", "sales.view,create,edit,post,export",
                         "purchases.view,create,edit,post,export", "inventory.view,export", "assets.view,create,edit,post",
-                        "projects.view,create,edit", "team.view", "payroll.view,create,edit"),
+                        "projects.view,create,edit", "team.view", "payroll.view,create,edit", "crm.view"),
         "limits": {},
     },
     {
@@ -52,7 +52,7 @@ DEFAULT_ROLES = [
         "key": "sales",
         "name_en": "Sales officer", "name_ar": "مسؤول مبيعات",
         "perms": _codes("dashboard.view", "contacts.view,create,edit", "sales.view,create,edit,post",
-                        "inventory.view", "projects.view"),
+                        "inventory.view", "projects.view", "crm.view,create,edit"),
         "limits": {},
     },
     {
@@ -103,7 +103,8 @@ def install_default_roles(company):
     return roles
 
 
-RELEASE_2_MODULES = {"contacts", "sales", "purchases", "inventory", "assets", "projects", "team", "payroll"}
+# Modules added after a company was created; their codes are merged into the starter roles on deploy (crm migration).
+RELEASE_2_MODULES = {"contacts", "sales", "purchases", "inventory", "assets", "projects", "team", "payroll", "crm"}
 RELEASE_2_CODES = {"banking.post"}
 
 

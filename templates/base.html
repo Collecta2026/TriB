@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="{% static 'css/trib.css' %}?v=e1">
+  <link rel="stylesheet" href="{% static 'css/trib.css' %}?v=f6">
   {% block head %}{% endblock %}
 </head>
 <body {% if nav.blur %}data-priv-default="1"{% endif %}>
@@ -106,12 +106,14 @@
           <button class="pillbtn" type="submit" lang="{% if LANG == 'ar' %}en{% else %}ar{% endif %}">{% if LANG == "ar" %}English{% else %}عربي{% endif %}</button>
         </form>
 
-        <div class="hov tb">
-          <a class="iconbtn" href="{% url 'core:help' %}" aria-label="{% translate 'Help' %}" aria-haspopup="true">{% include "partials/icon.html" with name="help" %}</a>
+        {% help_for_page as hp %}<div class="hov tb">
+          <a class="iconbtn" href="{% if hp %}{% url 'core:help_topic' hp.key %}{% else %}{% url 'core:help' %}{% endif %}" aria-label="{% translate 'Help' %}" aria-haspopup="true">{% include "partials/icon.html" with name="help" %}</a>
           <div class="hov-pop tb-pop help-pop"><h3>{% translate "Help" %}</h3>
-            <a href="{% url 'core:help' %}">{% include "partials/icon.html" with name="keyboard" %}{% translate "Keyboard shortcuts" %}</a>
+            {% if hp %}<a href="{% url 'core:help_topic' hp.key %}" class="hp-here">{% include "partials/icon.html" with name="help" %}<span>{% translate "Help for this page" %}<span class="lbl">{{ hp.title }}</span></span></a>{% endif %}
+            <a href="{% url 'core:help' %}">{% include "partials/icon.html" with name="book" %}{% translate "TriB user manual" %}</a>
+            <a href="{% url 'core:help_topic' 'shortcuts' %}">{% include "partials/icon.html" with name="keyboard" %}{% translate "Keyboard shortcuts" %}</a>
             <a href="{% url 'dashboard:home' %}?customise=1">{% include "partials/icon.html" with name="sliders" %}{% translate "Customise your dashboard" %}</a>
-            <a href="{% url 'core:help' %}#answers">{% include "partials/icon.html" with name="help" %}{% translate "Quick answers" %}</a>
+            <a href="{% url 'core:manual' %}">{% include "partials/icon.html" with name="print" %}{% translate "Printable manual (PDF)" %}</a>
             <a href="{% url 'core:feedback' %}">{% include "partials/icon.html" with name="chat" %}{% translate "Give feedback" %}</a></div>
         </div>
 
@@ -179,8 +181,9 @@
 <form id="abarPost" method="post" hidden>{% csrf_token %}</form>
 <div hidden id="navUrls" data-bm-url="{% url 'core:bookmark_toggle' %}"></div>
 {% endblock %}
-<script src="{% static 'js/trib.js' %}?v=e1"></script>
-<script src="{% static 'js/grid.js' %}?v=e1"></script>
+<script src="{% static 'js/trib.js' %}?v=f6"></script>
+<script src="{% static 'js/grid.js' %}?v=f6"></script>
+<script src="{% static 'js/lines.js' %}?v=f6"></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

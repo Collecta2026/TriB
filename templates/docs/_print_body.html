@@ -1,8 +1,9 @@
-{% load trib %}<div class="voucher-doc">
+{% load trib %}<div class="voucher-doc{% if doc.status == 'draft' or not doc.number %} is-draft{% endif %}">
+  {% if doc.status == "draft" or not doc.number %}<div class="draft-mark" aria-hidden="true">DRAFT · مسودة</div>{% endif %}
   <div class="vh">
     <div><b>{{ company.name_en }}</b><div>{{ company.address|linebreaksbr }}</div>
       {% if company.tax_id %}<div>Tax reg. {{ company.tax_id }}</div>{% endif %}{% if company.commercial_register %}<div>C.R. {{ company.commercial_register }}</div>{% endif %}</div>
-    <div class="vt">{% if delivery %}<h1>Delivery Note</h1><h1 class="ar">إذن تسليم</h1>{% else %}<h1>{{ spec.print_en }}</h1><h1 class="ar">{{ spec.print_ar }}</h1>{% endif %}<div><b>{{ doc.number }}</b></div></div>
+    <div class="vt">{% if delivery %}<h1>Delivery Note</h1><h1 class="ar">إذن تسليم</h1>{% else %}<h1>{{ spec.print_en }}</h1><h1 class="ar">{{ spec.print_ar }}</h1>{% endif %}<div><b>{{ doc.number|default:"DRAFT / مسودة" }}</b></div></div>
     <div class="ar" style="text-align:start"><b>{{ company.name_ar }}</b>
       {% if company.tax_id %}<div>رقم التسجيل الضريبي {{ company.tax_id }}</div>{% endif %}{% if company.commercial_register %}<div>سجل تجاري {{ company.commercial_register }}</div>{% endif %}</div>
   </div>
@@ -27,15 +28,16 @@
   <table>
     {% if delivery %}
     <thead><tr><th>#</th><th>Item / الصنف</th><th>Description / البيان</th><th class="num">Qty / الكمية</th><th>Received / ملاحظات الاستلام</th></tr></thead>
-    <tbody>{% for l in lines %}<tr><td>{{ forloop.counter }}</td><td>{{ l.item.sku|default:"" }}</td>
+    <tbody>{% for row in doc.display_lines %}{% if row.line %}{% with l=row.line %}<tr><td>{{ row.n }}</td><td>{{ l.item.sku|default:"" }}</td>
       <td>{% if l.description %}{{ l.description }}{% elif l.item %}{{ l.item.name_en }}{% endif %}{% if l.item.name_ar %}<div class="ar">{{ l.item.name_ar }}</div>{% endif %}{% if l.serials %}<div>S/N: {{ l.serials|linebreaksbr }}</div>{% endif %}</td>
-      <td class="num">{{ l.qty|num:3 }}</td><td style="min-width:120px"></td></tr>{% endfor %}</tbody>
+      <td class="num">{{ l.qty|num:3 }}</td><td style="min-width:120px"></td></tr>{% endwith %}{% endif %}{% endfor %}</tbody>
     {% else %}
     <thead><tr><th>#</th><th>Item / الصنف</th><th>Description / البيان</th><th class="num">Qty / الكمية</th><th class="num">Rate / السعر</th><th class="num">Disc. / خصم</th><th class="num">VAT / الضريبة</th><th class="num">Amount / القيمة</th></tr></thead>
-    <tbody>{% for l in lines %}<tr><td>{{ forloop.counter }}</td><td>{{ l.item.sku|default:"" }}</td>
+    <tbody>{% for row in doc.display_lines %}{% if row.line %}{% with l=row.line %}<tr><td>{{ row.n }}</td><td>{{ l.item.sku|default:"" }}</td>
       <td>{% if l.description %}{{ l.description }}{% elif l.item %}{{ l.item.name_en }}{% endif %}{% if l.item.name_ar %}<div class="ar">{{ l.item.name_ar }}</div>{% endif %}{% if l.serials %}<div>S/N: {{ l.serials|linebreaksbr }}</div>{% endif %}</td>
       <td class="num">{{ l.qty|num:3 }}</td><td class="num">{{ l.unit_price|num }}</td><td class="num">{% if l.discount_pct %}{{ l.discount_pct|num }}%{% endif %}</td>
-      <td class="num">{{ l.tax|num }}</td><td class="num">{{ l.net|num }}</td></tr>{% endfor %}</tbody>
+      <td class="num">{{ l.tax|num }}</td><td class="num">{% if doc.prices_include_tax %}{{ l.amount|num }}{% else %}{{ l.net|num }}{% endif %}</td></tr>{% endwith %}
+      {% else %}<tr class="subtot"><td colspan="7" class="num">{{ row.subtotal|default:"Subtotal / المجموع الفرعي" }}</td><td class="num">{{ row.amount|num }}</td></tr>{% endif %}{% endfor %}</tbody>
     <tfoot>
       <tr><th colspan="7" class="num">Subtotal / الإجمالي قبل الضريبة</th><th class="num">{{ doc.subtotal|num }}</th></tr>
       {% for rate, amount in doc.tax_breakdown %}<tr><th colspan="7" class="num">{{ rate.name_en }} / {{ rate.name_ar }}</th><th class="num">{{ amount|num }}</th></tr>{% endfor %}

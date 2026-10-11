@@ -1,0 +1,20 @@
+{% load i18n %}{# New transaction ▾ for customers. Optional: cid (customer id) #}
+<div class="hov split new-txn">
+  <button type="button" class="btn primary" aria-haspopup="true">{% translate "New transaction" %} ▾</button>
+  <div class="hov-pop">
+    {% if can.sales.create %}<a href="{% url 'sales:invoice_new' %}{% if cid %}?customer={{ cid }}{% endif %}">{% translate "Invoice" %}</a>
+    <a href="{% url 'sales:payment_new' %}{% if cid %}?customer={{ cid }}{% endif %}">{% translate "Receive payment" %}</a>
+    <a href="{% url 'sales:quote_new' %}{% if cid %}?customer={{ cid }}{% endif %}">{% translate "Estimate (quotation)" %}</a>
+    <a href="{% url 'sales:order_new' %}{% if cid %}?customer={{ cid }}{% endif %}">{% translate "Sales order" %}</a>
+    <a href="{% url 'sales:credit_new' %}{% if cid %}?customer={{ cid }}{% endif %}">{% translate "Credit note" %}</a>
+    <a href="{% url 'sales:sales_receipt_new' %}{% if cid %}?customer={{ cid }}{% endif %}">{% translate "Sales receipt" %}</a>
+    <a href="{% url 'sales:refund_new' %}{% if cid %}?customer={{ cid }}{% endif %}">{% translate "Refund receipt" %}</a>{% endif %}
+    {% if can.sales.view %}<a href="{% url 'sales:statements' %}{% if cid %}?customer={{ cid }}{% endif %}">{% translate "Statement" %}</a>{% endif %}
+    <span class="soon">{% translate "Time activity" %} · {% translate "soon" %}</span>
+    {% if can.crm.create %}<a href="{% url 'crm:new' 'proposal' %}{% if cid %}?customer={{ cid }}{% endif %}">{% translate "Proposal" %}</a>
+    <a href="{% url 'crm:new' 'contract' %}{% if cid %}?customer={{ cid }}{% endif %}">{% translate "Contract" %}</a>
+    <a href="{% url 'crm:new' 'task' %}{% if cid %}?customer={{ cid }}{% endif %}">{% translate "Task" %}</a>
+    <a href="{% url 'crm:new' 'appointment' %}{% if cid %}?customer={{ cid }}{% endif %}">{% translate "Appointment" %}</a>
+    <a href="{% url 'crm:review_request' %}{% if cid %}?customer={{ cid }}{% endif %}">{% translate "Request feedback" %}</a>{% endif %}
+  </div>
+</div>

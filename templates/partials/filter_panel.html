@@ -1,0 +1,18 @@
+{% load i18n %}{# Filter panel (QuickBooks style). Context: filter_party (list of (id, name)), filter_statuses, show_category, categories, projects #}
+<div class="hov fpanel" data-click>
+  <button type="button" class="btn" aria-haspopup="true">{% include "partials/icon.html" with name="sliders" %}{% translate "Filter" %}</button>
+  <form method="get" class="hov-pop fpanel-pop" data-filter-panel>
+    {% for k, v in request.GET.items %}{% if k == "type" or k == "q" or k == "pay" or k == "tag" %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endif %}{% endfor %}
+    <div class="fp-grid">
+      {% if filter_statuses %}<label class="lbl">{% translate "Status" %}<select name="status"><option value="">{% translate "All statuses" %}</option>{% for k, l in filter_statuses %}<option value="{{ k }}" {% if request.GET.status == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>{% endif %}
+      {% if delivery_methods %}<label class="lbl">{% translate "Delivery method" %}<select name="delivery"><option value="">{% translate "Any" %}</option>{% for k, l in delivery_methods %}<option value="{{ k }}" {% if request.GET.delivery == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>{% endif %}
+      <label class="lbl fp-wide">{% translate "Date" %}<select name="dates" data-fp-dates><option value="">{% translate "All dates" %}</option>{% for k, l in filter_dates %}<option value="{{ k }}" {% if request.GET.dates == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+      <label class="lbl">{% translate "From" %}<input type="date" name="from" value="{{ request.GET.from }}" data-fp-custom></label>
+      <label class="lbl">{% translate "To" %}<input type="date" name="to" value="{{ request.GET.to }}" data-fp-custom></label>
+      {% if filter_party %}<label class="lbl fp-wide">{{ filter_party_label }}<select name="{{ filter_party_param|default:'party' }}"><option value="">{% translate "All" %}</option>{% for k, l in filter_party %}<option value="{{ k }}" {% if request.GET.party == k|stringformat:'s' or request.GET.payee == l %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>{% endif %}
+      {% if categories %}<label class="lbl fp-wide">{% translate "Category" %}<select name="category"><option value="">{% translate "All" %}</option>{% for a in categories %}<option value="{{ a.pk }}" {% if request.GET.category == a.pk|stringformat:'s' %}selected{% endif %}>{{ a }}</option>{% endfor %}</select></label>{% endif %}
+      {% if projects %}<label class="lbl fp-wide">{% translate "Project" %}<select name="project"><option value="">{% translate "All" %}</option>{% for p in projects %}<option value="{{ p.pk }}" {% if request.GET.project == p.pk|stringformat:'s' %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></label>{% endif %}
+    </div>
+    <div class="fp-actions"><a class="btn" href="{{ request.path }}">{% translate "Reset" %}</a><button class="btn primary" type="submit">{% translate "Apply" %}</button></div>
+  </form>
+</div>

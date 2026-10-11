@@ -8,14 +8,18 @@
     {% if can_create %}<a class="btn primary" href="{{ spec.url_new }}">+ {{ spec.title }}</a>{% endif %}
   </div>
 </div>
+<div class="list-bar">
 <form method="get" class="toolbar">
   <input type="search" name="q" value="{{ q }}" placeholder="{% translate 'Number, reference or name' %}" style="width:auto;min-width:240px">
   {% if spec.statuses %}<select name="status" style="width:auto" onchange="this.form.submit()"><option value="">{% translate "All statuses" %}</option>
     {% for k, label in spec.statuses %}<option value="{{ k }}" {% if k == status %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>{% endif %}
-  <button class="btn" type="submit">{% translate "Filter" %}</button>
+  <button class="btn" type="submit">{% translate "Search" %}</button>
 </form>
+{% include "partials/filter_panel.html" %}
+{% include "partials/list_tools.html" %}
+</div>
 {% include "partials/filter_note.html" %}
-<div class="table-wrap"><table class="tbl">
+<div class="table-wrap"><table class="tbl" data-list-table="{{ list_key }}">
   <thead><tr>{% for label, fn, kind in spec.columns %}<th class="{% if kind == 'money' or kind == 'num' %}num{% endif %}">{{ label }}</th>{% endfor %}</tr></thead>
   <tbody>{% for r in rows %}<tr>
     {% for value, kind in r.cells %}<td class="{% if kind == 'money' or kind == 'num' %}num{% endif %}">

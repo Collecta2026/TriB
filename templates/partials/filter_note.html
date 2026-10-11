@@ -1,1 +1,3 @@
-{% load i18n %}{% if drill %}<div class="drill no-print">{% include "partials/icon.html" with name="sliders" %}<span>{% translate "Showing" %}: <b>{{ drill|join:" · " }}</b></span><a class="link" href="{{ request.path }}">{% translate "Clear filter" %}</a></div>{% endif %}
+{% load i18n trib %}{% if drill %}<div class="drill no-print">{% include "partials/icon.html" with name="sliders" %}
+  {% for c in drill %}<span class="fchip">{{ c }}{% if c.params %}<a href="{% query_without c %}" aria-label="{% translate 'Remove filter' %}: {{ c }}" title="{% translate 'Remove filter' %}">×</a>{% endif %}</span>{% endfor %}
+  <a class="link" href="{{ request.path }}">{% translate "Clear filter" %}</a></div>{% endif %}

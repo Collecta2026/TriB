@@ -30,9 +30,9 @@
   <div class="panel" data-formset="lines">
     <div class="panel-h"><h2>{% translate "Product or service" %}</h2>
       <div class="toolbar">{% include "partials/grid_tools.html" %}<button class="btn sm" type="button" data-add-line>+ {% translate "Add line" %}</button></div></div>
-    {{ formset.management_form }}
+    {{ formset.management_form }}<input type="hidden" name="subtotals" data-subtotals-field>
     {% if formset.non_form_errors %}<div class="msg error">{{ formset.non_form_errors|join:" " }}</div>{% endif %}
-    <div class="table-wrap"><table class="tbl lines doc-lines grid" data-grid="{{ spec.key }}" data-default-hidden="{% if spec.price_source == 'sales' %}project account{% else %}discount_pct project{% endif %}">
+    <div class="table-wrap"><table class="tbl lines doc-lines grid" data-grid="{{ spec.key }}" data-subtotals="{{ subtotals_json }}" data-l-add="{% translate 'Add product or service' %}" data-l-sub="{% translate 'Add subtotal' %}" data-l-subtotal="{% translate 'Subtotal' context 'subtotal line' %}" data-l-move="{% translate 'Drag to move' %}" data-l-del="{% translate 'Remove line' %}" data-default-hidden="{% if spec.price_source == 'sales' %}project account{% else %}discount_pct project{% endif %}">
       <thead><tr><th class="rn" data-col="rn">#</th>{% for f in formset.empty_form.visible_fields %}{% if f.name != "DELETE" %}<th data-col="{{ f.name }}" class="{% if f.name == 'qty' or f.name == 'unit_price' or f.name == 'discount_pct' or f.name == 'unit_cost' %}num{% endif %}">{{ f.label }}</th>{% endif %}{% endfor %}<th class="num" data-col="amount">{% translate "Amount" %}</th><th class="del" data-col="del"></th></tr></thead>
       <tbody>{% for lf in formset %}{% include "docs/_line.html" %}{% endfor %}</tbody>
     </table></div>
@@ -54,4 +54,4 @@
 </form>
 {{ picker|json_script:"doc-picker" }}
 {% endblock %}
-{% block scripts %}<script src="{% static 'js/docs.js' %}?v=e1"></script>{% endblock %}
+{% block scripts %}<script src="{% static 'js/docs.js' %}?v=f6"></script>{% endblock %}

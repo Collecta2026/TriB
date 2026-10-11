@@ -6,7 +6,7 @@ from core.translations_ar import AR
 
 ROOT = Path(__file__).resolve().parent.parent
 APPS = ["core", "users", "ledger", "banking", "approvals", "vouchers", "reports", "dashboard", "templates", "config",
-        "contacts", "sales", "purchases", "inventory", "assets", "team", "payroll"]
+        "contacts", "sales", "purchases", "inventory", "assets", "team", "payroll", "crm"]
 
 TRANSLATE = re.compile(r"""{%\s*translate\s+(["'])(.+?)\1""")
 UNDERSCORE = re.compile(r"""(?<![\w.])(?:_|gettext_lazy|gettext)\(\s*(["'])((?:\\.|(?!\1).)+)\1\s*[,)%]""")

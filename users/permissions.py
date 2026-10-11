@@ -32,6 +32,7 @@ MODULES = [
     ("inventory", _("Inventory"), ["view", "create", "edit", "post", "export"]),
     ("assets", _("Fixed assets"), ["view", "create", "edit", "post", "export"]),
     ("projects", _("Projects"), ["view", "create", "edit"]),
+    ("crm", _("Customer Hub (CRM)"), ["view", "create", "edit"]),
     ("team", _("Team"), ["view", "create", "edit"]),
     ("payroll", _("Payroll"), ["view", "create", "edit", "approve", "authorise", "post", "export"]),
     ("reports", _("Reports"), ["view", "export"]),

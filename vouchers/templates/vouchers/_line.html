@@ -1,9 +1,9 @@
 {% load i18n %}<tr>
   <td class="rn" aria-hidden="true"></td>
-  <td data-field="account">{{ lf.id }}{{ lf.account }}{% if lf.account.errors %}<div class="err">{{ lf.account.errors|join:" " }}</div>{% endif %}</td>
+  <td data-field="account">{{ lf.id }}{{ lf.position }}{{ lf.account }}{% if lf.account.errors %}<div class="err">{{ lf.account.errors|join:" " }}</div>{% endif %}</td>
   <td data-field="cost_center">{{ lf.cost_center }}</td>
   <td data-field="description">{{ lf.description }}</td>
   {% if lf.debit %}<td data-field="debit">{{ lf.debit }}</td><td data-field="credit">{{ lf.credit }}</td>{% else %}<td data-field="amount">{{ lf.amount }}</td>{% endif %}
-  <td class="del"><span hidden>{{ lf.DELETE }}</span><button class="btn sm danger" type="button" data-del-line tabindex="-1" aria-label="{% translate 'Remove line' %}" title="{% translate 'Remove line' %} (Ctrl+Delete)">×</button></td>
+  <td class="del"><span hidden>{{ lf.DELETE }}</span><button class="btn sm danger" type="button" data-del-line tabindex="-1" aria-label="{% translate 'Remove line' %}" title="{% translate 'Remove line' %} (Ctrl+Delete)">{% include "partials/icon.html" with name="trash" %}</button></td>
 </tr>
 {% if lf.non_field_errors %}<tr class="err-row"><td colspan="7" class="err">{{ lf.non_field_errors|join:" " }}</td></tr>{% endif %}

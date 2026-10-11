@@ -94,6 +94,7 @@ class VoucherLine(models.Model):
     amount = models.DecimalField(_("Amount"), max_digits=19, decimal_places=2, default=0)
     debit = models.DecimalField(_("Debit"), max_digits=19, decimal_places=2, default=0)
     credit = models.DecimalField(_("Credit"), max_digits=19, decimal_places=2, default=0)
+    position = models.PositiveIntegerField(default=0)  # order on the document (drag to reorder)
 
     class Meta:
-        ordering = ["id"]
+        ordering = ["position", "id"]
