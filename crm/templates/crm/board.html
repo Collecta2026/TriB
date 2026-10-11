@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Opportunities" %}{% endblock %}
+{% block content %}
+{% include "crm/_nav.html" with section="opportunity" %}
+<div class="page-head"><div><h1>{% translate "Opportunities" %}</h1><div class="sub">{% translate "Drag a card to another stage to move it." %}</div></div>
+  <div class="toolbar"><a class="btn" href="{% url 'crm:list' 'opportunity' %}">{% translate "List view" %}</a>
+    {% if can.crm.create %}<a class="btn primary" href="{% url 'crm:new' 'opportunity' %}">+ {% translate "Opportunity" %}</a>{% endif %}</div></div>
+<div class="board" data-stage-url="{% url 'crm:opportunity_stage' 0 %}" {% if not can.crm.edit %}data-readonly{% endif %}>
+  {% for c in cols %}<section class="board-col {{ c.key }}" data-stage="{{ c.key }}">
+    <div class="board-h"><b>{{ c.label }}</b><span class="lbl">{{ c.items|length }} · <span class="m">{{ c.value|num:0 }}</span></span></div>
+    <div class="board-cards">{% for o in c.items %}<article class="card" draggable="true" data-id="{{ o.pk }}">
+      <a href="{% url 'crm:opportunity' o.pk %}"><b>{{ o.title }}</b></a>
+      <div class="lbl">{{ o.party|default:"" }}</div>
+      <div class="card-f"><span class="m">{{ o.value|money:o.currency }}</span><span class="lbl">{{ o.probability }}%{% if o.expected_close %} · {{ o.expected_close|date:"d/m" }}{% endif %}</span></div>
+    </article>{% endfor %}</div>
+  </section>{% endfor %}
+</div>
+{% endblock %}

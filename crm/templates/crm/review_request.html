@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Request feedback" %}{% endblock %}
+{% block content %}
+{% include "crm/_nav.html" with section="review" %}
+<div class="page-head"><div><h1>{% translate "Request feedback" %}</h1><div class="sub">{% translate "TriB makes a private link where the customer rates you from 1 to 5 stars and leaves a comment." %}</div></div></div>
+<div class="panel" style="max-width:620px"><form method="post" class="form">{% csrf_token %}
+  <div class="field"><label for="revCustomer">{% translate "Customer" %}</label><select id="revCustomer" name="customer" required>{% for c in customers %}<option value="{{ c.pk }}" {% if customer and customer.pk == c.pk %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></div>
+  <div class="form-actions"><button class="btn primary" type="submit">{% translate "Create link" %}</button></div></form></div>
+{% endblock %}

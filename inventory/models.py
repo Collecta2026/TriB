@@ -163,6 +163,10 @@ class StockTransferLine(models.Model):
     item = models.ForeignKey(Item, on_delete=models.PROTECT, verbose_name=_("Item"))
     qty = models.DecimalField(_("Quantity"), **QTY)
     serials = models.TextField(_("Serial numbers"), blank=True, help_text=_("One per line, for serial-tracked items."))
+    position = models.PositiveIntegerField(default=0)  # order on the document (drag to reorder)
+
+    class Meta:
+        ordering = ["position", "id"]
 
 
 class StockAdjustment(StockDocument):
@@ -182,6 +186,10 @@ class StockAdjustmentLine(models.Model):
     serials = models.TextField(_("Serial numbers"), blank=True)
     batch_no = models.CharField(_("Batch"), max_length=60, blank=True)
     expiry_date = models.DateField(_("Expiry date"), null=True, blank=True)
+    position = models.PositiveIntegerField(default=0)  # order on the document (drag to reorder)
+
+    class Meta:
+        ordering = ["position", "id"]
 
 
 class StockCount(StockDocument):

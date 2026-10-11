@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ cfg.title }}{% endblock %}
+{% block content %}
+{% include "crm/_nav.html" with section=kind %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'crm:list' kind %}">{{ cfg.plural }}</a></div><h1>{% if obj.pk %}{{ obj }}{% else %}{% translate "New" %} · {{ cfg.title }}{% endif %}</h1></div></div>
+<div class="panel" style="max-width:980px">
+  <form method="post" class="form">{% csrf_token %}{% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+    {% include "partials/form_fields.html" %}
+    <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button>
+      {% if not obj.pk %}<button class="btn" type="submit" name="save" value="new">{% translate "Save and new" %}</button>{% endif %}
+      <a class="btn" href="{% if next %}{{ next }}{% else %}{% url 'crm:list' kind %}{% endif %}">{% translate "Cancel" %}</a></div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Appointments" %}{% endblock %}
+{% block content %}
+{% include "crm/_nav.html" with section="appointment" %}
+<div class="page-head"><div><h1>{% translate "Appointments" %}</h1><div class="sub">{{ days.0.day|date:"d/m/Y" }} – {{ days.6.day|date:"d/m/Y" }}</div></div>
+  <div class="toolbar"><a class="btn" href="?week={{ prev|date:'Y-m-d' }}">‹</a><a class="btn" href="?">{% translate "This week" %}</a><a class="btn" href="?week={{ next|date:'Y-m-d' }}">›</a>
+    <a class="btn" href="{% url 'crm:list' 'appointment' %}">{% translate "List view" %}</a>
+    {% if can.crm.create %}<a class="btn primary" href="{% url 'crm:new' 'appointment' %}">+ {% translate "Appointment" %}</a>{% endif %}</div></div>
+<div class="week">{% for d in days %}<section class="day {% if d.day == today %}today{% endif %}">
+  <div class="day-h"><b>{{ d.day|date:"D" }}</b> {{ d.day|date:"d/m" }}{% if can.crm.create %}<a class="link" href="{% url 'crm:new' 'appointment' %}?date={{ d.day|date:'Y-m-d' }}" aria-label="{% translate 'Add appointment' %}">+</a>{% endif %}</div>
+  {% for a in d.items %}<a class="appt" href="{% url 'crm:edit' 'appointment' a.pk %}"><b>{{ a.starts_at|time:"H:i" }}</b> {{ a.title }}<span class="lbl">{{ a.customer|default:a.lead|default:"" }}{% if a.location %} · {{ a.location }}{% endif %}</span></a>
+  {% empty %}<span class="lbl">—</span>{% endfor %}</section>{% endfor %}</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% load i18n %}<nav class="tabs crm-nav" aria-label="{% translate 'Customer Hub' %}">
+  <a href="{% url 'crm:overview' %}" class="{% if section == 'overview' %}on{% endif %}">{% translate "Overview" %}</a>
+  <a href="{% url 'crm:list' 'lead' %}" class="{% if section == 'lead' %}on{% endif %}">{% translate "Customers & leads" %}</a>
+  <a href="{% url 'crm:board' %}" class="{% if section == 'opportunity' %}on{% endif %}">{% translate "Opportunities" %}</a>
+  <a href="{% url 'sales:quotes' %}">{% translate "Estimates" %}</a>
+  <a href="{% url 'crm:list' 'proposal' %}" class="{% if section == 'proposal' %}on{% endif %}">{% translate "Proposals" %}</a>
+  <a href="{% url 'crm:list' 'contract' %}" class="{% if section == 'contract' %}on{% endif %}">{% translate "Contracts" %}</a>
+  <a href="{% url 'crm:calendar' %}" class="{% if section == 'appointment' %}on{% endif %}">{% translate "Appointments" %}</a>
+  <a href="{% url 'crm:reviews' %}" class="{% if section == 'review' %}on{% endif %}">{% translate "Reviews" %}</a>
+  <a href="{% url 'crm:list' 'task' %}" class="{% if section == 'task' %}on{% endif %}">{% translate "Tasks" %}</a>
+  <a href="{% url 'crm:list' 'conversation' %}" class="{% if section == 'conversation' %}on{% endif %}">{% translate "Conversations" %}</a>
+</nav>

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Reviews" %}{% endblock %}
+{% block content %}
+{% include "crm/_nav.html" with section="review" %}
+<div class="page-head"><div><h1>{% translate "Reviews" %}</h1><div class="sub">{% if average %}{% blocktranslate with a=average n=count %}Average {{ a }} out of 5 from {{ n }} reviews{% endblocktranslate %}{% else %}{% translate "No reviews yet." %}{% endif %}</div></div>
+  {% if can.crm.create %}<a class="btn primary" href="{% url 'crm:review_request' %}">{% translate "Request feedback" %}</a>{% endif %}</div>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Customer" %}</th><th>{% translate "Requested" %}</th><th>{% translate "Rating" %}</th><th>{% translate "Comment" %}</th><th>{% translate "Name" %}</th></tr></thead>
+  <tbody>{% for r in rows %}<tr><td><a href="{% url 'contacts:customer' r.customer_id %}">{{ r.customer }}</a></td><td>{{ r.requested_at|date:"d/m/Y" }}</td>
+    <td>{% if r.rating %}<span class="stars" aria-label="{{ r.rating }}/5">{% for i in "12345"|make_list %}{% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}{% endfor %}</span>{% else %}<span class="lbl">{% translate "Waiting" %}</span>{% endif %}</td>
+    <td>{{ r.comment|truncatechars:120 }}</td><td>{{ r.reviewer }}</td></tr>
+  {% empty %}<tr><td colspan="5" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

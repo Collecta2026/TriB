@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Customer Hub" %}{% endblock %}
+{% block content %}
+{% include "crm/_nav.html" with section="overview" %}
+<div class="page-head"><div><h1>{% translate "Customer Hub" %}</h1><div class="sub">{% translate "Leads, pipeline, appointments and follow-ups in one place." %}</div></div>
+  {% if can.crm.create %}<div class="hov split new-txn"><button type="button" class="btn primary" aria-haspopup="true">{% translate "New" %} ▾</button>
+    <div class="hov-pop"><a href="{% url 'crm:new' 'lead' %}">{% translate "Lead" %}</a><a href="{% url 'crm:new' 'opportunity' %}">{% translate "Opportunity" %}</a>
+      <a href="{% url 'crm:new' 'proposal' %}">{% translate "Proposal" %}</a><a href="{% url 'crm:new' 'contract' %}">{% translate "Contract" %}</a>
+      <a href="{% url 'crm:new' 'appointment' %}">{% translate "Appointment" %}</a><a href="{% url 'crm:new' 'task' %}">{% translate "Task" %}</a>
+      <a href="{% url 'crm:new' 'conversation' %}">{% translate "Log a conversation" %}</a><a href="{% url 'crm:review_request' %}">{% translate "Request feedback" %}</a></div></div>{% endif %}
+</div>
+<div class="kpis">
+  <a class="kpi" href="{% url 'crm:board' %}"><span class="lbl">{% translate "Open pipeline" %}</span><span class="n m">{{ pipeline|num:0 }}</span><span class="lbl">{% translate "Weighted" %} {{ weighted|num:0 }}</span></a>
+  <a class="kpi" href="{% url 'crm:list' 'lead' %}"><span class="lbl">{% translate "New leads this month" %}</span><span class="n">{{ leads_month }}</span></a>
+  <div class="kpi"><span class="lbl">{% translate "Win rate this year" %}</span><span class="n">{% if win_rate is not None %}{{ win_rate }}%{% else %}—{% endif %}</span></div>
+  <a class="kpi" href="{% url 'crm:reviews' %}"><span class="lbl">{% translate "Reviews received" %}</span><span class="n">{{ reviews.n|default:0 }}</span></a>
+</div>
+<section class="panel"><h2>{% translate "Pipeline by stage" %}</h2>
+  <div class="stage-bar">{% for s in stages %}<a class="stage {{ s.key }}" href="{% url 'crm:list' 'opportunity' %}?status={{ s.key }}"><span class="lbl">{{ s.label }}</span><b>{{ s.n }}</b><span class="m">{{ s.value|num:0 }}</span></a>{% endfor %}</div></section>
+<div class="cols-3">
+  <section class="panel"><div class="panel-h"><h2>{% translate "Appointments, next 7 days" %}</h2><a class="link" href="{% url 'crm:calendar' %}">{% translate "Calendar" %}</a></div>
+    {% for a in appointments %}<div class="mini-row"><b>{{ a.starts_at|date:"D d/m H:i" }}</b> · <a href="{% url 'crm:edit' 'appointment' a.pk %}">{{ a.title }}</a><div class="lbl">{{ a.customer|default:a.lead|default:"" }} {{ a.location }}</div></div>
+    {% empty %}<p class="lbl">{% translate "Nothing booked." %}</p>{% endfor %}</section>
+  <section class="panel"><div class="panel-h"><h2>{% translate "Tasks due" %}</h2><a class="link" href="{% url 'crm:list' 'task' %}">{% translate "All tasks" %}</a></div>
+    {% for t in tasks %}<div class="mini-row {% if t.due_date and t.due_date < today %}late{% endif %}"><b>{{ t.due_date|date:"d/m"|default:"—" }}</b> · <a href="{% url 'crm:edit' 'task' t.pk %}">{{ t.title }}</a><div class="lbl">{{ t.assignee|default:"" }} {{ t.customer|default:t.lead|default:"" }}</div></div>
+    {% empty %}<p class="lbl">{% translate "No tasks due." %}</p>{% endfor %}</section>
+  <section class="panel"><div class="panel-h"><h2>{% translate "Closing in 30 days" %}</h2><a class="link" href="{% url 'crm:board' %}">{% translate "Board" %}</a></div>
+    {% for o in closing %}<div class="mini-row"><b>{{ o.expected_close|date:"d/m" }}</b> · <a href="{% url 'crm:opportunity' o.pk %}">{{ o.title }}</a><div class="lbl">{{ o.party }} · <span class="m">{{ o.value|num:0 }}</span> · {{ o.probability }}%</div></div>
+    {% empty %}<p class="lbl">{% translate "Nothing expected to close." %}</p>{% endfor %}</section>
+</div>
+{% endblock %}

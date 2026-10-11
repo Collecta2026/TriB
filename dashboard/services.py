@@ -301,6 +301,16 @@ def alerts(company, user, membership, today=None, approvals=None):
                 "warn", "trend", _("Cash forecast"), _("Cash falls below your %(m)s minimum in the week of %(d)s") % {
                     "m": _money(company.minimum_cash, company), "d": f"{fc['first_below']['start']:%d/%m}"},
                 reverse("reports:cash_forecast"), _("See forecast")))
+    if can("crm.view"):
+        from crm.models import Appointment, Task
+        tasks = Task.objects.filter(company=company, assignee=user, done=False, due_date__lte=today).count()
+        if tasks:
+            cards.append(_card("warn", "list", _("Tasks"), _("%(n)s of your tasks are due today or overdue") % {"n": tasks},
+                               f"{reverse('crm:list', args=['task'])}?show=mine", _("View")))
+        appts = Appointment.objects.filter(company=company, starts_at__date=today).count()
+        if appts:
+            cards.append(_card("brand", "people", _("Appointments"), _("%(n)s appointments today") % {"n": appts},
+                               reverse("crm:calendar"), _("View")))
     rejected = Voucher.objects.filter(company=company, created_by=user, status="rejected").count()
     if rejected:
         cards.append(_card("crit", "alert", _("Rejected vouchers"),

@@ -11,7 +11,7 @@
     <div class="panel-h"><h2>{% translate "Lines" %}</h2><div class="toolbar">{% include "partials/grid_tools.html" %}<button class="btn sm" type="button" data-add-line>+ {% translate "Add line" %}</button></div></div>
     {{ formset.management_form }}
     {% if formset.non_form_errors %}<div class="msg error">{{ formset.non_form_errors|join:" " }}</div>{% endif %}
-    <div class="table-wrap"><table class="tbl lines grid" data-grid="stock-{{ kind }}">
+    <div class="table-wrap"><table data-l-add="{% translate 'Add product or service' %}" data-l-sub="{% translate 'Add subtotal' %}" data-l-subtotal="{% translate 'Subtotal' %}" data-l-move="{% translate 'Drag to move' %}" data-l-del="{% translate 'Remove line' %}" class="tbl lines grid" data-grid="stock-{{ kind }}">
       <thead><tr><th class="rn" data-col="rn">#</th>{% for f in formset.empty_form.visible_fields %}{% if f.name != "DELETE" %}<th data-col="{{ f.name }}">{{ f.label }}</th>{% endif %}{% endfor %}<th class="del" data-col="del"></th></tr></thead>
       <tbody>{% for lf in formset %}{% include "inventory/_line.html" %}{% endfor %}</tbody>
     </table></div>

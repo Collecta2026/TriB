@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ obj }}{% endblock %}
+{% block content %}
+{% include "crm/_nav.html" with section="contract" %}
+<div class="page-head no-print"><div><div class="crumbs"><a href="{% url 'crm:list' 'contract' %}">{% translate "Contracts" %}</a></div>
+  <h1>{{ obj.number }} · {{ obj.title }} <span class="pill {% if obj.status == 'active' %}good{% elif obj.status == 'cancelled' or obj.status == 'expired' %}crit{% else %}info{% endif %}">{{ obj.get_status_display }}</span></h1>
+  <div class="sub"><a href="{% url 'contacts:customer' obj.customer_id %}">{{ obj.customer }}</a> · {{ obj.start_date|date:"d/m/Y" }}{% if obj.end_date %} – {{ obj.end_date|date:"d/m/Y" }}{% endif %} · {{ obj.value|money:obj.currency }}</div></div>
+  <div class="toolbar">
+    {% if can.crm.edit %}<a class="btn" href="{% url 'crm:edit' 'contract' obj.pk %}">{% translate "Edit" %}</a>{% endif %}
+    <button class="btn" type="button" data-print>{% include "partials/icon.html" with name="print" %}{% translate "Print" %}</button>
+    <button class="btn" type="button" data-crm-share="{{ share_url }}">{% translate "Share link" %}</button>
+  </div></div>
+{% include "crm/_doc_body.html" with company=company is_proposal=False %}
+<div class="no-print">{% attachments obj %}</div>
+{% include "crm/_share_dialog.html" %}
+{% endblock %}

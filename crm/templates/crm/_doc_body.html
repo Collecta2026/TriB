@@ -1,0 +1,21 @@
+{% load trib %}{# Printable proposal / contract body, used inside TriB and on the customer's link. #}
+<div class="voucher-doc crm-doc">
+  <div class="vh"><div><b>{{ company.name_en }}</b><div>{{ company.address|linebreaksbr }}</div></div>
+    <div class="vt"><h1>{% if is_proposal %}Proposal{% else %}Contract{% endif %}</h1><h1 class="ar">{% if is_proposal %}عرض فني ومالي{% else %}عقد{% endif %}</h1><div><b>{{ obj.number }}</b></div></div>
+    <div class="ar" style="text-align:start"><b>{{ company.name_ar }}</b></div></div>
+  <div class="bi"><div><div class="lbl">To / إلى</div><b>{{ obj.customer.name_en }}</b>{% if obj.customer.address %}<div>{{ obj.customer.address|linebreaksbr }}</div>{% endif %}</div>
+    <div style="text-align:end">{% if is_proposal %}<div>Date / التاريخ: <b>{{ obj.date|date:"d/m/Y" }}</b></div>{% if obj.valid_until %}<div>Valid until / صالح حتى: <b>{{ obj.valid_until|date:"d/m/Y" }}</b></div>{% endif %}
+      {% else %}<div>Start / البداية: <b>{{ obj.start_date|date:"d/m/Y" }}</b></div>{% if obj.end_date %}<div>End / النهاية: <b>{{ obj.end_date|date:"d/m/Y" }}</b></div>{% endif %}
+      <div>Value / القيمة: <b>{{ obj.value|num }} {{ obj.currency_id }}</b></div>{% endif %}</div></div>
+  <h2 style="margin:10px 0">{{ obj.title }}</h2>
+  {% if is_proposal and obj.cover_letter %}<div class="crm-text">{{ obj.cover_letter|linebreaks }}</div>{% endif %}
+  {% if is_proposal and obj.scope %}<h3>Scope and deliverables / النطاق والمخرجات</h3><div class="crm-text">{{ obj.scope|linebreaks }}</div>{% endif %}
+  {% if is_proposal and obj.quotation %}<h3>Pricing / الأسعار</h3>
+  <table><thead><tr><th>Item / الصنف</th><th>Description / البيان</th><th class="num">Qty / الكمية</th><th class="num">Rate / السعر</th><th class="num">Amount / القيمة</th></tr></thead>
+    <tbody>{% for l in lines %}<tr><td>{{ l.item.sku|default:"" }}</td><td>{% if l.description %}{{ l.description }}{% elif l.item %}{{ l.item.name_en }}{% endif %}</td><td class="num">{{ l.qty|num:3 }}</td><td class="num">{{ l.unit_price|num }}</td><td class="num">{{ l.net|num }}</td></tr>{% endfor %}</tbody>
+    <tfoot><tr><th colspan="4" class="num">Subtotal / قبل الضريبة</th><th class="num">{{ obj.quotation.subtotal|num }}</th></tr>
+      <tr><th colspan="4" class="num">VAT / الضريبة</th><th class="num">{{ obj.quotation.tax_total|num }}</th></tr>
+      <tr><th colspan="4" class="num">Total / الإجمالي ({{ obj.quotation.currency_id }})</th><th class="num">{{ obj.quotation.total|num }}</th></tr></tfoot></table>{% endif %}
+  {% if obj.terms %}<h3>Terms / الشروط</h3><div class="crm-text">{{ obj.terms|linebreaks }}</div>{% endif %}
+  {% if obj.accepted_name %}<div class="msg success" style="margin-top:12px">Accepted by / تمت الموافقة بواسطة <b>{{ obj.accepted_name }}</b> · {{ obj.accepted_at|date:"d/m/Y H:i" }}</div>{% endif %}
+</div>

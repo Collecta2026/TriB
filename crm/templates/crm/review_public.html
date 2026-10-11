@@ -1,0 +1,14 @@
+{% load static %}<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow">
+<title>{{ company.name_en }} · Feedback</title><link rel="stylesheet" href="{% static 'css/trib.css' %}?v=f1"></head>
+<body><div class="auth"><div class="auth-card">
+  <h1>{{ company.name_en }}</h1>
+  {% if r.submitted_at %}<p><b>Thank you for your feedback!</b></p><p lang="ar" dir="rtl"><b>شكرًا لك على رأيك!</b></p>
+  {% else %}<p>How did we do? / ما تقييمك لتعاملك معنا؟</p>
+  <form method="post" class="form">{% csrf_token %}
+    <div class="rating">{% for radio in form.rating %}<label class="star-opt">{{ radio.tag }}<span>{{ radio.choice_label }}</span></label>{% endfor %}</div>{{ form.rating.errors }}
+    <div class="field"><label for="id_comment">Comment / تعليق</label>{{ form.comment }}</div>
+    <div class="field"><label for="id_reviewer">Your name / الاسم</label>{{ form.reviewer }}</div>
+    <div class="form-actions"><button class="btn primary" type="submit">Send / إرسال</button></div>
+  </form>{% endif %}
+</div></div></body></html>

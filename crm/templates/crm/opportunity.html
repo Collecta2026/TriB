@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ obj.title }}{% endblock %}
+{% block content %}
+{% include "crm/_nav.html" with section="opportunity" %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'crm:board' %}">{% translate "Opportunities" %}</a></div>
+  <h1>{{ obj.title }} <span class="pill {% if obj.stage == 'won' %}good{% elif obj.stage == 'lost' %}crit{% else %}info{% endif %}">{{ obj.get_stage_display }}</span></h1>
+  <div class="sub">{% if obj.customer %}<a href="{% url 'contacts:customer' obj.customer_id %}">{{ obj.customer }}</a>{% elif obj.lead %}<a href="{% url 'crm:lead' obj.lead_id %}">{{ obj.lead }}</a>{% endif %}
+    · {{ obj.value|money:obj.currency }} · {{ obj.probability }}%{% if obj.expected_close %} · {% translate "Expected close" %} {{ obj.expected_close|date:"d/m/Y" }}{% endif %}{% if obj.owner %} · {{ obj.owner }}{% endif %}</div></div>
+  <div class="toolbar">{% if can.crm.edit %}<a class="btn" href="{% url 'crm:edit' 'opportunity' obj.pk %}">{% translate "Edit" %}</a>{% endif %}
+    {% if obj.quotation %}<a class="btn" href="{% url 'sales:quote' obj.quotation_id %}">{% translate "Estimate" %} {{ obj.quotation.number }}</a>
+    {% elif obj.customer and can.sales.create %}<a class="btn" href="{% url 'sales:quote_new' %}?customer={{ obj.customer_id }}">+ {% translate "Estimate" %}</a>{% endif %}
+    {% if obj.customer and can.crm.create %}<a class="btn primary" href="{% url 'crm:new' 'proposal' %}?customer={{ obj.customer_id }}&opportunity={{ obj.pk }}">+ {% translate "Proposal" %}</a>{% endif %}</div></div>
+{% if obj.notes %}<div class="panel">{{ obj.notes|linebreaksbr }}</div>{% endif %}
+{% if proposals %}<div class="panel"><h2>{% translate "Proposals" %}</h2>{% for p in proposals %}<div class="mini-row"><a href="{% url 'crm:proposal' p.pk %}">{{ p.number }} · {{ p.title }}</a> <span class="pill">{{ p.get_status_display }}</span></div>{% endfor %}</div>{% endif %}
+{% include "crm/_related.html" with opp=obj %}
+{% endblock %}

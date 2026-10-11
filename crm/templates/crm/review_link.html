@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Request feedback" %}{% endblock %}
+{% block content %}
+{% include "crm/_nav.html" with section="review" %}
+<div class="page-head"><div><h1>{% translate "Request feedback" %}</h1><div class="sub">{{ customer }}</div></div></div>
+<div class="panel" style="max-width:720px">
+  <p>{% translate "Send this link to the customer. Their rating appears under Reviews as soon as they submit it." %}</p>
+  <div class="share-row"><input type="text" readonly value="{{ url }}" aria-label="{% translate 'Share link' %}" onclick="this.select()"></div>
+  <div class="form-actions"><a class="btn wa" href="{{ whatsapp }}" target="_blank" rel="noopener">{% translate "Open WhatsApp" %}</a>
+    {% if customer.email %}<a class="btn" href="{{ mailto }}">{% translate "Email" %}</a>{% endif %}
+    <a class="btn" href="{% url 'crm:reviews' %}">{% translate "Done" %}</a></div>
+</div>
+{% endblock %}

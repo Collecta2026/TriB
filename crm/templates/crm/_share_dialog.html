@@ -1,0 +1,6 @@
+{% load i18n %}<dialog class="share-dlg" id="crmShareDlg" aria-labelledby="crmShareH">
+  <div class="dh-h"><h2 id="crmShareH">{% translate "Share" %} {{ obj.number }}</h2><button class="iconbtn" type="button" data-dlg-close aria-label="{% translate 'Close' %}">{% include "partials/icon.html" with name="close" %}</button></div>
+  <p class="lbl">{% translate "Your customer can read it and accept it online by typing their name. They cannot change anything." %}</p>
+  <div class="share-row"><input type="text" readonly data-share-link aria-label="{% translate 'Share link' %}"><button class="btn" type="button" data-copy data-done="{% translate 'Copied' %}">{% translate "Copy link" %}</button></div>
+  <div class="form-actions"><a class="btn wa" href="#" target="_blank" rel="noopener" data-wa>{% translate "Open WhatsApp" %}</a></div>
+</dialog>

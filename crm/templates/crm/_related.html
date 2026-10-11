@@ -1,0 +1,21 @@
+{% load i18n trib %}{# Tasks, conversations, appointments and opportunities for a lead, opportunity or customer. #}
+{% with here=request.get_full_path %}
+<div class="cols">
+  <section class="panel"><div class="panel-h"><h2>{% translate "Tasks" %}</h2>{% if can.crm.create %}<a class="link" href="{% url 'crm:new' 'task' %}?{% if lead %}lead={{ lead.pk }}{% elif opp %}opportunity={{ opp.pk }}{% if opp.customer_id %}&customer={{ opp.customer_id }}{% endif %}{% elif customer %}customer={{ customer.pk }}{% endif %}&next={{ here|urlencode }}">+ {% translate "Task" %}</a>{% endif %}</div>
+    {% for t in tasks %}<div class="mini-row {% if t.done %}done-row{% endif %}">
+      <form method="post" action="{% url 'crm:task_done' t.pk %}" style="display:inline">{% csrf_token %}<input type="hidden" name="next" value="{{ here }}"><button class="tick {% if t.done %}on{% endif %}" aria-label="{% translate 'Done' %}">✓</button></form>
+      <a href="{% url 'crm:edit' 'task' t.pk %}?next={{ here|urlencode }}">{{ t.title }}</a> <span class="lbl">{{ t.due_date|date:"d/m/Y" }} {{ t.assignee|default:"" }}</span></div>
+    {% empty %}<p class="lbl">{% translate "No tasks." %}</p>{% endfor %}</section>
+  <section class="panel"><div class="panel-h"><h2>{% translate "Conversations" %}</h2>{% if can.crm.create %}<a class="link" href="{% url 'crm:new' 'conversation' %}?{% if lead %}lead={{ lead.pk }}{% elif opp and opp.customer_id %}customer={{ opp.customer_id }}{% elif opp and opp.lead_id %}lead={{ opp.lead_id }}{% elif customer %}customer={{ customer.pk }}{% endif %}&next={{ here|urlencode }}">+ {% translate "Log a conversation" %}</a>{% endif %}</div>
+    {% for c in conversations %}<div class="mini-row"><b>{{ c.happened_at|date:"d/m/Y H:i" }}</b> · {{ c.get_kind_display }} · <span class="lbl">{{ c.by|default:"" }}</span><div>{{ c.summary|linebreaksbr }}</div>{% if c.follow_up %}<div class="lbl">{% translate "Follow up on" %} {{ c.follow_up|date:"d/m/Y" }}</div>{% endif %}</div>
+    {% empty %}<p class="lbl">{% translate "No conversations logged." %}</p>{% endfor %}</section>
+</div>
+<div class="cols">
+  <section class="panel"><div class="panel-h"><h2>{% translate "Appointments" %}</h2>{% if can.crm.create %}<a class="link" href="{% url 'crm:new' 'appointment' %}?{% if lead %}lead={{ lead.pk }}{% elif opp %}opportunity={{ opp.pk }}{% if opp.customer_id %}&customer={{ opp.customer_id }}{% endif %}{% elif customer %}customer={{ customer.pk }}{% endif %}&next={{ here|urlencode }}">+ {% translate "Appointment" %}</a>{% endif %}</div>
+    {% for a in appointments %}<div class="mini-row"><b>{{ a.starts_at|date:"D d/m/Y H:i" }}</b> · <a href="{% url 'crm:edit' 'appointment' a.pk %}?next={{ here|urlencode }}">{{ a.title }}</a> <span class="lbl">{{ a.location }}</span></div>
+    {% empty %}<p class="lbl">{% translate "Nothing booked." %}</p>{% endfor %}</section>
+  {% if not opp %}<section class="panel"><div class="panel-h"><h2>{% translate "Opportunities" %}</h2>{% if can.crm.create %}<a class="link" href="{% url 'crm:new' 'opportunity' %}?{% if lead %}lead={{ lead.pk }}{% elif customer %}customer={{ customer.pk }}{% endif %}">+ {% translate "Opportunity" %}</a>{% endif %}</div>
+    {% for o in opportunities %}<div class="mini-row"><a href="{% url 'crm:opportunity' o.pk %}">{{ o.title }}</a> · {{ o.get_stage_display }} · <span class="m">{{ o.value|num:0 }}</span></div>
+    {% empty %}<p class="lbl">{% translate "No opportunities yet." %}</p>{% endfor %}</section>{% endif %}
+</div>
+{% endwith %}

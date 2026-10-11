@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ obj.name }}{% endblock %}
+{% block content %}
+{% include "crm/_nav.html" with section="lead" %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'crm:list' 'lead' %}">{% translate "Customers & leads" %}</a></div>
+  <h1>{{ obj.name }} <span class="pill">{{ obj.get_status_display }}</span></h1>
+  <div class="sub">{{ obj.contact_person }}{% if obj.phone %} · <a href="tel:{{ obj.phone }}">{{ obj.phone }}</a>{% endif %}{% if obj.email %} · <a href="mailto:{{ obj.email }}">{{ obj.email }}</a>{% endif %} · {{ obj.get_source_display }}</div></div>
+  <div class="toolbar">
+    {% if can.crm.edit %}<a class="btn" href="{% url 'crm:edit' 'lead' obj.pk %}">{% translate "Edit" %}</a>{% endif %}
+    {% if obj.customer %}<a class="btn" href="{% url 'contacts:customer' obj.customer_id %}">{% translate "Open customer" %}</a>
+    {% elif can.crm.edit and can.contacts.create %}<form method="post" action="{% url 'crm:lead_convert' obj.pk %}">{% csrf_token %}<button class="btn primary">{% translate "Convert to customer" %}</button></form>{% endif %}
+  </div></div>
+{% include "crm/_related.html" with lead=obj %}
+{% endblock %}
