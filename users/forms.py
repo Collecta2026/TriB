@@ -3,7 +3,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.password_validation import validate_password
 from django.utils.translation import gettext_lazy as _
 
-from .models import DOC_TYPES, Role, User
+from .models import LIMIT_TYPES, Role, User
 
 
 class LoginForm(AuthenticationForm):
@@ -24,13 +24,20 @@ class MemberForm(forms.Form):
         queryset=None, widget=forms.CheckboxSelectMultiple, required=False, label=_("Branches"),
         help_text=_("Leave empty to allow every branch."),
     )
+    warehouses = forms.ModelMultipleChoiceField(
+        queryset=None, widget=forms.CheckboxSelectMultiple, required=False, label=_("Warehouses"),
+        help_text=_("Leave empty to allow every warehouse. Stock and documents for other warehouses are hidden."),
+    )
     is_active = forms.BooleanField(label=_("Active"), required=False, initial=True)
 
     def __init__(self, *args, company, editing=None, **kwargs):
         super().__init__(*args, **kwargs)
+        from inventory.models import Warehouse
+
         self.company, self.editing = company, editing
         self.fields["roles"].queryset = company.roles.all()
         self.fields["branches"].queryset = company.branches.filter(is_active=True)
+        self.fields["warehouses"].queryset = Warehouse.objects.filter(company=company, is_active=True)
         if editing is not None:
             for name in ("email", "password"):
                 self.fields.pop(name)
@@ -56,12 +63,16 @@ class MemberForm(forms.Form):
 class RoleForm(forms.ModelForm):
     class Meta:
         model = Role
-        fields = ["name_en", "name_ar"]
+        fields = ["name_en", "name_ar", "own_records_only"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for doc_type, label in DOC_TYPES:
+        for doc_type, label in LIMIT_TYPES:
             self.fields[f"limit_{doc_type}"] = forms.DecimalField(
                 label=_("Approval limit: %(doc)s") % {"doc": label}, required=False, min_value=0,
-                max_digits=19, decimal_places=2, help_text=_("Largest amount in base currency. Empty means cannot approve."),
+                max_digits=19, decimal_places=2,
+                help_text=_("Largest amount in base currency. Empty means cannot approve; 999999999999 means no limit."),
             )
+
+    def limit_fields(self):
+        return [self[f"limit_{doc_type}"] for doc_type, _label in LIMIT_TYPES]

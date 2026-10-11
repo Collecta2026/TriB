@@ -11,6 +11,16 @@ DOC_TYPES = [
     ("payment", _("Payment voucher")),
     ("journal", _("Journal voucher")),
 ]
+# Approval limits per role. Vouchers also go through the approval rules (approvals app); purchase orders and bills
+# use these limits directly, passing anything larger up to someone whose limit covers it.
+LIMIT_TYPES = [
+    ("receipt", _("Receipt voucher")),
+    ("payment", _("Payment voucher (expenses)")),
+    ("journal", _("Journal voucher")),
+    ("purchase_order", _("Purchase order")),
+    ("bill", _("Bill")),
+]
+NO_LIMIT = Decimal("999999999999")
 
 
 class UserManager(BaseUserManager):
@@ -60,6 +70,10 @@ class Role(Bilingual):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="roles")
     permissions = models.JSONField(default=list, blank=True)
     is_system = models.BooleanField(default=False)
+    own_records_only = models.BooleanField(
+        _("Own records only"), default=False,
+        help_text=_("Sees only the customers they manage, their own leads and opportunities, and the sales documents "
+                    "for those customers."))
 
     class Meta:
         ordering = ["name_en"]
@@ -69,7 +83,7 @@ class ApprovalLimit(models.Model):
     """The largest document (in base currency) a role may approve."""
 
     role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name="limits")
-    doc_type = models.CharField(max_length=20, choices=DOC_TYPES)
+    doc_type = models.CharField(max_length=20, choices=LIMIT_TYPES)
     max_amount = models.DecimalField(max_digits=19, decimal_places=2)
 
     class Meta:
@@ -83,6 +97,10 @@ class Membership(models.Model):
     branches = models.ManyToManyField(
         Branch, blank=True, related_name="+",
         help_text=_("Leave empty to allow every branch."),
+    )
+    warehouses = models.ManyToManyField(
+        "inventory.Warehouse", blank=True, related_name="+",
+        help_text=_("Leave empty to allow every warehouse."),
     )
     is_owner = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
@@ -106,11 +124,13 @@ class Membership(models.Model):
         return self.is_active and (self.is_owner or code in self.permission_set())
 
     def approval_limit(self, doc_type):
-        """None means no limit (owners); Decimal('0') means this person cannot approve."""
+        """None means no limit (owners, or a role set to the "no limit" amount); Decimal('0') means this person
+        cannot approve."""
         if self.is_owner:
             return None
         limits = ApprovalLimit.objects.filter(role__in=self.roles.all(), doc_type=doc_type)
-        return max((lim.max_amount for lim in limits), default=Decimal("0"))
+        best = max((lim.max_amount for lim in limits), default=Decimal("0"))
+        return None if best >= NO_LIMIT else best
 
     def allowed_branch_ids(self):
         ids = list(self.branches.values_list("id", flat=True))

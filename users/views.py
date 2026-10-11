@@ -11,7 +11,7 @@ from django.utils.translation import gettext as _
 from core.models import AuditLog, Company, client_ip
 
 from .forms import LoginForm, MemberForm, RoleForm
-from .models import DOC_TYPES, ApprovalLimit, Membership, Role, User
+from .models import LIMIT_TYPES, ApprovalLimit, Membership, Role, User
 from .permissions import ALL_CODES, ACTIONS, matrix_rows, require_perm
 
 
@@ -46,9 +46,28 @@ def change_password(request):
 
 @require_perm("users.view")
 def user_list(request):
-    members = Membership.objects.filter(company=request.company).select_related("user").prefetch_related("roles", "branches")
+    members = Membership.objects.filter(company=request.company).select_related("user").prefetch_related(
+        "roles", "branches", "warehouses")
     roles = request.company.roles.prefetch_related("limits")
     return render(request, "users/users.html", {"members": members, "roles": roles})
+
+
+@require_perm("users.view")
+def access_report(request):
+    """Who can do what: printable, or Excel with ?format=xlsx."""
+    from django.http import HttpResponse
+    from django.utils import timezone
+
+    from .access_report import build, workbook
+
+    data = build(request.company)
+    if request.GET.get("format") == "xlsx":
+        AuditLog.record(request.company, request.user, "users.access_report", None, "Excel", ip=client_ip(request))
+        response = HttpResponse(workbook(request.company, data),
+                                content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        response["Content-Disposition"] = f'attachment; filename="who-can-do-what-{timezone.localdate():%Y-%m-%d}.xlsx"'
+        return response
+    return render(request, "users/access_report.html", {**data, "today": timezone.localdate()})
 
 
 @require_perm("users.create")
@@ -67,6 +86,7 @@ def user_new(request):
         membership = Membership.objects.create(user=user, company=request.company, is_active=d["is_active"])
         membership.roles.set(d["roles"])
         membership.branches.set(d["branches"])
+        membership.warehouses.set(d["warehouses"])
         AuditLog.record(request.company, request.user, "user.added", membership,
                         f"{user.email}: {', '.join(r.name_en for r in d['roles'])}", ip=client_ip(request))
         messages.success(request, _("%(name)s can now sign in.") % {"name": user})
@@ -80,7 +100,8 @@ def user_edit(request, pk):
     membership = get_object_or_404(Membership, pk=pk, company=request.company)
     user = membership.user
     initial = {"full_name": user.full_name, "phone": user.phone, "preferred_language": user.preferred_language,
-               "roles": membership.roles.all(), "branches": membership.branches.all(), "is_active": membership.is_active}
+               "roles": membership.roles.all(), "branches": membership.branches.all(),
+               "warehouses": membership.warehouses.all(), "is_active": membership.is_active}
     form = MemberForm(request.POST or None, company=request.company, editing=membership, initial=initial)
     if request.method == "POST" and form.is_valid():
         d = form.cleaned_data
@@ -93,6 +114,7 @@ def user_edit(request, pk):
         membership.save(update_fields=["is_active"])
         membership.roles.set(d["roles"])
         membership.branches.set(d["branches"])
+        membership.warehouses.set(d["warehouses"])
         AuditLog.record(request.company, request.user, "user.changed", membership,
                         f"{user.email}: {', '.join(r.name_en for r in d['roles'])}; active={d['is_active']}", ip=client_ip(request))
         messages.success(request, _("Saved."))
@@ -113,7 +135,7 @@ def role_edit(request, pk=None):
         role.company = request.company
         role.permissions = [code for code in selected if code in ALL_CODES]
         role.save()
-        for doc_type, _label in DOC_TYPES:
+        for doc_type, _label in LIMIT_TYPES:
             amount = form.cleaned_data.get(f"limit_{doc_type}")
             if amount is None:
                 ApprovalLimit.objects.filter(role=role, doc_type=doc_type).delete()

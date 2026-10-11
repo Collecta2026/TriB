@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="{% static 'css/trib.css' %}?v=f6">
+  <link rel="stylesheet" href="{% static 'css/trib.css' %}?v=g1">
   {% block head %}{% endblock %}
 </head>
 <body {% if nav.blur %}data-priv-default="1"{% endif %}>
@@ -181,9 +181,9 @@
 <form id="abarPost" method="post" hidden>{% csrf_token %}</form>
 <div hidden id="navUrls" data-bm-url="{% url 'core:bookmark_toggle' %}"></div>
 {% endblock %}
-<script src="{% static 'js/trib.js' %}?v=f6"></script>
-<script src="{% static 'js/grid.js' %}?v=f6"></script>
-<script src="{% static 'js/lines.js' %}?v=f6"></script>
+<script src="{% static 'js/trib.js' %}?v=g1"></script>
+<script src="{% static 'js/grid.js' %}?v=g1"></script>
+<script src="{% static 'js/lines.js' %}?v=g1"></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>
