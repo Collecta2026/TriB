@@ -1,0 +1,10 @@
+<!doctype html>
+<html><body style="margin:0;background:#f3f6f6;font-family:Segoe UI,Arial,sans-serif;color:#16232a">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f6f6;padding:24px 0"><tr><td align="center">
+<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #e1e6e5;border-radius:10px;padding:24px">
+  <tr><td style="font-size:18px;font-weight:600;padding-bottom:4px">{{ company.name_en }}</td></tr>
+  <tr><td style="font-size:13px;color:#5a6a71;padding-bottom:16px">{{ spec.print_en }} {{ doc.number }} · {{ doc.currency_id }} {{ doc.total|floatformat:2 }}</td></tr>
+  <tr><td style="font-size:14px;line-height:1.5;white-space:pre-line;padding-bottom:20px">{{ message }}</td></tr>
+  <tr><td><a href="{{ url }}" style="display:inline-block;background:#0e6470;color:#fff;text-decoration:none;padding:10px 18px;border-radius:7px;font-weight:600">View {{ spec.print_en }} / عرض المستند</a></td></tr>
+</table></td></tr></table>
+</body></html>

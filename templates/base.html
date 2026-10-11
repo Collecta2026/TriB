@@ -9,15 +9,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="{% static 'css/trib.css' %}">
+  <link rel="stylesheet" href="{% static 'css/trib.css' %}?v=e1">
   {% block head %}{% endblock %}
 </head>
-<body>
+<body {% if nav.blur %}data-priv-default="1"{% endif %}>
 {% block body %}
 <div class="app" id="app">
   <aside class="rail" aria-label="{% translate 'Main menu' %}">
-    <a class="rail-logo" href="{% url 'dashboard:home' %}" title="TriB"><img src="{% static 'img/logo.svg' %}" width="38" height="38" alt="TriB"></a>
-    <button class="ri" type="button" data-toggle="#createPop" aria-haspopup="true"><span class="ic">{% include "partials/icon.html" with name="plus" %}</span><span>{% translate "Create" %}</span></button>
+    <a class="rail-logo" href="{% url 'dashboard:home' %}" title="TriB"><img src="{% static 'img/logo.svg' %}" width="34" height="34" alt="TriB"></a>
+    <button class="ri" type="button" data-toggle="#createPop" data-hover-pop="#createPop" aria-haspopup="true"><span class="ic">{% include "partials/icon.html" with name="plus" %}</span><span>{% translate "Create" %}</span></button>
     <div class="ri-wrap"><a class="ri {% active '/bookmarks/' %}" href="{% url 'core:bookmarks' %}"><span class="ic">{% include "partials/icon.html" with name="star" %}</span><span>{% translate "Bookmarks" %}</span></a>
       <div class="fly"><h3>{% translate "Bookmarks" %}</h3>{% for b in nav.bookmarks %}<a href="{{ b.url }}">{{ b.title }}</a>{% empty %}<span class="lbl">{% translate "Star a page to add it here." %}</span>{% endfor %}
         <a class="edit" href="{% url 'core:bookmarks' %}">{% translate "Edit bookmarks" %}</a></div></div>
@@ -27,41 +27,60 @@
       <div class="fly wide"><h3>{% translate "All apps" %}</h3><div class="fly-apps">{% for a in nav.apps %}<a href="{{ a.url }}">{% include "partials/icon.html" with name=a.icon %}<span>{{ a.label }}</span></a>{% endfor %}</div></div></div>
     <div class="rail-sep">{% translate "PINNED" %}</div>
     {% for a in nav.pinned %}<div class="ri-wrap"><a class="ri {% if a.active %}active{% endif %}" href="{{ a.url }}"><span class="ic">{% include "partials/icon.html" with name=a.icon %}</span><span>{{ a.label }}</span>{% if a.key == "approvals" and pending_approvals %}<span class="bdg">{{ pending_approvals }}</span>{% endif %}</a>
-      <div class="fly"><h3>{{ a.label }}</h3>{% for i in a.items %}{% if i.url %}<a href="{{ i.url }}">{{ i.label }}</a>{% else %}<span class="soon">{{ i.label }} · {% translate "soon" %}</span>{% endif %}{% endfor %}</div></div>{% endfor %}
+      <div class="fly"><h3>{{ a.label }}</h3>{% for i in a.items %}{% if i.url %}<div class="fly-i"><a href="{{ i.url }}">{{ i.label }}</a><button class="bm {% if i.bm %}on{% endif %}" type="button" data-bm="{{ i.url }}" data-title="{{ i.label }}" aria-pressed="{% if i.bm %}true{% else %}false{% endif %}" aria-label="{% translate 'Bookmark' %}: {{ i.label }}" title="{% translate 'Bookmark' %}">{% include "partials/icon.html" with name="bookmark" %}</button></div>{% else %}<span class="soon">{{ i.label }} · {% translate "soon" %}</span>{% endif %}{% endfor %}</div></div>{% endfor %}
     <a class="ri {% active '/customise/' %}" href="{% url 'core:customise' %}"><span class="ic">{% include "partials/icon.html" with name="sliders" %}</span><span>{% translate "Customise" %}</span></a>
     <div class="grow"></div>
-    {% if can.setup.view %}<a class="ri {% active '/settings/' %}" href="{% url 'core:settings' %}"><span class="ic">{% include "partials/icon.html" with name="gear" %}</span><span>{% translate "Settings" %}</span></a>{% endif %}
   </aside>
   <div class="scrim" id="scrim" hidden></div>
 
-  <div class="pop" id="createPop" data-popover hidden>
+  <div class="pop create-pop" id="createPop" data-popover hidden>
     <div><h3>{% translate "Customers" %}</h3>
-      {% if can.sales.create %}<a href="{% url 'sales:invoice_new' %}">{% translate "Invoice" %}</a><a href="{% url 'sales:payment_new' %}">{% translate "Receive payment" %}</a>
-        <a href="{% url 'sales:quote_new' %}">{% translate "Quotation" %}</a><a href="{% url 'sales:order_new' %}">{% translate "Sales order" %}</a>{% endif %}
-      {% if can.vouchers.create %}<a href="{% url 'vouchers:new' 'receipt' %}">{% translate "Receipt voucher" %}</a>{% endif %}
-      {% if can.contacts.create %}<a href="{% url 'contacts:customer_new' %}">{% translate "Customer" %}</a>{% endif %}
+      {% if can.sales.create %}<a href="{% url 'sales:invoice_new' %}">{% translate "Invoice" %}</a>
+        <a href="{% url 'sales:payment_new' %}">{% translate "Receive payment" %}</a>{% endif %}
+      {% if can.sales.view %}<a href="{% url 'sales:statements' %}">{% translate "Statement" %}</a>{% endif %}
+      {% if can.sales.create %}<a href="{% url 'sales:quote_new' %}">{% translate "Estimate (quotation)" %}</a>
+        <a href="{% url 'sales:order_new' %}">{% translate "Sales order" %}</a>
+        <a href="{% url 'sales:credit_new' %}">{% translate "Credit note" %}</a>
+        <a href="{% url 'sales:sales_receipt_new' %}">{% translate "Sales receipt" %}</a>
+        <a href="{% url 'sales:refund_new' %}">{% translate "Refund receipt" %}</a>{% endif %}
+      <span class="soon">{% translate "Delayed credit" %} · {% translate "soon" %}</span>
+      <span class="soon">{% translate "Delayed charge" %} · {% translate "soon" %}</span>
+      <span class="soon">{% translate "Proposal" %} · {% translate "soon" %}</span>
+      {% if can.contacts.create %}<a href="{% url 'contacts:customer_new' %}">{% translate "Add customer" %}</a>{% endif %}
     </div>
     <div><h3>{% translate "Suppliers" %}</h3>
-      {% if can.purchases.create %}<a href="{% url 'purchases:bill_new' %}">{% translate "Bill" %}</a><a href="{% url 'purchases:payment_new' %}">{% translate "Pay bills" %}</a>
-        <a href="{% url 'purchases:order_new' %}">{% translate "Purchase order" %}</a><a href="{% url 'purchases:receipt_new' %}">{% translate "Item receipt" %}</a>{% endif %}
-      {% if can.vouchers.create %}<a href="{% url 'vouchers:new' 'payment' %}">{% translate "Payment voucher" %}</a>{% endif %}
-      {% if can.contacts.create %}<a href="{% url 'contacts:supplier_new' %}">{% translate "Supplier" %}</a>{% endif %}
+      {% if can.vouchers.create %}<a href="{% url 'vouchers:new' 'payment' %}">{% translate "Expense" %}</a>
+        <a href="{% url 'vouchers:new' 'payment' %}?method=cheque">{% translate "Cheque" %}</a>{% endif %}
+      {% if can.purchases.create %}<a href="{% url 'purchases:bill_new' %}">{% translate "Bill" %}</a>
+        <a href="{% url 'purchases:payment_new' %}">{% translate "Pay bills" %}</a>
+        <a href="{% url 'purchases:order_new' %}">{% translate "Purchase order" %}</a>
+        <a href="{% url 'purchases:receipt_new' %}">{% translate "Item receipt" %}</a>
+        <a href="{% url 'purchases:supplier_credit_new' %}">{% translate "Supplier credit" %}</a>{% endif %}
+      <span class="soon">{% translate "Credit card credit" %} · {% translate "soon" %}</span>
+      {% if can.contacts.create %}<a href="{% url 'contacts:supplier_new' %}">{% translate "Add supplier" %}</a>{% endif %}
     </div>
-    <div><h3>{% translate "Team & stock" %}</h3>
-      {% if can.payroll.create %}<a href="{% url 'payroll:runs' %}">{% translate "Run payroll" %}</a>{% endif %}
+    <div><h3>{% translate "Team" %}</h3>
       {% if can.team.create %}<a href="{% url 'team:employee_new' %}">{% translate "Employee" %}</a>{% endif %}
-      {% if can.inventory.create %}<a href="{% url 'inventory:item_new' %}">{% translate "Product or service" %}</a><a href="{% url 'inventory:transfer_new' %}">{% translate "Stock transfer" %}</a><a href="{% url 'inventory:adjustment_new' %}">{% translate "Stock adjustment" %}</a>{% endif %}
-      {% if can.assets.create %}<a href="{% url 'assets:new' %}">{% translate "Fixed asset" %}</a>{% endif %}
+      {% if can.payroll.create %}<a href="{% url 'payroll:runs' %}">{% translate "Run payroll" %}</a>{% endif %}
+      <span class="soon">{% translate "Single time activity" %} · {% translate "soon" %}</span>
+      <span class="soon">{% translate "Weekly timesheet" %} · {% translate "soon" %}</span>
+    </div>
+    <div><h3>{% translate "Projects" %}</h3>
+      {% if can.projects.create %}<a href="{% url 'projects:new' %}">{% translate "Project" %}</a>{% endif %}
     </div>
     <div><h3>{% translate "Other" %}</h3>
-      {% if can.vouchers.create %}<a href="{% url 'vouchers:new' 'journal' %}">{% translate "Journal voucher" %}</a><a href="{% url 'core:receipts' %}">{% translate "Upload receipts" %}</a>{% endif %}
-      {% if can.banking.create %}<a href="{% url 'banking:account_new' %}">{% translate "Bank account or cash box" %}</a>{% endif %}
-      {% if can.banking.post %}<a href="{% url 'banking:transactions_import' %}">{% translate "Upload bank statement" %}</a>{% endif %}
-      {% if can.ledger.create %}<a href="{% url 'ledger:account_new' %}">{% translate "Account" %}</a>{% endif %}
-      {% if can.users.create %}<a href="{% url 'users:user_new' %}">{% translate "User" %}</a>{% endif %}
+      <span class="soon">{% translate "Task" %} · {% translate "soon" %}</span>
+      {% if can.banking.post %}<a href="{% url 'banking:deposit_new' %}">{% translate "Bank deposit" %}</a>
+        <a href="{% url 'banking:transfers' %}">{% translate "Transfer" %}</a>{% endif %}
+      {% if can.vouchers.create %}<a href="{% url 'vouchers:new' 'journal' %}">{% translate "Journal entry" %}</a>{% endif %}
+      {% if can.inventory.create %}<a href="{% url 'inventory:adjustment_new' %}">{% translate "Stock adjustment" %}</a>
+        <a href="{% url 'inventory:transfer_new' %}">{% translate "Stock transfer" %}</a>{% endif %}
+      <span class="soon">{% translate "Pay down credit card" %} · {% translate "soon" %}</span>
+      {% if can.inventory.create %}<a href="{% url 'inventory:item_new' %}">{% translate "Add product/service" %}</a>{% endif %}
+      {% if can.assets.create %}<a href="{% url 'assets:new' %}">{% translate "Fixed asset" %}</a>{% endif %}
+      {% if can.vouchers.create %}<a href="{% url 'core:receipts' %}">{% translate "Upload receipts" %}</a>{% endif %}
     </div>
   </div>
-
   <div class="main">
     <header class="top">
       <button class="iconbtn hamb" id="hambBtn" type="button" aria-label="{% translate 'Menu' %}">{% include "partials/icon.html" with name="menu" %}</button>
@@ -86,15 +105,65 @@
           <input type="hidden" name="language" value="{% if LANG == 'ar' %}en{% else %}ar{% endif %}">
           <button class="pillbtn" type="submit" lang="{% if LANG == 'ar' %}en{% else %}ar{% endif %}">{% if LANG == "ar" %}English{% else %}عربي{% endif %}</button>
         </form>
-        {% if can.vouchers.approve %}<a class="iconbtn" href="{% url 'approvals:inbox' %}" aria-label="{% translate 'Approvals' %}">{% include "partials/icon.html" with name="bell" %}{% if pending_approvals %}<span class="dot">{{ pending_approvals }}</span>{% endif %}</a>{% endif %}
-        <div class="menu">
-          <button class="avatar" type="button" data-toggle="#userMenu" aria-label="{% translate 'Account' %}">{{ user.initials }}</button>
-          <div class="menu-pop" id="userMenu" data-popover hidden>
-            <div class="who"><b>{{ user }}</b><div class="lbl">{{ user.email }}</div></div>
-            {% if can.setup.view %}<a href="{% url 'core:settings' %}">{% translate "Company settings" %}</a>{% endif %}
-            {% if can.users.view %}<a href="{% url 'users:users' %}">{% translate "Users & roles" %}</a>{% endif %}
-            {% if can.audit.view %}<a href="{% url 'core:audit' %}">{% translate "Audit log" %}</a>{% endif %}
+
+        <div class="hov tb">
+          <a class="iconbtn" href="{% url 'core:help' %}" aria-label="{% translate 'Help' %}" aria-haspopup="true">{% include "partials/icon.html" with name="help" %}</a>
+          <div class="hov-pop tb-pop help-pop"><h3>{% translate "Help" %}</h3>
+            <a href="{% url 'core:help' %}">{% include "partials/icon.html" with name="keyboard" %}{% translate "Keyboard shortcuts" %}</a>
+            <a href="{% url 'dashboard:home' %}?customise=1">{% include "partials/icon.html" with name="sliders" %}{% translate "Customise your dashboard" %}</a>
+            <a href="{% url 'core:help' %}#answers">{% include "partials/icon.html" with name="help" %}{% translate "Quick answers" %}</a>
+            <a href="{% url 'core:feedback' %}">{% include "partials/icon.html" with name="chat" %}{% translate "Give feedback" %}</a></div>
+        </div>
+
+        <div class="hov tb" data-alerts="{% url 'core:alerts' %}?partial=1">
+          <a class="iconbtn" href="{% url 'core:alerts' %}" aria-label="{% translate 'Alerts' %}" aria-haspopup="true">{% include "partials/icon.html" with name="bell" %}{% if pending_approvals %}<span class="dot">{{ pending_approvals }}</span>{% endif %}</a>
+          <div class="hov-pop tb-pop alerts-pop"><div class="pop-h"><h3>{% translate "Alerts" %}</h3><a class="link" href="{% url 'core:alerts' %}">{% translate "See all" %}</a></div>
+            <div data-alerts-body><p class="lbl al-none">{% translate "Loading…" %}</p></div></div>
+        </div>
+
+        <div class="hov tb">
+          <button class="iconbtn" type="button" aria-label="{% translate 'Settings' %}" aria-haspopup="true">{% include "partials/icon.html" with name="gear" %}</button>
+          <div class="hov-pop tb-pop gear-pop">
+            <div><h3>{% translate "Your company" %}</h3>
+              {% if can.setup.view %}<a href="{% url 'core:settings' %}">{% translate "Account and settings" %}</a>{% endif %}
+              {% if can.users.view %}<a href="{% url 'users:users' %}">{% translate "Manage users" %}</a>{% endif %}
+              <span class="soon">{% translate "Custom form styles" %} · {% translate "soon" %}</span>
+              {% if can.reports.view %}<a href="{% url 'core:report_settings' %}">{% translate "Default report settings" %}</a>{% endif %}
+              {% if can.ledger.view %}<a href="{% url 'ledger:accounts' %}">{% translate "Chart of accounts" %}</a>{% endif %}
+              {% if can.setup.view %}<a href="{% url 'core:additional_info' %}">{% translate "Additional info" %}</a>{% endif %}
+              {% if can.users.view %}<a href="{% url 'core:accountant' %}">{% translate "My accountant" %}</a>{% endif %}
+            </div>
+            <div><h3>{% translate "Lists" %}</h3>
+              <a href="{% url 'core:lists' %}">{% translate "All lists" %}</a>
+              {% if can.inventory.view %}<a href="{% url 'inventory:items' %}">{% translate "Products and services" %}</a>{% endif %}
+              {% if can.vouchers.create %}<a href="{% url 'core:recurring' %}">{% translate "Recurring transactions" %}</a>{% endif %}
+              <a href="{% url 'core:attachments' %}">{% translate "Attachments" %}</a>
+              <span class="soon">{% translate "Custom fields" %} · {% translate "soon" %}</span>
+              {% if can.banking.edit %}<a href="{% url 'banking:rules' %}">{% translate "Rules" %}</a>{% endif %}
+            </div>
+            <div><h3>{% translate "Tools" %}</h3>
+              <span class="soon">{% translate "Reclassify transactions" %} · {% translate "soon" %}</span>
+              <span class="soon">{% translate "Import data" %} · {% translate "soon" %}</span>
+              <span class="soon">{% translate "Export data" %} · {% translate "soon" %}</span>
+              {% if can.banking.post %}<a href="{% url 'banking:reconcile' %}">{% translate "Reconcile" %}</a>{% endif %}
+              <span class="soon">{% translate "Budgeting" %} · {% translate "soon" %}</span>
+              {% if can.audit.view %}<a href="{% url 'core:audit' %}">{% translate "Audit log" %}</a>{% endif %}
+            </div>
+            <div><h3>{% translate "Profile" %}</h3>
+              <a href="{% url 'core:subscription' %}">{% translate "Subscriptions and billing" %}</a>
+              <a href="{% url 'core:feedback' %}">{% translate "Feedback" %}</a>
+              <a href="{% url 'core:privacy' %}">{% translate "Privacy" %}</a>
+              <a href="{% url 'core:cookies' %}">{% translate "Cookies" %}</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="hov tb">
+          <button class="avatar" type="button" aria-label="{% translate 'Account' %}" aria-haspopup="true">{{ user.initials }}</button>
+          <div class="hov-pop tb-pop menu-pop">
+            <div class="who"><b>{{ user }}</b><div class="lbl">{{ user.email }}</div><div class="lbl">{{ company.name }}</div></div>
             <a href="{% url 'users:password' %}">{% translate "Change password" %}</a>
+            <a href="{% url 'core:privacy' %}">{% translate "Privacy" %}</a>
             <form method="post" action="{% url 'users:logout' %}">{% csrf_token %}<button type="submit">{% translate "Sign out" %}</button></form>
           </div>
         </div>
@@ -107,8 +176,11 @@
     </main>
   </div>
 </div>
+<form id="abarPost" method="post" hidden>{% csrf_token %}</form>
+<div hidden id="navUrls" data-bm-url="{% url 'core:bookmark_toggle' %}"></div>
 {% endblock %}
-<script src="{% static 'js/trib.js' %}"></script>
+<script src="{% static 'js/trib.js' %}?v=e1"></script>
+<script src="{% static 'js/grid.js' %}?v=e1"></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

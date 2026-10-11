@@ -1,0 +1,60 @@
+{% load trib %}<div class="voucher-doc">
+  <div class="vh">
+    <div><b>{{ company.name_en }}</b><div>{{ company.address|linebreaksbr }}</div>
+      {% if company.tax_id %}<div>Tax reg. {{ company.tax_id }}</div>{% endif %}{% if company.commercial_register %}<div>C.R. {{ company.commercial_register }}</div>{% endif %}</div>
+    <div class="vt">{% if delivery %}<h1>Delivery Note</h1><h1 class="ar">إذن تسليم</h1>{% else %}<h1>{{ spec.print_en }}</h1><h1 class="ar">{{ spec.print_ar }}</h1>{% endif %}<div><b>{{ doc.number }}</b></div></div>
+    <div class="ar" style="text-align:start"><b>{{ company.name_ar }}</b>
+      {% if company.tax_id %}<div>رقم التسجيل الضريبي {{ company.tax_id }}</div>{% endif %}{% if company.commercial_register %}<div>سجل تجاري {{ company.commercial_register }}</div>{% endif %}</div>
+  </div>
+  <div class="bi">
+    <div>{% if doc.bill_to %}<div class="lbl">Bill to / فاتورة إلى</div><b>{{ doc.bill_to|linebreaksbr }}</b>{% elif party %}<b>{{ party.name_en }}</b>{% if party.address %}<div>{{ party.address|linebreaksbr }}</div>{% endif %}{% endif %}
+      {% if party.tax_id %}<div>Tax reg. {{ party.tax_id }}</div>{% endif %}
+      {% if doc.ship_to %}<div style="margin-top:6px" class="lbl">Ship to / الشحن إلى</div><div>{{ doc.ship_to|linebreaksbr }}</div>{% endif %}</div>
+    <div style="text-align:end">
+      <div>Date / التاريخ: <b>{{ doc.date|date:"d/m/Y" }}</b></div>
+      {% if doc.due_date and not delivery %}<div>Due / الاستحقاق: <b>{{ doc.due_date|date:"d/m/Y" }}</b>{% if doc.terms and doc.terms != "custom" %} ({{ doc.get_terms_display }}){% endif %}</div>{% endif %}
+      {% if doc.valid_until %}<div>Valid until / صالح حتى: <b>{{ doc.valid_until|date:"d/m/Y" }}</b></div>{% endif %}
+      {% if doc.expected_date %}<div>Expected / التاريخ المتوقع: <b>{{ doc.expected_date|date:"d/m/Y" }}</b></div>{% endif %}
+      {% if doc.customer_po %}<div>Your PO / أمر الشراء: {{ doc.customer_po }}</div>{% endif %}
+      {% if doc.reference %}<div>Ref / المرجع: {{ doc.reference }}</div>{% endif %}
+      {% if doc.supplier_invoice_no %}<div>Supplier inv. / فاتورة المورد: {{ doc.supplier_invoice_no }}</div>{% endif %}
+      {% if doc.ship_via %}<div>Ship via / طريقة الشحن: {{ doc.ship_via }}</div>{% endif %}
+      {% if doc.ship_date %}<div>Shipped / تاريخ الشحن: {{ doc.ship_date|date:"d/m/Y" }}</div>{% endif %}
+      {% if doc.tracking_no %}<div>Tracking / رقم التتبع: {{ doc.tracking_no }}</div>{% endif %}
+      {% if not delivery %}<div>Currency / العملة: {{ doc.currency_id }}</div>{% endif %}
+    </div>
+  </div>
+  <table>
+    {% if delivery %}
+    <thead><tr><th>#</th><th>Item / الصنف</th><th>Description / البيان</th><th class="num">Qty / الكمية</th><th>Received / ملاحظات الاستلام</th></tr></thead>
+    <tbody>{% for l in lines %}<tr><td>{{ forloop.counter }}</td><td>{{ l.item.sku|default:"" }}</td>
+      <td>{% if l.description %}{{ l.description }}{% elif l.item %}{{ l.item.name_en }}{% endif %}{% if l.item.name_ar %}<div class="ar">{{ l.item.name_ar }}</div>{% endif %}{% if l.serials %}<div>S/N: {{ l.serials|linebreaksbr }}</div>{% endif %}</td>
+      <td class="num">{{ l.qty|num:3 }}</td><td style="min-width:120px"></td></tr>{% endfor %}</tbody>
+    {% else %}
+    <thead><tr><th>#</th><th>Item / الصنف</th><th>Description / البيان</th><th class="num">Qty / الكمية</th><th class="num">Rate / السعر</th><th class="num">Disc. / خصم</th><th class="num">VAT / الضريبة</th><th class="num">Amount / القيمة</th></tr></thead>
+    <tbody>{% for l in lines %}<tr><td>{{ forloop.counter }}</td><td>{{ l.item.sku|default:"" }}</td>
+      <td>{% if l.description %}{{ l.description }}{% elif l.item %}{{ l.item.name_en }}{% endif %}{% if l.item.name_ar %}<div class="ar">{{ l.item.name_ar }}</div>{% endif %}{% if l.serials %}<div>S/N: {{ l.serials|linebreaksbr }}</div>{% endif %}</td>
+      <td class="num">{{ l.qty|num:3 }}</td><td class="num">{{ l.unit_price|num }}</td><td class="num">{% if l.discount_pct %}{{ l.discount_pct|num }}%{% endif %}</td>
+      <td class="num">{{ l.tax|num }}</td><td class="num">{{ l.net|num }}</td></tr>{% endfor %}</tbody>
+    <tfoot>
+      <tr><th colspan="7" class="num">Subtotal / الإجمالي قبل الضريبة</th><th class="num">{{ doc.subtotal|num }}</th></tr>
+      {% for rate, amount in doc.tax_breakdown %}<tr><th colspan="7" class="num">{{ rate.name_en }} / {{ rate.name_ar }}</th><th class="num">{{ amount|num }}</th></tr>{% endfor %}
+      <tr><th colspan="7" class="num">Total / الإجمالي ({{ doc.currency_id }})</th><th class="num">{{ doc.total|num }}</th></tr>
+      {% if doc.amount_paid %}<tr><th colspan="7" class="num">Paid / المدفوع</th><th class="num">{{ doc.amount_paid|num }}</th></tr>
+      <tr><th colspan="7" class="num">Balance due / المتبقي</th><th class="num">{{ doc.balance_due|num }}</th></tr>{% endif %}
+    </tfoot>
+    {% endif %}
+  </table>
+  {% if not delivery %}
+  {% if doc.prices_include_tax %}<div style="font-size:12px">Rates include VAT / الأسعار شاملة ضريبة القيمة المضافة</div>{% endif %}
+  <div class="words">{{ words_en }}</div>
+  <div class="words ar">{{ words_ar }}</div>
+  {% endif %}
+  {% if doc.notes %}<div style="margin-top:8px">{{ doc.notes|linebreaksbr }}</div>{% endif %}
+  {% if bank_details and not delivery %}<div style="margin-top:10px;font-size:12px">{{ bank_details|linebreaksbr }}</div>{% endif %}
+  <div class="sigs">
+    <div class="sig">Prepared by / إعداد<br><b>{{ doc.created_by }}</b></div>
+    <div class="sig">{% if delivery %}Delivered by / التسليم{% else %}Approved by / اعتماد{% if doc.approved_by %}<br><b>{{ doc.approved_by }}</b>{% endif %}{% endif %}</div>
+    <div class="sig">{% if spec.party == "customer" %}Received by / استلام العميل{% else %}Supplier / المورد{% endif %}</div>
+  </div>
+</div>

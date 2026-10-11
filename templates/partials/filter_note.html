@@ -1,0 +1,1 @@
+{% load i18n %}{% if drill %}<div class="drill no-print">{% include "partials/icon.html" with name="sliders" %}<span>{% translate "Showing" %}: <b>{{ drill|join:" · " }}</b></span><a class="link" href="{{ request.path }}">{% translate "Clear filter" %}</a></div>{% endif %}

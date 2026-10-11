@@ -1,0 +1,43 @@
+{% load i18n %}<div class="abar no-print" role="region" aria-label="{% translate 'Actions' %}">
+  <div class="abar-l">
+    {% if bar.print %}<div class="hov up"><button type="button" class="abtn" aria-haspopup="true">{% translate "Print or download" %}</button>
+      <div class="hov-pop up-pop">
+        <a href="{{ bar.print.print }}#print">{% include "partials/icon.html" with name="print" %}{% translate "Print" %}</a>
+        <a href="{{ bar.print.pdf }}">{% include "partials/icon.html" with name="download" %}{% translate "Download PDF" %}</a>
+        {% if bar.print.delivery %}<a href="{{ bar.print.delivery }}#print">{% include "partials/icon.html" with name="box" %}{% translate "Print delivery note" %}</a>{% endif %}
+      </div></div>{% endif %}
+    {% if bar.recurring %}<a class="abtn" href="{{ bar.recurring }}">{% translate "Make recurring" %}</a>{% endif %}
+    {% if bar.more %}<div class="hov up"><button type="button" class="abtn" aria-haspopup="true">{% translate "More actions" %}</button>
+      <div class="hov-pop up-pop">{% for m in bar.more %}{% if m.url %}<a href="{{ m.url }}">{{ m.label }}</a>{% else %}<button type="submit" form="abarPost" formaction="{{ m.post }}" {% if m.action %}name="action" value="{{ m.action }}"{% endif %} {% if m.confirm %}data-confirm="{{ m.confirm }}"{% endif %} class="{% if m.danger %}danger{% endif %}">{{ m.label }}</button>{% endif %}{% endfor %}</div></div>{% endif %}
+  </div>
+  <div class="abar-r">
+    {% if bar.mode == "form" %}
+      <a class="btn" href="{{ bar.cancel }}">{% translate "Cancel" %}</a>
+      <div class="split"><button class="btn" type="submit" name="save" value="">{{ bar.save_label|default:_("Save") }}</button>
+        <div class="hov up"><button type="button" class="btn split-t" aria-label="{% translate 'More save options' %}" aria-haspopup="true">▾</button>
+          <div class="hov-pop up-pop"><button type="submit" name="save" value="new">{% translate "Save and new" %}</button><button type="submit" name="save" value="close">{% translate "Save and close" %}</button></div></div></div>
+      {% if bar.primary %}<div class="split"><button class="btn primary" type="submit" name="{{ bar.primary_name|default:'post' }}">{{ bar.primary }}</button>
+        {% if bar.share or bar.can_send_on_save %}<div class="hov up"><button type="button" class="btn primary split-t" aria-label="{% translate 'More options' %}" aria-haspopup="true">▾</button>
+          <div class="hov-pop up-pop">
+            {% if bar.can_send_on_save %}<button type="submit" name="{{ bar.primary_name|default:'post' }}" data-then="send">{% translate "Save and review to send" %}</button>{% endif %}
+            {% if bar.share or bar.can_send_on_save %}<button type="submit" name="{{ bar.primary_name|default:'post' }}" data-then="share">{% translate "Save and share link" %}</button>
+            <button type="submit" name="{{ bar.primary_name|default:'post' }}" data-then="whatsapp">{% translate "Save & share (WhatsApp)" %}</button>{% endif %}
+          </div></div>{% endif %}</div>{% endif %}
+      <input type="hidden" name="then" value="" data-then-field>
+    {% else %}
+      {% if bar.edit %}<a class="btn" href="{{ bar.edit }}">{% translate "Edit" %}</a>{% endif %}
+      {% if bar.share %}<div class="split"><button class="btn" type="button" data-share="{{ bar.share_url }}">{% translate "Share link" %}</button>
+        <div class="hov up"><button type="button" class="btn split-t" aria-label="{% translate 'More share options' %}" aria-haspopup="true">▾</button>
+          <div class="hov-pop up-pop"><button type="button" data-share="{{ bar.share_url }}">{% translate "Share link" %}</button><button type="button" data-share="{{ bar.share_url }}" data-whatsapp>{% translate "Share on WhatsApp" %}</button></div></div></div>{% endif %}
+      {% if bar.send %}<a class="btn primary" href="{{ bar.send_url }}" data-send-url>{% translate "Review and send" %}</a>{% endif %}
+    {% endif %}
+  </div>
+</div>
+{% if bar.share %}<dialog class="share-dlg" id="shareDlg" aria-labelledby="shareH">
+  <div class="dh-h"><h2 id="shareH">{% translate "Share" %} {{ doc.number }}</h2><button class="iconbtn" type="button" data-dlg-close aria-label="{% translate 'Close' %}">{% include "partials/icon.html" with name="close" %}</button></div>
+  <p class="lbl">{% translate "Anyone with this link can view and print this document. They cannot change anything." %}</p>
+  <div class="share-row"><input type="text" readonly data-share-link aria-label="{% translate 'Share link' %}"><button class="btn" type="button" data-copy data-done="{% translate 'Copied' %}">{% translate "Copy link" %}</button></div>
+  <p class="msg error" data-share-error hidden></p>
+  <div class="form-actions"><a class="btn wa" href="#" target="_blank" rel="noopener" data-wa>{% translate "Open WhatsApp" %}</a>
+    <button class="btn danger" type="button" data-revoke data-confirm="{% translate 'Switch this link off? Anyone who has it will no longer be able to open the document.' %}">{% translate "Switch link off" %}</button></div>
+</dialog>{% endif %}

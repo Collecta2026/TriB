@@ -54,7 +54,10 @@ def user_list(request):
 @require_perm("users.create")
 @transaction.atomic
 def user_new(request):
-    form = MemberForm(request.POST or None, company=request.company)
+    # "Invite your accountant" opens this form with the Accountant role ticked.
+    role = request.GET.get("role", "")
+    initial = {"roles": request.company.roles.filter(pk=role)} if role.isdigit() else {}
+    form = MemberForm(request.POST or None, company=request.company, initial=initial)
     if request.method == "POST" and form.is_valid():
         d = form.cleaned_data
         user = User.objects.filter(email__iexact=d["email"]).first()

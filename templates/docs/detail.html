@@ -7,7 +7,8 @@
     <span class="pill {{ doc.status|pill_class }}">{{ doc.get_status_display }}</span>
     {% if doc.payment_state and doc.status == "posted" %}<span class="pill {{ doc.payment_state|pill_class }}">{{ doc.payment_state|state_label }}</span>{% endif %}</h1>
   <div class="sub">{{ doc.date|date:"d/m/Y" }}{% if party %} · <a href="{{ party_url }}">{{ party }}</a>{% endif %}{% if doc.created_by %} · {% translate "Created by" %} {{ doc.created_by }}{% endif %}
-    {% if doc.journal_entry_id %} · <a href="{% url 'ledger:journal' doc.journal_entry_id %}">{{ doc.journal_entry.number }}</a>{% endif %}</div></div>
+    {% if doc.journal_entry_id %} · <a href="{% url 'ledger:journal' doc.journal_entry_id %}">{{ doc.journal_entry.number }}</a>{% endif %}</div>
+    {% if doc.tags %}<div class="tag-list">{% for t in doc.tags %}<a class="tag" href="{{ spec.url_list }}?tag={{ t|urlencode }}">{{ t }}</a>{% endfor %}</div>{% endif %}</div>
   <div class="toolbar">
     {% if doc.number %}<a class="btn" href="{% url spec.ns|add:':'|add:spec.key|add:'_print' doc.pk %}">{% include "partials/icon.html" with name="print" %} {% translate "Print / PDF" %}</a>{% endif %}
     {% if editable %}<a class="btn" href="{% url spec.ns|add:':'|add:spec.key|add:'_edit' doc.pk %}">{% translate "Edit" %}</a>{% endif %}
@@ -20,6 +21,11 @@
     <table class="tbl"><tbody>
       {% for label, value in info %}<tr><td class="lbl">{{ label }}</td><td>{{ value|default:"—" }}</td></tr>{% endfor %}
       {% if doc.currency_id != company.base_currency_id %}<tr><td class="lbl">{% translate "Exchange rate" %}</td><td>{{ doc.rate|num:4 }} · {{ doc.total_base|money:company.base_currency }}</td></tr>{% endif %}
+      {% if doc.customer_po %}<tr><td class="lbl">{% translate "Customer PO no." %}</td><td>{{ doc.customer_po }}</td></tr>{% endif %}
+      {% if doc.ship_to %}<tr><td class="lbl">{% translate "Ship to" %}</td><td>{{ doc.ship_to|linebreaksbr }}</td></tr>{% endif %}
+      {% if doc.ship_via or doc.ship_date or doc.tracking_no %}<tr><td class="lbl">{% translate "Shipping" %}</td><td>{{ doc.ship_via }}{% if doc.ship_date %} · {{ doc.ship_date|date:"d/m/Y" }}{% endif %}{% if doc.tracking_no %} · {% translate "Tracking no." %} {{ doc.tracking_no }}{% endif %}</td></tr>{% endif %}
+      {% if doc.email_to %}<tr><td class="lbl">{% translate "Customer email" %}</td><td>{{ doc.email_to }}</td></tr>{% endif %}
+      {% if doc.prices_include_tax %}<tr><td class="lbl">{% translate "Amounts are" %}</td><td>{% translate "Inclusive of VAT" %}</td></tr>{% endif %}
       {% if doc.notes %}<tr><td class="lbl">{% translate "Notes" %}</td><td>{{ doc.notes|linebreaksbr }}</td></tr>{% endif %}
     </tbody></table>
   </div>
@@ -41,9 +47,11 @@
     <td>{% if l.item %}{{ l.item.sku }}<div class="lbl">{{ l.item.name }}</div>{% elif l.account %}{{ l.account }}{% endif %}</td>
     <td>{{ l.description }}{% if l.project %}<div class="lbl">{{ l.project }}</div>{% endif %}{% if l.serials %}<div class="lbl">{% translate "Serial numbers" %}: {{ l.serials|linebreaksbr }}</div>{% endif %}</td>
     <td class="num">{{ l.qty|num:3 }}</td><td class="num">{{ l.unit_price|num }}</td><td class="num">{% if l.discount_pct %}{{ l.discount_pct|num }}{% endif %}</td>
-    <td>{{ l.tax_rate.name|default:"" }}</td><td class="num">{{ l.net|num }}</td></tr>{% endfor %}</tbody>
+    <td>{{ l.tax_rate.name|default:"" }}</td><td class="num">{% if doc.prices_include_tax %}{{ l.amount|num }}{% else %}{{ l.net|num }}{% endif %}</td></tr>{% endfor %}</tbody>
 </table></div>
 
 {% if spec.related_template %}{% include spec.related_template %}{% endif %}
 {% attachments doc %}
+<div class="has-abar"></div>
+{% include "partials/action_bar.html" %}
 {% endblock %}

@@ -2,38 +2,56 @@
 {% load i18n static trib %}
 {% block title %}{{ spec.title }}{% endblock %}
 {% block content %}
-<div class="page-head"><div><div class="crumbs"><a href="{{ spec.url_list }}">{{ spec.plural }}</a></div>
-  <h1>{{ spec.title }}{% if doc.number %} · {{ doc.number }}{% endif %}</h1></div></div>
-<form method="post" class="form" data-doc-form="{{ spec.price_source }}">{% csrf_token %}
-  <div class="panel">
+<form method="post" class="form doc-entry has-abar" data-doc-form="{{ spec.price_source }}">{% csrf_token %}
+<div class="page-head doc-title"><div><div class="crumbs"><a href="{{ spec.url_list }}">{{ spec.plural }}</a></div>
+  <h1>{{ spec.title }}{% if doc.number %} · {{ doc.number }}{% endif %}</h1></div>
+  <div class="due-box"><span class="lbl">{% if spec.key == "invoice" or spec.key == "bill" %}{% translate "Balance due" %}{% else %}{% translate "Total" %}{% endif %}</span><b class="m" data-doc-total="total">0.00</b><span class="lbl">{{ doc.currency_id|default:company.base_currency_id }}</span></div>
+</div>
+{% header_groups form as g %}
+  <div class="panel doc-head qb-head">
     {% if form.non_field_errors %}<div class="msg error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
-    <div class="fields">
-      {% for f in form.visible_fields %}{% if f.name == "notes" %}{% include "partials/field.html" with wide=1 %}{% else %}{% include "partials/field.html" %}{% endif %}{% endfor %}
+    <div class="qb-top">
+      <div class="qb-party">
+        {% for f in g.party %}{% include "partials/field.html" %}{% endfor %}
+        {% if spec.party %}<a class="link" href="#" data-party-edit target="_blank" rel="noopener" hidden>{% if spec.party == "customer" %}{% translate "Edit customer" %}{% else %}{% translate "Edit supplier" %}{% endif %}</a>{% endif %}
+        {% for f in g.email %}{% if f.name == "email_to" %}{% include "partials/field.html" %}
+          <button class="link" type="button" data-ccbcc aria-expanded="false">{% translate "Cc/Bcc" %}</button>
+          <div class="ccbcc" data-ccbcc-box {% if not doc.email_cc and not doc.email_bcc %}hidden{% endif %}>{% elif f.name != "email_to" %}{% include "partials/field.html" %}{% endif %}{% endfor %}
+          {% if g.email %}</div>{% endif %}
+      </div>
+      {% if g.address %}<div class="qb-addr">{% for f in g.address %}{% include "partials/field.html" %}{% endfor %}</div>{% endif %}
+      {% if g.ship %}<div class="qb-ship">{% for f in g.ship %}{% include "partials/field.html" %}{% endfor %}</div>{% endif %}
+      <div class="qb-dates">{% for f in g.dates %}{% include "partials/field.html" %}{% endfor %}</div>
     </div>
+    {% if g.more %}<div class="fields qb-more">{% for f in g.more %}{% include "partials/field.html" %}{% endfor %}</div>{% endif %}
+    {% if g.extra %}<div class="qb-extra">{% for f in g.extra %}{% if f.name == "tags" %}{% include "partials/field.html" with wide=1 %}{% else %}{% include "partials/field.html" %}{% endif %}{% endfor %}</div>{% endif %}
   </div>
 
   <div class="panel" data-formset="lines">
-    <div class="panel-h"><h2>{% translate "Lines" %}</h2><button class="btn sm" type="button" data-add-line>+ {% translate "Add line" %}</button></div>
+    <div class="panel-h"><h2>{% translate "Product or service" %}</h2>
+      <div class="toolbar">{% include "partials/grid_tools.html" %}<button class="btn sm" type="button" data-add-line>+ {% translate "Add line" %}</button></div></div>
     {{ formset.management_form }}
     {% if formset.non_form_errors %}<div class="msg error">{{ formset.non_form_errors|join:" " }}</div>{% endif %}
-    <div class="table-wrap"><table class="tbl lines doc-lines">
-      <thead><tr>{% for f in formset.empty_form.visible_fields %}{% if f.name != "DELETE" %}<th class="{% if f.name == 'qty' or f.name == 'unit_price' or f.name == 'discount_pct' or f.name == 'unit_cost' %}num{% endif %}">{{ f.label }}</th>{% endif %}{% endfor %}<th class="num">{% translate "Amount" %}</th><th class="del"></th></tr></thead>
+    <div class="table-wrap"><table class="tbl lines doc-lines grid" data-grid="{{ spec.key }}" data-default-hidden="{% if spec.price_source == 'sales' %}project account{% else %}discount_pct project{% endif %}">
+      <thead><tr><th class="rn" data-col="rn">#</th>{% for f in formset.empty_form.visible_fields %}{% if f.name != "DELETE" %}<th data-col="{{ f.name }}" class="{% if f.name == 'qty' or f.name == 'unit_price' or f.name == 'discount_pct' or f.name == 'unit_cost' %}num{% endif %}">{{ f.label }}</th>{% endif %}{% endfor %}<th class="num" data-col="amount">{% translate "Amount" %}</th><th class="del" data-col="del"></th></tr></thead>
       <tbody>{% for lf in formset %}{% include "docs/_line.html" %}{% endfor %}</tbody>
-      <tfoot>
-        <tr><td colspan="{{ formset.empty_form.visible_fields|length }}" class="num">{% translate "Subtotal" %}</td><td class="num" data-doc-total="subtotal">0.00</td><td></td></tr>
-        <tr><td colspan="{{ formset.empty_form.visible_fields|length }}" class="num">{% translate "VAT" %}</td><td class="num" data-doc-total="tax">0.00</td><td></td></tr>
-        <tr><td colspan="{{ formset.empty_form.visible_fields|length }}" class="num">{% translate "Total" %}</td><td class="num" data-doc-total="total">0.00</td><td></td></tr>
-      </tfoot>
     </table></div>
     <template>{% include "docs/_line.html" with lf=formset.empty_form %}</template>
+    <p class="lbl grid-hint">{% translate "Tab moves along the line · Enter adds a new line · Ctrl+Delete removes a line · drag a column edge to resize it" %}</p>
   </div>
 
-  <div class="form-actions">
-    <button class="btn" type="submit" name="save">{% translate "Save" %}</button>
-    {% if can_post and post_label %}<button class="btn primary" type="submit" name="post">{{ post_label }}</button>{% endif %}
-    <a class="btn" href="{% if doc.pk %}{% url spec.ns|add:':'|add:spec.key doc.pk %}{% else %}{{ spec.url_list }}{% endif %}">{% translate "Cancel" %}</a>
+  {% if g.notes %}<div class="panel doc-notes">{% for f in g.notes %}{% include "partials/field.html" with wide=1 %}{% endfor %}</div>{% endif %}
+
+  <div class="doc-totals">
+    <span class="lbl" data-vat-mode-note hidden>{% translate "Rates include VAT" %}</span>
+    <dl class="totals">
+      <div><dt>{% translate "Subtotal" %}</dt><dd data-doc-total="subtotal">0.00</dd></div>
+      <div><dt>{% translate "VAT" %}</dt><dd data-doc-total="tax">0.00</dd></div>
+      <div class="grand"><dt>{% translate "Total" %}</dt><dd data-doc-total="total">0.00</dd></div>
+    </dl>
   </div>
+  {% include "partials/action_bar.html" %}
 </form>
 {{ picker|json_script:"doc-picker" }}
 {% endblock %}
-{% block scripts %}<script src="{% static 'js/docs.js' %}"></script>{% endblock %}
+{% block scripts %}<script src="{% static 'js/docs.js' %}?v=e1"></script>{% endblock %}

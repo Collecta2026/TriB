@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.http import Http404
+from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -69,10 +70,25 @@ def _edit(request, voucher, kind):
             messages.success(request, _("%(n)s submitted.") % {"n": voucher.number})
         else:
             messages.success(request, _("Draft saved."))
-        return redirect("vouchers:detail", pk=voucher.pk)
+        from core.doc_actions import saved_redirect
+        return saved_redirect(request, reverse("vouchers:detail", args=[voucher.pk]), reverse("vouchers:new", args=[kind]),
+                              reverse("vouchers:list"))
     return render(request, "vouchers/form.html", {
         "form": form, "formset": formset, "kind": kind, "kind_label": KINDS[kind], "voucher": voucher,
+        "bar": voucher_bar(request, voucher, kind),
     })
+
+
+def voucher_bar(request, voucher, kind):
+    from core.doc_actions import audit_url
+    can = request.membership.has_perm
+    bar = {"mode": "form", "cancel": reverse("vouchers:detail", args=[voucher.pk]) if voucher.pk else reverse("vouchers:list"),
+           "save_label": _("Save draft"), "primary": _("Save and submit for approval"), "primary_name": "submit", "more": []}
+    if voucher.pk and voucher.number and can("vouchers.create"):
+        bar["recurring"] = f"{reverse('core:recurring')}?kind=voucher&number={voucher.number}"
+    if voucher.pk and can("audit.view"):
+        bar["more"].append({"label": _("Audit history"), "url": audit_url(voucher)})
+    return bar
 
 
 @require_perm("vouchers.create")
@@ -84,6 +100,10 @@ def voucher_new(request, kind):
         cash = request.company.bank_accounts.filter(kind="cash", is_active=True).first()
         voucher.method = "cash" if kind != "journal" else ""
         voucher.bank_account = cash if kind != "journal" else None
+        if kind != "journal" and request.GET.get("method") in ("bank", "cheque"):
+            # Create → Cheque / bank payment: start from the first bank account instead of the cash box.
+            voucher.method = request.GET["method"]
+            voucher.bank_account = request.company.bank_accounts.filter(kind="bank", is_active=True).first()
     return _edit(request, voucher, kind)
 
 

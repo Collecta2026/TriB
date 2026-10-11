@@ -14,6 +14,7 @@
     {% for k, label in spec.statuses %}<option value="{{ k }}" {% if k == status %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>{% endif %}
   <button class="btn" type="submit">{% translate "Filter" %}</button>
 </form>
+{% include "partials/filter_note.html" %}
 <div class="table-wrap"><table class="tbl">
   <thead><tr>{% for label, fn, kind in spec.columns %}<th class="{% if kind == 'money' or kind == 'num' %}num{% endif %}">{{ label }}</th>{% endfor %}</tr></thead>
   <tbody>{% for r in rows %}<tr>
@@ -25,5 +26,5 @@
       {% else %}{{ value|default:"" }}{% endif %}</td>{% endfor %}
   </tr>{% empty %}<tr><td colspan="{{ spec.columns|length }}" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody>
 </table></div>
-{% if page.has_other_pages %}<div class="toolbar">{% if page.has_previous %}<a class="btn sm" href="?page={{ page.previous_page_number }}&status={{ status }}&q={{ q }}">‹</a>{% endif %}<span class="lbl">{{ page.number }} / {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a class="btn sm" href="?page={{ page.next_page_number }}&status={{ status }}&q={{ q }}">›</a>{% endif %}</div>{% endif %}
+{% if page.has_other_pages %}<div class="toolbar">{% if page.has_previous %}<a class="btn sm" href="{% page_url page.previous_page_number %}">‹</a>{% endif %}<span class="lbl">{{ page.number }} / {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a class="btn sm" href="{% page_url page.next_page_number %}">›</a>{% endif %}</div>{% endif %}
 {% endblock %}

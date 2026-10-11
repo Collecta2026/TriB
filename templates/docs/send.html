@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Review and send" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{{ spec.url_list }}">{{ spec.plural }}</a> · <a href="{% url spec.ns|add:':'|add:spec.key doc.pk %}">{{ doc.number }}</a></div>
+  <h1>{% translate "Review and send" %}</h1></div></div>
+{% if not ready %}<div class="msg warning">{% translate "Email isn't set up yet, so TriB can't send it for you. Use Share link or WhatsApp, or print it. Your administrator can add the email account in Render (EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)." %}</div>{% endif %}
+<div class="send-grid">
+  <form method="post" class="panel form">{% csrf_token %}
+    {% if form.non_field_errors %}<div class="msg error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+    {% for f in form %}{% include "partials/field.html" %}{% endfor %}
+    <div class="form-actions"><button class="btn primary" type="submit" {% if not ready %}disabled{% endif %}>{% translate "Send" %}</button>
+      <a class="btn" href="{% url spec.ns|add:':'|add:spec.key doc.pk %}">{% translate "Cancel" %}</a></div>
+    <p class="lbl">{% translate "The email includes a private link where your customer can view, print and save the document." %}</p>
+  </form>
+  <div class="panel send-preview"><iframe src="{{ preview }}" title="{% translate 'Preview' %}" loading="lazy"></iframe></div>
+</div>
+{% endblock %}
