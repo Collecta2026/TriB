@@ -29,7 +29,8 @@
       {% if c.rows %}<div class="fc-rows">{% for r in c.rows %}<div class="fc-row">
         <a href="{{ r.url }}"><b>{{ r.label }}</b><span class="lbl">{{ r.sub|truncatechars:36 }}</span></a>
         <span class="m tnum">{{ r.amount|money:r.currency }}</span>
-        <form method="post" action="{{ r.approve }}">{% csrf_token %}<button class="btn primary sm" name="action" value="approve">{% translate "Approve" %}</button></form>
+        {% if r.approve %}<form method="post" action="{{ r.approve }}">{% csrf_token %}<button class="btn primary sm" name="action" value="approve">{% translate "Approve" %}</button></form>
+        {% else %}<a class="btn sm" href="{{ r.url }}">{% translate "Review" %}</a>{% endif %}
       </div>{% endfor %}</div>{% endif %}
     </article>{% empty %}<article class="ftile good"><div class="ft-main"><span class="ft-dot" aria-hidden="true"></span><div class="ft-body"><div class="ft-title">{% translate "All caught up" %}</div><div class="ft-text">{% translate "Nothing new right now. Check back soon!" %}</div></div></div></article>{% endfor %}
   </div>

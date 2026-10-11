@@ -16,6 +16,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from django.views.decorators.http import require_POST
 
+from core import access
 from core.doc_actions import whatsapp_number
 from core.models import AuditLog, NumberSeries, ShareLink, client_ip
 from users.permissions import require_perm
@@ -62,6 +63,11 @@ KINDS = {
                                  (gettext_lazy("What was said"), "summary"), (gettext_lazy("By"), "by")]},
 }
 DETAIL = {"lead", "opportunity", "proposal", "contract"}
+
+
+def _get(request, model, pk):
+    """One record, if this user may see it (own records only)."""
+    return get_object_or_404(access.scope(model.objects.filter(company=request.company)), pk=pk)
 NUMBERS = {"proposal": "PRP", "contract": "CON"}
 
 
@@ -86,7 +92,7 @@ def crm_list(request, kind):
     cfg = KINDS.get(kind)
     if cfg is None:
         raise Http404
-    qs = cfg["model"].objects.filter(company=request.company)
+    qs = access.scope(cfg["model"].objects.filter(company=request.company))
     q = request.GET.get("q", "").strip()
     status = request.GET.get("status", "")
     if kind == "task":
@@ -124,7 +130,7 @@ def crm_edit(request, kind, pk):
     cfg = KINDS.get(kind)
     if cfg is None:
         raise Http404
-    return _form(request, kind, get_object_or_404(cfg["model"], pk=pk, company=request.company))
+    return _form(request, kind, _get(request, cfg["model"], pk))
 
 
 @transaction.atomic
@@ -177,7 +183,7 @@ def _form(request, kind, obj):
 @require_perm("crm.view")
 def overview(request):
     company, today = request.company, timezone.localdate()
-    opps = Opportunity.objects.filter(company=company)
+    opps = access.scope(Opportunity.objects.filter(company=company))
     open_ = opps.filter(stage__in=Opportunity.OPEN)
     stages = []
     for key, label in Opportunity.STAGES:
@@ -190,23 +196,25 @@ def overview(request):
     weighted = sum((o.weighted for o in open_), Decimal("0"))
     return render(request, "crm/overview.html", {
         "stages": stages, "pipeline": pipeline, "weighted": weighted, "win_rate": win_rate,
-        "leads_month": Lead.objects.filter(company=company, created_at__date__gte=today.replace(day=1)).count(),
-        "appointments": Appointment.objects.filter(company=company, starts_at__date__gte=today,
-                                                   starts_at__date__lte=today + timedelta(days=7))
+        "leads_month": access.scope(Lead.objects.filter(company=company, created_at__date__gte=today.replace(day=1))).count(),
+        "appointments": access.scope(Appointment.objects.filter(company=company, starts_at__date__gte=today,
+                                                                starts_at__date__lte=today + timedelta(days=7)))
         .select_related("customer", "lead")[:8],
-        "tasks": Task.objects.filter(company=company, done=False, due_date__lte=today + timedelta(days=7))
+        "tasks": access.scope(Task.objects.filter(company=company, done=False, due_date__lte=today + timedelta(days=7)))
         .select_related("customer", "lead", "assignee")[:8],
         "closing": open_.filter(expected_close__lte=today + timedelta(days=30)).select_related("customer", "lead")[:8],
-        "reviews": Review.objects.filter(company=company, submitted_at__isnull=False).aggregate(n=Count("id"), avg=Sum("rating")),
+        "reviews": access.scope(Review.objects.filter(company=company, submitted_at__isnull=False)).aggregate(n=Count("id"), avg=Sum("rating")),
         "today": today})
 
 
 # ---------- Leads ----------
 @require_perm("crm.view")
 def lead(request, pk):
-    obj = get_object_or_404(Lead, pk=pk, company=request.company)
-    return render(request, "crm/lead.html", {"obj": obj, "tasks": obj.tasks.all(), "conversations": obj.conversations.all(),
-                                             "appointments": obj.appointments.all(), "opportunities": obj.opportunities.all()})
+    obj = _get(request, Lead, pk)
+    return render(request, "crm/lead.html", {"obj": obj, "tasks": access.scope(obj.tasks.all()),
+                                             "conversations": access.scope(obj.conversations.all()),
+                                             "appointments": access.scope(obj.appointments.all()),
+                                             "opportunities": access.scope(obj.opportunities.all())})
 
 
 @require_POST
@@ -216,7 +224,7 @@ def lead_convert(request, pk):
     """Make the lead a customer; its opportunities, tasks and conversations move to the customer."""
     from contacts.models import Customer
 
-    obj = get_object_or_404(Lead, pk=pk, company=request.company)
+    obj = _get(request, Lead, pk)
     if obj.customer_id:
         return redirect("contacts:customer", pk=obj.customer_id)
     if not request.membership.has_perm("contacts.create"):
@@ -225,7 +233,7 @@ def lead_convert(request, pk):
     customer = Customer.objects.create(company=request.company, code=NumberSeries.next_plain(request.company, "CUS"),
                                        name_en=obj.name, contact_person=obj.contact_person, email=obj.email,
                                        phone=obj.phone, city=obj.city, currency=request.company.base_currency,
-                                       notes=obj.notes)
+                                       notes=obj.notes, account_manager=obj.owner or request.user)
     obj.customer, obj.status = customer, "converted"
     obj.save(update_fields=["customer", "status"])
     for model in (Opportunity, Task, Conversation, Appointment):
@@ -239,14 +247,15 @@ def lead_convert(request, pk):
 # ---------- Opportunities ----------
 @require_perm("crm.view")
 def opportunity(request, pk):
-    obj = get_object_or_404(Opportunity, pk=pk, company=request.company)
-    return render(request, "crm/opportunity.html", {"obj": obj, "tasks": obj.tasks.all(), "proposals": obj.proposals.all(),
-                                                    "appointments": obj.appointments.all()})
+    obj = _get(request, Opportunity, pk)
+    return render(request, "crm/opportunity.html", {"obj": obj, "tasks": access.scope(obj.tasks.all()),
+                                                    "proposals": access.scope(obj.proposals.all()),
+                                                    "appointments": access.scope(obj.appointments.all())})
 
 
 @require_perm("crm.view")
 def board(request):
-    opps = Opportunity.objects.filter(company=request.company).select_related("customer", "lead", "owner", "currency")
+    opps = access.scope(Opportunity.objects.filter(company=request.company)).select_related("customer", "lead", "owner", "currency")
     cols = [{"key": k, "label": label, "items": [o for o in opps if o.stage == k]} for k, label in Opportunity.STAGES]
     for c in cols:
         c["value"] = sum((o.value for o in c["items"]), Decimal("0"))
@@ -256,7 +265,7 @@ def board(request):
 @require_POST
 @require_perm("crm.edit")
 def opportunity_stage(request, pk):
-    obj = get_object_or_404(Opportunity, pk=pk, company=request.company)
+    obj = _get(request, Opportunity, pk)
     stage = request.POST.get("stage", "")
     if stage not in dict(Opportunity.STAGES):
         return JsonResponse({"error": "bad stage"}, status=400)
@@ -275,14 +284,14 @@ def _quote_lines(quote):
 
 @require_perm("crm.view")
 def proposal(request, pk):
-    obj = get_object_or_404(Proposal, pk=pk, company=request.company)
+    obj = _get(request, Proposal, pk)
     return render(request, "crm/proposal.html", {"obj": obj, "lines": _quote_lines(obj.quotation), "kind": "proposal",
                                                  "share_url": reverse("crm:share", args=["proposal", obj.pk])})
 
 
 @require_perm("crm.view")
 def contract(request, pk):
-    obj = get_object_or_404(Contract, pk=pk, company=request.company)
+    obj = _get(request, Contract, pk)
     return render(request, "crm/contract.html", {"obj": obj, "kind": "contract",
                                                  "share_url": reverse("crm:share", args=["contract", obj.pk])})
 
@@ -292,7 +301,7 @@ def contract(request, pk):
 def proposal_action(request, pk):
     from sales import services as sales
 
-    obj = get_object_or_404(Proposal, pk=pk, company=request.company)
+    obj = _get(request, Proposal, pk)
     action = request.POST.get("action")
     if action in ("sent", "declined", "draft"):
         obj.status = action
@@ -319,7 +328,7 @@ def share(request, kind, pk):
     model = {"proposal": Proposal, "contract": Contract}.get(kind)
     if model is None:
         raise Http404
-    obj = get_object_or_404(model, pk=pk, company=request.company)
+    obj = _get(request, model, pk)
     if request.POST.get("revoke") == "1":
         ShareLink.objects.filter(company=request.company, target=obj._meta.label_lower, target_id=obj.pk,
                                  revoked_at__isnull=True).update(revoked_at=timezone.now())
@@ -364,7 +373,7 @@ def public(request, token):
 # ---------- Reviews ----------
 @require_perm("crm.view")
 def reviews(request):
-    rows = Review.objects.filter(company=request.company).select_related("customer")
+    rows = access.scope(Review.objects.filter(company=request.company)).select_related("customer")
     done = rows.filter(submitted_at__isnull=False)
     avg = done.aggregate(n=Count("id"), total=Sum("rating"))
     return render(request, "crm/reviews.html", {"rows": rows[:200], "count": avg["n"],
@@ -377,7 +386,7 @@ def review_request(request):
     from contacts.models import Customer
 
     cid = request.GET.get("customer") or request.POST.get("customer")
-    customer = get_object_or_404(Customer, pk=cid, company=request.company) if str(cid or "").isdigit() else None
+    customer = _get(request, Customer, cid) if str(cid or "").isdigit() else None
     if request.method == "POST" and customer:
         r = Review.request(customer, request.user)
         url = request.build_absolute_uri(reverse("crm:review_public", args=[r.token]))
@@ -385,7 +394,7 @@ def review_request(request):
         return render(request, "crm/review_link.html", {"customer": customer, "url": url,
                                                         "whatsapp": f"https://wa.me/{whatsapp_number(customer.phone)}?text={quote(text)}",
                                                         "mailto": f"mailto:{customer.email}?body={quote(text)}"})
-    customers = Customer.objects.filter(company=request.company, is_active=True)
+    customers = access.scope(Customer.objects.filter(company=request.company, is_active=True))
     return render(request, "crm/review_request.html", {"customer": customer, "customers": customers})
 
 
@@ -406,7 +415,7 @@ def review_public(request, token):
 @require_POST
 @require_perm("crm.edit")
 def task_done(request, pk):
-    t = get_object_or_404(Task, pk=pk, company=request.company)
+    t = _get(request, Task, pk)
     t.done = not t.done
     t.done_at = timezone.now() if t.done else None
     t.save(update_fields=["done", "done_at"])
@@ -422,7 +431,8 @@ def calendar(request):
     start = parse_date(request.GET.get("week", "") or "") or today
     start = start - timedelta(days=(start.weekday() + 1) % 7)  # weeks start on Sunday
     days = [start + timedelta(days=i) for i in range(7)]
-    appts = (Appointment.objects.filter(company=request.company, starts_at__date__gte=days[0], starts_at__date__lte=days[-1])
+    appts = (access.scope(Appointment.objects.filter(company=request.company, starts_at__date__gte=days[0],
+                                                     starts_at__date__lte=days[-1]))
              .select_related("customer", "lead"))
     by_day = [{"day": d, "items": [a for a in appts if timezone.localtime(a.starts_at).date() == d]} for d in days]
     return render(request, "crm/calendar.html", {"days": by_day, "prev": days[0] - timedelta(days=7),

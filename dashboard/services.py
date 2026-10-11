@@ -149,29 +149,37 @@ def sales_block(company, today, days=90):
             "margin": sum((g["margin"] for g in groups), ZERO), "days": days, "from": today - timedelta(days=days)}
 
 
-def invoices_block(company, today):
+def _mine(qs, customers):
+    """Limit a customer-linked queryset to `customers` (ids) when the user only sees their own customers."""
+    return qs if customers is None else qs.filter(customer_id__in=customers)
+
+
+def invoices_block(company, today, customers=None):
     from sales.models import Invoice
 
     unpaid = overdue = paid30 = ZERO
     n_overdue = 0
-    for inv in Invoice.objects.filter(company=company, status="posted", date__gte=today - timedelta(days=365)):
+    for inv in _mine(Invoice.objects.filter(company=company, status="posted", date__gte=today - timedelta(days=365)), customers):
         due = inv.balance_due * inv.rate
         unpaid += due
         if due > 0 and inv.due_date < today:
             overdue += due
             n_overdue += 1
     from sales.models import CustomerPayment
-    for p in CustomerPayment.objects.filter(company=company, status="posted", date__gte=today - timedelta(days=29)):
+    for p in _mine(CustomerPayment.objects.filter(company=company, status="posted", date__gte=today - timedelta(days=29)),
+                   customers):
         paid30 += p.amount * p.rate
     return {"unpaid": unpaid, "overdue": overdue, "not_due": unpaid - overdue, "n_overdue": n_overdue, "paid30": paid30,
             "paid_from": today - timedelta(days=29),
             "overdue_pct": float(overdue / unpaid * 100) if unpaid else 0}
 
 
-def receivables_block(company, today):
+def receivables_block(company, today, customers=None):
     from sales.services import AGING_BUCKETS, ar_aging
 
     rows = ar_aging(company, today)
+    if customers is not None:
+        rows = [r for r in rows if r["contact"].pk in customers]
     buckets = [sum((r["buckets"][i] for r in rows), ZERO) for i in range(5)]
     total = sum(buckets, ZERO)
     colors = ["var(--good)", "var(--c2)", "var(--warn)", "var(--c4)", "var(--crit)"]
@@ -190,26 +198,26 @@ def payables_block(company, today):
     return {"total": total, "overdue": overdue, "top": rows[:4]}
 
 
-def orders_block(company):
+def orders_block(company, customers=None):
     from sales.models import SalesOrder
 
-    orders = list(SalesOrder.objects.filter(company=company, status__in=("open", "partial"))
-                  .select_related("customer").order_by("date")[:6])
-    total = SalesOrder.objects.filter(company=company, status__in=("open", "partial")).count()
+    open_ = _mine(SalesOrder.objects.filter(company=company, status__in=("open", "partial")), customers)
+    orders = list(open_.select_related("customer").order_by("date")[:6])
+    total = open_.count()
     return {"rows": [{"o": o, "open": sum((l.qty_open * l.unit_price * (1 - l.discount_pct / 100) for l in o.lines.all()),
                                           ZERO)} for o in orders], "count": total}
 
 
-def stock_block(company, today):
+def stock_block(company, today, warehouses=None):
     from inventory.models import Item
     from inventory.services import batches_on_hand, stock_summary
 
-    summary = stock_summary(company)
+    summary = stock_summary(company, warehouses=warehouses)
     on_hand = {i.id: q for i, q, _v in summary}
     low = [(i, on_hand.get(i.id, ZERO)) for i in Item.objects.filter(company=company, type="inventory", is_active=True,
                                                                          reorder_level__gt=0)
            if on_hand.get(i.id, ZERO) <= i.reorder_level]
-    batches = batches_on_hand(company, expiring_within=90, today=today)
+    batches = batches_on_hand(company, expiring_within=90, today=today, warehouses=warehouses)
     return {"value": sum((v for _i, _q, v in summary), ZERO), "low": low[:4], "low_count": len(low),
             "expired": [b for b in batches if b["state"] == "expired"], "soon": [b for b in batches if b["state"] == "soon"]}
 
@@ -234,14 +242,22 @@ def alerts(company, user, membership, today=None, approvals=None):
     cards = []
     if approvals is None:
         approvals = pending_for(user, company) if can("vouchers.approve") else []
-    if approvals:
+    from purchases.services import bills_waiting_for, orders_waiting_for
+
+    orders, bills = orders_waiting_for(company, user, membership), bills_waiting_for(company, user, membership)
+    if approvals or orders or bills:
         rows = [{"label": f"{r.voucher.get_kind_display()} · {r.voucher.number}",
                  "sub": r.voucher.party_name or r.voucher.description, "amount": r.voucher.total,
                  "currency": r.voucher.currency, "url": reverse("vouchers:detail", args=[r.voucher.pk]),
                  "approve": reverse("vouchers:action", args=[r.voucher.pk])} for r in approvals[:3]]
+        rows += [{"label": f"{_('Purchase order')} · {o.number}", "sub": str(o.supplier), "amount": o.total,
+                  "currency": o.currency, "url": reverse("purchases:order", args=[o.pk])} for o in orders[:3]]
+        rows += [{"label": f"{_('Bill')} · {b.supplier_invoice_no or b.supplier.code}", "sub": str(b.supplier),
+                  "amount": b.total, "currency": b.currency, "url": reverse("purchases:bill", args=[b.pk])} for b in bills[:3]]
+        n = len(approvals) + len(orders) + len(bills)
         cards.append(_card("crit", "shield", _("Approvals"),
-                           _("%(n)s documents are waiting for your approval") % {"n": len(approvals)},
-                           reverse("approvals:inbox"), _("Review all"), rows))
+                           _("%(n)s documents are waiting for your approval") % {"n": n},
+                           reverse("approvals:inbox"), _("Review all"), rows[:4]))
     if can("payroll.approve") or can("payroll.authorise"):
         from payroll.models import PayrollRun
         waiting = PayrollRun.objects.filter(company=company, status__in=(
@@ -251,13 +267,15 @@ def alerts(company, user, membership, today=None, approvals=None):
                                reverse("payroll:runs"), _("Review")))
     if can("sales.view"):
         from sales.models import CustomerPayment, Invoice
-        overdue = [i for i in Invoice.objects.filter(company=company, status="posted", due_date__lt=today)
+        customers = my_customers(company, membership)
+        overdue = [i for i in _mine(Invoice.objects.filter(company=company, status="posted", due_date__lt=today), customers)
                    .prefetch_related("lines__tax_rate") if i.balance_due > 0]
         if overdue:
             amount = sum((i.balance_due * i.rate for i in overdue), ZERO)
             cards.append(_card("crit", "sales", _("Overdue invoices"), _("%(n)s invoices are overdue · %(a)s") % {
                 "n": len(overdue), "a": _money(amount, company)}, f"{reverse('sales:invoices')}?pay=overdue", _("Chase")))
-        week = CustomerPayment.objects.filter(company=company, status="posted", date__gte=today - timedelta(days=6))
+        week = _mine(CustomerPayment.objects.filter(company=company, status="posted", date__gte=today - timedelta(days=6)),
+                     customers)
         agg = week.aggregate(n=Count("id"))
         if agg["n"]:
             total = sum((p.amount * p.rate for p in week), ZERO)
@@ -285,8 +303,9 @@ def alerts(company, user, membership, today=None, approvals=None):
             cards.append(_card("crit", "cheque", _("Returned cheques"), _("%(n)s cheques bounced this month") % {"n": bounced},
                                f"{reverse('banking:cheques')}?status=bounced&bounced=month", _("View")))
     if can("inventory.view"):
+        from core import access
         from inventory.services import batches_on_hand
-        batches = batches_on_hand(company, expiring_within=60, today=today)
+        batches = batches_on_hand(company, expiring_within=60, today=today, warehouses=access.warehouse_ids(membership))
         expired = sum(1 for b in batches if b["state"] == "expired")
         soon = len(batches) - expired
         if batches:
@@ -302,12 +321,13 @@ def alerts(company, user, membership, today=None, approvals=None):
                     "m": _money(company.minimum_cash, company), "d": f"{fc['first_below']['start']:%d/%m}"},
                 reverse("reports:cash_forecast"), _("See forecast")))
     if can("crm.view"):
+        from core import access
         from crm.models import Appointment, Task
         tasks = Task.objects.filter(company=company, assignee=user, done=False, due_date__lte=today).count()
         if tasks:
             cards.append(_card("warn", "list", _("Tasks"), _("%(n)s of your tasks are due today or overdue") % {"n": tasks},
                                f"{reverse('crm:list', args=['task'])}?show=mine", _("View")))
-        appts = Appointment.objects.filter(company=company, starts_at__date=today).count()
+        appts = access.scope(Appointment.objects.filter(company=company, starts_at__date=today), membership).count()
         if appts:
             cards.append(_card("brand", "people", _("Appointments"), _("%(n)s appointments today") % {"n": appts},
                                reverse("crm:calendar"), _("View")))
@@ -335,25 +355,32 @@ def alerts(company, user, membership, today=None, approvals=None):
 
 
 # Home page widgets: key, title, default width (of 4 columns), permission needed (None = everyone).
+# Company-wide money (cash, profit, banks, expenses) needs the matching permission, so sales staff don't see it.
 WIDGETS = [
-    ("cashflow", gettext_lazy("Cash flow"), 2, None),
-    ("pl", gettext_lazy("Profit & loss"), 1, None),
-    ("bank", gettext_lazy("Bank accounts"), 1, None),
+    ("cashflow", gettext_lazy("Cash flow"), 2, "banking.view"),
+    ("pl", gettext_lazy("Profit & loss"), 1, "reports.view"),
+    ("bank", gettext_lazy("Bank accounts"), 1, "banking.view"),
     ("invoices", gettext_lazy("Invoices"), 1, "sales.view"),
-    ("expenses", gettext_lazy("Expenses"), 1, None),
+    ("expenses", gettext_lazy("Expenses"), 1, "reports.view"),
     ("ar", gettext_lazy("Accounts receivable"), 1, "sales.view"),
     ("ap", gettext_lazy("Accounts payable"), 1, "purchases.view"),
     ("sales", gettext_lazy("Sales"), 2, "sales.view"),
     ("orders", gettext_lazy("Customer orders"), 1, "sales.view"),
     ("stock", gettext_lazy("Stock alerts"), 1, "inventory.view"),
-    ("cheques", gettext_lazy("Post-dated cheques"), 1, None),
+    ("cheques", gettext_lazy("Post-dated cheques"), 1, "cheques.view"),
 ]
 WIDGET_KEYS = [w[0] for w in WIDGETS]
+# Not shown to staff limited to their own records: these add up every customer's sales.
+COMPANY_WIDE_SALES = {"sales"}
 
 
 def layout_for(saved, membership):
     """The user's saved order, widths and hidden widgets, plus any widget added since (shown at the end)."""
-    available = {key: (title, width) for key, title, width, perm in WIDGETS if perm is None or membership.has_perm(perm)}
+    from core import access
+
+    own = access.own_only(membership)
+    available = {key: (title, width) for key, title, width, perm in WIDGETS
+                 if (perm is None or membership.has_perm(perm)) and not (own and key in COMPANY_WIDE_SALES)}
     out, seen = [], set()
     for w in saved or []:
         key = w.get("key") if isinstance(w, dict) else None
@@ -408,14 +435,26 @@ def build(company, user, membership):
         data["cheques"] = cheques_block(company, today)
     if "sales" in keys:
         data["sales"] = sales_block(company, today)
+    customers = my_customers(company, membership)
     if "invoices" in keys:
-        data["invoices"] = invoices_block(company, today)
+        data["invoices"] = invoices_block(company, today, customers)
     if "ar" in keys:
-        data["ar"] = receivables_block(company, today)
+        data["ar"] = receivables_block(company, today, customers)
     if "orders" in keys:
-        data["orders"] = orders_block(company)
+        data["orders"] = orders_block(company, customers)
     if "ap" in keys:
         data["ap"] = payables_block(company, today)
     if "stock" in keys:
-        data["stock"] = stock_block(company, today)
+        from core import access
+        data["stock"] = stock_block(company, today, access.warehouse_ids(membership))
     return data
+
+
+def my_customers(company, membership):
+    """Ids of the customers a user limited to their own records looks after, or None when they see every customer."""
+    from contacts.models import Customer
+    from core import access
+
+    if not access.own_only(membership):
+        return None
+    return set(access.scope(Customer.objects.filter(company=company), membership).values_list("id", flat=True))

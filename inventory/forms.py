@@ -1,6 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
+from core import access
 from core.forms_util import DATE, CompanyModelForm, line_formsets
 
 from .models import (Category, Item, StockAdjustment, StockAdjustmentLine, StockTransfer, StockTransferLine,
@@ -38,6 +39,8 @@ class ItemForm(CompanyModelForm):
         self.fields["sku"].required = False
         for name in ("sales_price", "purchase_cost", "reorder_level"):
             self.fields[name].widget.attrs.update({"step": "any", "min": "0"})
+        if not access.sees_costs(access.current()):
+            self.fields.pop("purchase_cost")  # kept as it is; only people who may see costs can change it
         if self.instance.pk and self.instance.layers.exists():
             # Tracking decides how stock layers are kept; it can't change once stock has moved.
             self.fields["tracking"].disabled = True
@@ -62,6 +65,11 @@ class TransferForm(CompanyModelForm):
         fields = ["date", "from_warehouse", "to_warehouse", "notes"]
         widgets = {"date": DATE}
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Stock leaves one of your own warehouses but may go to any of the company's warehouses.
+        self.fields["to_warehouse"].queryset = Warehouse.objects.filter(company=self.company, is_active=True)
+
     def clean(self):
         data = super().clean()
         if data.get("from_warehouse") and data.get("from_warehouse") == data.get("to_warehouse"):
@@ -84,7 +92,7 @@ class CountStartForm(forms.Form):
 
     def __init__(self, *args, company, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["warehouse"].queryset = Warehouse.objects.filter(company=company, is_active=True)
+        self.fields["warehouse"].queryset = access.scope(Warehouse.objects.filter(company=company, is_active=True))
         self.fields["category"].queryset = Category.objects.filter(company=company)
 
 

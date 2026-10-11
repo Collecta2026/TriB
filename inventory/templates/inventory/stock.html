@@ -9,10 +9,10 @@
   <input type="search" name="q" value="{{ q }}" placeholder="{% translate 'SKU or name' %}" style="width:auto;min-width:220px">
   <button class="btn" type="submit">{% translate "Filter" %}</button><button class="btn no-print" type="button" onclick="window.print()">{% translate "Print" %}</button></form>
 <div class="table-wrap"><table class="tbl">
-  <thead><tr><th>{% translate "SKU" %}</th><th>{% translate "Product" %}</th><th>{% translate "Category" %}</th><th class="num">{% translate "On hand" %}</th><th class="num">{% translate "Average cost" %}</th><th class="num">{% translate "Value" %}</th></tr></thead>
+  <thead><tr><th>{% translate "SKU" %}</th><th>{% translate "Product" %}</th><th>{% translate "Category" %}</th><th class="num">{% translate "On hand" %}</th>{% if can.inventory.costs %}<th class="num">{% translate "Average cost" %}</th><th class="num">{% translate "Value" %}</th>{% endif %}</tr></thead>
   <tbody>{% for item, qty, value in rows %}<tr><td><a href="{% url 'inventory:item' item.pk %}">{{ item.sku }}</a></td><td>{{ item.name }}</td><td>{{ item.category.name|default:"" }}</td>
-    <td class="num">{{ qty|num:3 }} {{ item.unit }}</td><td class="num">{{ value|div:qty|num }}</td><td class="num">{{ value|num }}</td></tr>
+    <td class="num">{{ qty|num:3 }} {{ item.unit }}</td>{% if can.inventory.costs %}<td class="num">{{ value|div:qty|num }}</td><td class="num">{{ value|num }}</td>{% endif %}</tr>
   {% empty %}<tr><td colspan="6" class="lbl">{% translate "No stock on hand." %}</td></tr>{% endfor %}</tbody>
-  <tfoot><tr><td colspan="5">{% translate "Total" %} ({{ company.base_currency_id }})</td><td class="num">{{ total|num }}</td></tr></tfoot>
+  {% if can.inventory.costs %}<tfoot><tr><td colspan="5">{% translate "Total" %} ({{ company.base_currency_id }})</td><td class="num">{{ total|num }}</td></tr></tfoot>{% endif %}
 </table></div>
 {% endblock %}

@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
+from core import access
 from core.models import AuditLog, client_ip
 from users.permissions import require_perm
 
@@ -22,9 +23,21 @@ from .models import (Category, Item, StockAdjustment, StockCount, StockCountLine
 ZERO = Decimal("0")
 
 
+def _warehouses(request, active=False):
+    """The warehouses this user may see (all of them unless their user record limits it)."""
+    qs = Warehouse.objects.filter(company=request.company)
+    if active:
+        qs = qs.filter(is_active=True)
+    return access.scope(qs)
+
+
 def _warehouse_filter(request):
     wid = request.GET.get("warehouse", "")
-    return Warehouse.objects.filter(company=request.company, pk=wid).first() if wid.isdigit() else None
+    return _warehouses(request).filter(pk=wid).first() if wid.isdigit() else None
+
+
+def _get(request, model, pk):
+    return get_object_or_404(access.scope(model.objects.filter(company=request.company)), pk=pk)
 
 
 # ---------- Overview ----------
@@ -35,22 +48,24 @@ def overview(request):
     from sales.models import SalesOrder
 
     company = request.company
-    summary = services.stock_summary(company)
+    mine = access.stock_warehouses(request)
+    summary = services.stock_summary(company, warehouses=mine)
     on_hand = {item.id: qty for item, qty, _v in summary}
     low = [i for i in Item.objects.filter(company=company, type="inventory", is_active=True, reorder_level__gt=0)
            if on_hand.get(i.id, ZERO) <= i.reorder_level]
-    expiring = services.batches_on_hand(company, expiring_within=90)
+    expiring = services.batches_on_hand(company, expiring_within=90, warehouses=mine)
     return render(request, "inventory/overview.html", {
         "value": sum((v for _i, _q, v in summary), ZERO), "lines": len(summary),
         "items": Item.objects.filter(company=company, is_active=True).count(),
         "low": [(i, on_hand.get(i.id, ZERO)) for i in low][:15], "low_count": len(low),
         "expiring": expiring[:15], "expired_count": sum(1 for r in expiring if r["state"] == "expired"),
         "soon_count": sum(1 for r in expiring if r["state"] == "soon"),
-        "not_received": len(outstanding_lines(company)),
-        "open_pos": PurchaseOrder.objects.filter(company=company, status__in=("open", "partial")).count(),
-        "open_sos": SalesOrder.objects.filter(company=company, status__in=("open", "partial")).count(),
-        "moves": StockMove.objects.filter(company=company).select_related("item", "warehouse").order_by("-date", "-id")[:12],
-        "warehouses": Warehouse.objects.filter(company=company, is_active=True),
+        "not_received": len([l for l in outstanding_lines(company) if mine is None or l.document.warehouse_id in mine]),
+        "open_pos": access.scope(PurchaseOrder.objects.filter(company=company, status__in=("open", "partial"))).count(),
+        "open_sos": access.scope(SalesOrder.objects.filter(company=company, status__in=("open", "partial"))).count(),
+        "moves": access.scope(StockMove.objects.filter(company=company)).select_related("item", "warehouse")
+        .order_by("-date", "-id")[:12],
+        "warehouses": _warehouses(request, active=True),
     })
 
 
@@ -107,14 +122,15 @@ def item_edit(request, pk):
 @require_perm("inventory.view")
 def item(request, pk):
     item = get_object_or_404(Item, pk=pk, company=request.company)
-    layers = item.layers.filter(qty_remaining__gt=0).select_related("warehouse").order_by("expiry_date", "date", "id")
-    by_wh = item.layers.filter(qty_remaining__gt=0).values("warehouse__code", "warehouse__name_en") \
+    layers = access.scope(item.layers.filter(qty_remaining__gt=0)).select_related("warehouse") \
+        .order_by("expiry_date", "date", "id")
+    by_wh = access.scope(item.layers.filter(qty_remaining__gt=0)).values("warehouse__code", "warehouse__name_en") \
         .annotate(q=Sum("qty_remaining")).order_by("warehouse__code")
     value = sum((l.qty_remaining * l.unit_cost for l in layers), ZERO)
     return render(request, "inventory/item_detail.html", {
         "item": item, "layers": layers, "by_wh": by_wh, "on_hand": sum((l.qty_remaining for l in layers), ZERO),
         "value": services.money(value), "today": timezone.localdate(),
-        "moves": item.moves.select_related("warehouse").order_by("-date", "-id")[:30]})
+        "moves": access.scope(item.moves.all()).select_related("warehouse").order_by("-date", "-id")[:30]})
 
 
 # ---------- Categories & warehouses ----------
@@ -122,7 +138,7 @@ def _simple_list(request, model, form_class, template, redirect_name, perm_edit)
     obj = None
     pk = request.GET.get("edit") or request.POST.get("pk")
     if pk and str(pk).isdigit():
-        obj = get_object_or_404(model, pk=pk, company=request.company)
+        obj = _get(request, model, pk)
     form = None
     if request.membership.has_perm(perm_edit if obj else perm_edit.replace(".edit", ".create")):
         form = form_class(request.POST or None, instance=obj or model(company=request.company), company=request.company)
@@ -132,7 +148,8 @@ def _simple_list(request, model, form_class, template, redirect_name, perm_edit)
             saved.save()
             messages.success(request, _("Saved."))
             return redirect(redirect_name)
-    return render(request, template, {"rows": model.objects.filter(company=request.company), "form": form, "obj": obj})
+    return render(request, template, {"rows": access.scope(model.objects.filter(company=request.company)), "form": form,
+                                      "obj": obj})
 
 
 @require_perm("inventory.view")
@@ -151,25 +168,26 @@ def warehouses(request):
 @require_perm("inventory.view")
 def stock(request):
     wh = _warehouse_filter(request)
-    rows = services.stock_summary(request.company, wh)
+    rows = services.stock_summary(request.company, wh, warehouses=access.stock_warehouses(request))
     q = request.GET.get("q", "").strip().lower()
     if q:
         rows = [r for r in rows if q in r[0].sku.lower() or q in r[0].name_en.lower() or q in (r[0].name_ar or "")]
     return render(request, "inventory/stock.html", {
         "rows": rows, "total": sum((v for _i, _q, v in rows), ZERO), "warehouse": wh, "q": q,
-        "warehouses": Warehouse.objects.filter(company=request.company)})
+        "warehouses": _warehouses(request)})
 
 
 @require_perm("inventory.view")
 def expiry(request):
     wh = _warehouse_filter(request)
     window = request.GET.get("within", "")
-    rows = services.batches_on_hand(request.company, wh, expiring_within=int(window) if window.isdigit() else None)
+    rows = services.batches_on_hand(request.company, wh, expiring_within=int(window) if window.isdigit() else None,
+                                    warehouses=access.stock_warehouses(request))
     if window == "expired":
         rows = [r for r in rows if r["state"] == "expired"]
     return render(request, "inventory/expiry.html", {
         "rows": rows, "warehouse": wh, "within": window, "total": sum((r["value"] for r in rows), ZERO),
-        "warehouses": Warehouse.objects.filter(company=request.company)})
+        "warehouses": _warehouses(request)})
 
 
 # ---------- Transfers and adjustments ----------
@@ -183,7 +201,7 @@ STOCK_DOCS = {
 
 def _doc_list(request, kind):
     cfg = STOCK_DOCS[kind]
-    qs = cfg["model"].objects.filter(company=request.company)
+    qs = access.scope(cfg["model"].objects.filter(company=request.company))
     page = Paginator(qs, 40).get_page(request.GET.get("page"))
     return render(request, f"inventory/{kind}s.html", {"page": page})
 
@@ -224,7 +242,7 @@ def _doc_form(request, kind, doc):
 
 def _doc_new(request, kind):
     cfg = STOCK_DOCS[kind]
-    first = Warehouse.objects.filter(company=request.company, is_active=True).first()
+    first = _warehouses(request, active=True).first()
     doc = cfg["model"](company=request.company, created_by=request.user, date=timezone.localdate())
     if kind == "adjustment":
         doc.warehouse = first
@@ -237,7 +255,7 @@ def _doc_new(request, kind):
 
 def _doc_edit(request, kind, pk):
     cfg = STOCK_DOCS[kind]
-    doc = get_object_or_404(cfg["model"], pk=pk, company=request.company)
+    doc = _get(request, cfg["model"], pk)
     if doc.status != "draft":
         messages.error(request, _("This document can no longer be changed."))
         return redirect(cfg["detail"], pk=pk)
@@ -246,16 +264,16 @@ def _doc_edit(request, kind, pk):
 
 def _doc_detail(request, kind, pk):
     cfg = STOCK_DOCS[kind]
-    doc = get_object_or_404(cfg["model"], pk=pk, company=request.company)
+    doc = _get(request, cfg["model"], pk)
     return render(request, f"inventory/{kind}_detail.html", {
         "doc": doc, "lines": doc.lines.select_related("item"),
-        "moves": StockMove.objects.filter(company=request.company, ref=doc.number).select_related("item", "warehouse")
+        "moves": access.scope(StockMove.objects.filter(company=request.company, ref=doc.number)).select_related("item", "warehouse")
         if doc.number else []})
 
 
 def _doc_post(request, kind, pk):
     cfg = STOCK_DOCS[kind]
-    doc = get_object_or_404(cfg["model"], pk=pk, company=request.company)
+    doc = _get(request, cfg["model"], pk)
     try:
         with transaction.atomic():
             cfg["post"](doc, request.user)
@@ -282,7 +300,7 @@ adjustment_post = require_POST(require_perm("inventory.post")(lambda r, pk: _doc
 def counts(request):
     form = CountStartForm(request.POST or None, company=request.company,
                           initial={"date": timezone.localdate(),
-                                   "warehouse": Warehouse.objects.filter(company=request.company, is_active=True).first()})
+                                   "warehouse": _warehouses(request, active=True).first()})
     if request.method == "POST":
         if not request.membership.has_perm("inventory.create"):
             messages.error(request, _("You do not have permission to do that."))
@@ -293,14 +311,14 @@ def counts(request):
                 items = items.filter(category=d["category"])
             count = services.start_count(request.company, d["warehouse"], d["date"], request.user, items)
             return redirect("inventory:count", pk=count.pk)
-    page = Paginator(StockCount.objects.filter(company=request.company).select_related("warehouse"), 30) \
+    page = Paginator(access.scope(StockCount.objects.filter(company=request.company)).select_related("warehouse"), 30) \
         .get_page(request.GET.get("page"))
     return render(request, "inventory/counts.html", {"page": page, "form": form})
 
 
 @require_perm("inventory.view")
 def count(request, pk):
-    count = get_object_or_404(StockCount, pk=pk, company=request.company)
+    count = _get(request, StockCount, pk)
     if request.method == "POST" and count.status == "draft" and request.membership.has_perm("inventory.edit"):
         if "code" in request.POST:
             _scan(request, count)
@@ -343,7 +361,7 @@ def _scan(request, count):
 @require_POST
 @require_perm("inventory.post")
 def count_post(request, pk):
-    count = get_object_or_404(StockCount, pk=pk, company=request.company)
+    count = _get(request, StockCount, pk)
     try:
         with transaction.atomic():
             adj = services.post_count(count, request.user)
@@ -355,7 +373,7 @@ def count_post(request, pk):
 
 @require_perm("inventory.view")
 def count_sheet(request, pk):
-    count = get_object_or_404(StockCount, pk=pk, company=request.company)
+    count = _get(request, StockCount, pk)
     return render(request, "inventory/count_sheet.html", {"count": count, "lines": count.lines.select_related("item")})
 
 

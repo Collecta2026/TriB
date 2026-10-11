@@ -255,11 +255,13 @@ def post_count(count, user):
     return adjustment
 
 
-def stock_summary(company, warehouse=None):
-    """[(item, qty, value)] of stock on hand at FIFO cost."""
+def stock_summary(company, warehouse=None, warehouses=None):
+    """[(item, qty, value)] of stock on hand at FIFO cost. `warehouses` (ids) limits it to a user's warehouses."""
     qs = StockLayer.objects.filter(company=company, qty_remaining__gt=0)
     if warehouse is not None:
         qs = qs.filter(warehouse=warehouse)
+    if warehouses is not None:
+        qs = qs.filter(warehouse_id__in=warehouses)
     rows = {}
     for layer in qs.select_related("item"):
         qty, value = rows.get(layer.item_id, (ZERO, ZERO))
@@ -268,7 +270,7 @@ def stock_summary(company, warehouse=None):
     return sorted(((items[k], q, money(v)) for k, (q, v) in rows.items()), key=lambda r: r[0].sku)
 
 
-def batches_on_hand(company, warehouse=None, expiring_within=None, today=None):
+def batches_on_hand(company, warehouse=None, expiring_within=None, today=None, warehouses=None):
     """Batch / expiry stock still in the warehouse, soonest expiry first.
 
     Rows: dict(item, warehouse, batch_no, expiry_date, qty, value, days_left, state) where state is
@@ -280,6 +282,8 @@ def batches_on_hand(company, warehouse=None, expiring_within=None, today=None):
     qs = StockLayer.objects.filter(company=company, qty_remaining__gt=0).exclude(expiry_date=None)
     if warehouse is not None:
         qs = qs.filter(warehouse=warehouse)
+    if warehouses is not None:
+        qs = qs.filter(warehouse_id__in=warehouses)
     if expiring_within is not None:
         qs = qs.filter(expiry_date__lte=today + timedelta(days=expiring_within))
     rows = {}

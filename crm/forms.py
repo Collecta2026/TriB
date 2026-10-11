@@ -1,6 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
+from core import access
 from core.forms_util import DATE, CompanyModelForm
 
 from .models import Appointment, Contract, Conversation, Lead, Opportunity, Proposal, Task
@@ -40,7 +41,7 @@ class OpportunityForm(CrmForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         from sales.models import Quotation
-        self.fields["quotation"].queryset = Quotation.objects.filter(company=self.company).exclude(number="")
+        self.fields["quotation"].queryset = access.scope(Quotation.objects.filter(company=self.company).exclude(number=""))
         self.fields["probability"].widget.attrs.update({"min": 0, "max": 100})
 
     def clean(self):
@@ -59,8 +60,8 @@ class ProposalForm(CrmForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         from sales.models import Quotation
-        self.fields["quotation"].queryset = Quotation.objects.filter(company=self.company).exclude(number="")
-        self.fields["opportunity"].queryset = Opportunity.objects.filter(company=self.company)
+        self.fields["quotation"].queryset = access.scope(Quotation.objects.filter(company=self.company).exclude(number=""))
+        self.fields["opportunity"].queryset = access.scope(Opportunity.objects.filter(company=self.company))
 
 
 class ContractForm(CrmForm):
@@ -85,7 +86,8 @@ class AppointmentForm(CrmForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["starts_at"].input_formats = ["%Y-%m-%dT%H:%M"]
-        self.fields["opportunity"].queryset = Opportunity.objects.filter(company=self.company, stage__in=Opportunity.OPEN)
+        self.fields["opportunity"].queryset = access.scope(Opportunity.objects.filter(company=self.company,
+                                                                                 stage__in=Opportunity.OPEN))
 
 
 class TaskForm(CrmForm):
@@ -96,7 +98,7 @@ class TaskForm(CrmForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["opportunity"].queryset = Opportunity.objects.filter(company=self.company)
+        self.fields["opportunity"].queryset = access.scope(Opportunity.objects.filter(company=self.company))
 
 
 class ConversationForm(CrmForm):

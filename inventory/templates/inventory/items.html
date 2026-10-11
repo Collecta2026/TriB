@@ -12,10 +12,10 @@
   <label class="check"><input type="checkbox" name="inactive" value="1" {% if request.GET.inactive %}checked{% endif %}> {% translate "Include inactive" %}</label>
   <button class="btn" type="submit">{% translate "Filter" %}</button></form>
 <div class="table-wrap"><table class="tbl">
-  <thead><tr><th>{% translate "SKU" %}</th><th>{% translate "Name" %}</th><th>{% translate "Type" %}</th><th>{% translate "Category" %}</th><th>{% translate "Tracking" %}</th><th class="num">{% translate "Sales price" %}</th><th class="num">{% translate "Purchase cost" %}</th><th class="num">{% translate "On hand" %}</th></tr></thead>
+  <thead><tr><th>{% translate "SKU" %}</th><th>{% translate "Name" %}</th><th>{% translate "Type" %}</th><th>{% translate "Category" %}</th><th>{% translate "Tracking" %}</th><th class="num">{% translate "Sales price" %}</th>{% if can.inventory.costs %}<th class="num">{% translate "Purchase cost" %}</th>{% endif %}<th class="num">{% translate "On hand" %}</th></tr></thead>
   <tbody>{% for r in rows %}<tr><td><a href="{% url 'inventory:item' r.i.pk %}">{{ r.i.sku }}</a></td><td>{{ r.i.name }}{% if not r.i.is_active %} <span class="pill">{% translate "Inactive" %}</span>{% endif %}</td>
     <td>{{ r.i.get_type_display }}</td><td>{{ r.i.category.name|default:"" }}</td><td>{% if r.i.tracking != "none" %}{{ r.i.get_tracking_display }}{% endif %}</td>
-    <td class="num">{{ r.i.sales_price|num }}</td><td class="num">{{ r.i.purchase_cost|num }}</td>
+    <td class="num">{{ r.i.sales_price|num }}</td>{% if can.inventory.costs %}<td class="num">{{ r.i.purchase_cost|num }}</td>{% endif %}
     <td class="num">{% if r.i.is_stocked %}{% if r.i.reorder_level and r.qty <= r.i.reorder_level %}<span class="pill warn">{{ r.qty|num:3 }}</span>{% else %}{{ r.qty|num:3 }}{% endif %} {{ r.i.unit }}{% endif %}</td></tr>
   {% empty %}<tr><td colspan="8" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody>
 </table></div>

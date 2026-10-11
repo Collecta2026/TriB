@@ -9,7 +9,7 @@
     {% if can.inventory.create %}<a class="btn primary" href="{% url 'inventory:item_new' %}">+ {% translate "Product" %}</a>{% endif %}
   </div></div>
 <div class="kpis">
-  <a class="kpi" href="{% url 'inventory:stock' %}"><span class="lbl">{% translate "Stock value (FIFO)" %}</span><span class="n">{{ value|money:company.base_currency }}</span><span class="lbl">{% blocktranslate count n=lines %}{{ n }} item in stock{% plural %}{{ n }} items in stock{% endblocktranslate %}</span></a>
+  <a class="kpi" href="{% url 'inventory:stock' %}">{% if can.inventory.costs %}<span class="lbl">{% translate "Stock value (FIFO)" %}</span><span class="n">{{ value|money:company.base_currency }}</span>{% else %}<span class="lbl">{% translate "Stock on hand" %}</span>{% endif %}<span class="lbl">{% blocktranslate count n=lines %}{{ n }} item in stock{% plural %}{{ n }} items in stock{% endblocktranslate %}</span></a>
   <a class="kpi {% if low_count %}warn{% endif %}" href="#low"><span class="lbl">{% translate "At or below reorder level" %}</span><span class="n">{{ low_count }}</span></a>
   <a class="kpi {% if expired_count %}crit{% endif %}" href="{% url 'inventory:expiry' %}?within=expired"><span class="lbl">{% translate "Expired batches" %}</span><span class="n">{{ expired_count }}</span></a>
   <a class="kpi {% if soon_count %}warn{% endif %}" href="{% url 'inventory:expiry' %}?within=90"><span class="lbl">{% translate "Expiring within 90 days" %}</span><span class="n">{{ soon_count }}</span></a>
@@ -28,9 +28,9 @@
     {% empty %}<tr><td colspan="4" class="lbl">{% translate "Nothing expires in the next 90 days." %}</td></tr>{% endfor %}</tbody></table></div>
 </div>
 <div class="panel"><h2>{% translate "Latest stock movements" %}</h2>
-  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Date" %}</th><th>{% translate "Type" %}</th><th>{% translate "Reference" %}</th><th>{% translate "Product" %}</th><th>{% translate "Warehouse" %}</th><th>{% translate "Serial / batch" %}</th><th>{% translate "Expiry date" %}</th><th class="num">{% translate "Qty" %}</th><th class="num">{% translate "Value" %}</th></tr></thead>
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Date" %}</th><th>{% translate "Type" %}</th><th>{% translate "Reference" %}</th><th>{% translate "Product" %}</th><th>{% translate "Warehouse" %}</th><th>{% translate "Serial / batch" %}</th><th>{% translate "Expiry date" %}</th><th class="num">{% translate "Qty" %}</th>{% if can.inventory.costs %}<th class="num">{% translate "Value" %}</th>{% endif %}</tr></thead>
   <tbody>{% for m in moves %}<tr><td>{{ m.date|date:"d/m/Y" }}</td><td>{{ m.get_kind_display }}</td><td>{{ m.ref }}</td><td><a href="{% url 'inventory:item' m.item_id %}">{{ m.item.sku }}</a></td><td>{{ m.warehouse.code }}</td>
-    <td>{{ m.serial_no|default:m.batch_no }}</td><td>{{ m.expiry_date|date:"d/m/Y" }}</td><td class="num">{{ m.qty|num:3 }}</td><td class="num">{{ m.value|num }}</td></tr>
+    <td>{{ m.serial_no|default:m.batch_no }}</td><td>{{ m.expiry_date|date:"d/m/Y" }}</td><td class="num">{{ m.qty|num:3 }}</td>{% if can.inventory.costs %}<td class="num">{{ m.value|num }}</td>{% endif %}</tr>
   {% empty %}<tr><td colspan="9" class="lbl">{% translate "No stock has moved yet." %}</td></tr>{% endfor %}</tbody></table></div>
 </div>
 {% endblock %}
