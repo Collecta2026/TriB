@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Who can do what" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs no-print"><a href="{% url 'users:users' %}">{% translate "Users & roles" %}</a></div>
+  <h1>{% translate "Who can do what" %}</h1>
+  <div class="sub">{{ company.name }} · {{ today|date:"d/m/Y" }} · {% translate "Prepared by" %} {{ request.user }}</div></div>
+  <div class="toolbar no-print"><button class="btn" type="button" onclick="window.print()">{% translate "Print" %}</button>
+    <a class="btn primary" href="?format=xlsx">{% translate "Export to Excel" %}</a></div></div>
+
+<div class="panel"><h2>{% translate "People" %}</h2>
+  <div class="table-wrap"><table class="tbl access-tbl">
+    <thead><tr><th>{% translate "Name" %}</th><th>{% translate "Roles" %}</th><th>{% translate "Branches" %}</th><th>{% translate "Warehouses" %}</th><th>{% translate "Records" %}</th>
+      {% for t in limit_types %}<th class="num">{{ t }}</th>{% endfor %}</tr></thead>
+    <tbody>{% for p in people %}<tr{% if not p.active %} class="muted-row"{% endif %}>
+      <td><b>{{ p.name }}</b>{% if p.owner %} <span class="pill info">{% translate "Owner" %}</span>{% endif %}{% if not p.active %} <span class="pill">{% translate "Inactive" %}</span>{% endif %}<div class="lbl">{{ p.email }}</div>
+        {% if can.users.edit %}<a class="no-print" href="{% url 'users:user_edit' p.m.pk %}">{% translate "Edit" %}</a>{% endif %}</td>
+      <td>{{ p.roles }}</td><td>{{ p.branches }}</td><td>{{ p.warehouses }}</td><td>{{ p.scope }}</td>
+      {% for label, v in p.limits %}<td class="num">{{ v }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="lbl">{% translate "Approval limits are the largest amount, in the base currency, the person may approve or post. Purchase orders and bills above it go to someone whose limit covers them." %}</p>
+</div>
+
+<div class="panel"><h2>{% translate "Permissions by person" %}</h2>
+  <div class="table-wrap"><table class="tbl access-grid">
+    <thead><tr><th>{% translate "Name" %}</th>{% for m in modules %}<th>{{ m }}</th>{% endfor %}</tr></thead>
+    <tbody>{% for p in people %}<tr{% if not p.active %} class="muted-row"{% endif %}><td><b>{{ p.name }}</b></td>{% for g in p.grid %}<td>{{ g.letters|default:"—" }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="lbl">{% translate "Key" %}: {% for k, label in legend %}<b>{{ k }}</b> {{ label }}{% if not forloop.last %} · {% endif %}{% endfor %}</p>
+</div>
+
+<div class="panel"><h2>{% translate "Roles" %}</h2>
+  {# One role per row, full width; on a narrow screen the matrix scrolls inside its own box. #}
+  <div class="access-roles" style="grid-template-columns:minmax(0,1fr);gap:22px">{% for r in roles %}<section class="access-role" style="min-width:0">
+    <h3>{{ r.role.name }}{% if r.own %} <span class="pill warn">{% translate "Own records only" %}</span>{% endif %}{% if r.role.is_system %} <span class="pill">{% translate "Starter role" %}</span>{% endif %}
+      {% if can.users.edit %}<a class="btn sm no-print" href="{% url 'users:role_edit' r.role.pk %}">{% translate "Edit" %}</a>{% endif %}</h3>
+    <div class="lbl">{% for label, v in r.limits_set %}{{ label }}: <b>{{ v }}</b>{% if not forloop.last %} · {% endif %}{% empty %}{% translate "Cannot approve" %}{% endfor %}</div>
+    <div class="table-wrap"><table class="tbl access-matrix"><thead><tr><th>{% translate "Module" %}</th>{% for a, label in actions %}<th>{{ label }}</th>{% endfor %}</tr></thead>
+      <tbody>{% for row in r.matrix %}<tr><td>{{ row.module }}</td>{% for applies, on in row.cells %}<td>{% if not applies %}<span class="lbl">—</span>{% elif on %}✓{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>
+  </section>{% endfor %}</div>
+</div>
+
+<div class="panel signoff"><h2>{% translate "Review and sign-off" %}</h2>
+  <div class="signoff-grid"><div><span class="lbl">{% translate "Reviewed by" %}</span><div class="sigline"></div></div>
+    <div><span class="lbl">{% translate "Signature" %}</span><div class="sigline"></div></div>
+    <div><span class="lbl">{% translate "Date" %}</span><div class="sigline"></div></div></div></div>
+{% endblock %}
