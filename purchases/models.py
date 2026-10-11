@@ -187,3 +187,37 @@ class BillAllocation(models.Model):
     payment = models.ForeignKey(SupplierPayment, on_delete=models.CASCADE, related_name="allocations")
     bill = models.ForeignKey(Bill, on_delete=models.PROTECT, related_name="allocations")
     amount = models.DecimalField(**MONEY)
+
+class SupplierCredit(TradeDocument):
+    """Goods returned to a supplier or an allowance received (a debit note): reduces what we owe."""
+
+    STATUSES = [("draft", _("Draft")), ("posted", _("Posted")), ("void", _("Void"))]
+    supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT, related_name="credits", verbose_name=_("Supplier"))
+    bill = models.ForeignKey("Bill", on_delete=models.PROTECT, null=True, blank=True, related_name="supplier_credits",
+                             verbose_name=_("Original bill"))
+    supplier_credit_no = models.CharField(_("Supplier's credit note number"), max_length=60, blank=True)
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.PROTECT, null=True, blank=True,
+                                  verbose_name=_("Return goods from warehouse"))
+    reason = models.CharField(_("Reason"), max_length=200, blank=True)
+    status = models.CharField(_("Status"), max_length=10, choices=STATUSES, default="draft")
+    amount_applied = models.DecimalField(default=0, **MONEY)
+    journal_entry = models.OneToOneField(JournalEntry, on_delete=models.PROTECT, null=True, blank=True, related_name="+")
+    posted_at = models.DateTimeField(null=True, blank=True)
+
+    @property
+    def available(self):
+        return self.total - self.amount_applied if self.status == "posted" else Decimal("0")
+
+
+class SupplierCreditLine(TradeLine):
+    document = models.ForeignKey(SupplierCredit, on_delete=models.CASCADE, related_name="lines")
+    return_stock = models.BooleanField(_("Goods go back"), default=True)
+    serials = models.TextField(_("Serial numbers"), blank=True)
+    cost = models.DecimalField(default=0, **MONEY)
+
+
+class SupplierCreditAllocation(models.Model):
+    credit = models.ForeignKey(SupplierCredit, on_delete=models.CASCADE, related_name="allocations")
+    bill = models.ForeignKey("Bill", on_delete=models.PROTECT, related_name="credit_allocations")
+    amount = models.DecimalField(**MONEY)
+    date = models.DateField()

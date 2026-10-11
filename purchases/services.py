@@ -8,6 +8,7 @@ Bill:                Dr GRNI                    for received lines, at the recei
                      Dr Expense                 services and non-stock items
                      Dr VAT input
                          Cr Suppliers (AP)      total
+Supplier credit:     Dr Suppliers (AP) / Cr VAT input / Cr Inventory at FIFO cost (± price variance) or expense
 Supplier payment:    Dr Suppliers (AP)          allocated × bill rate, rest × payment rate
                          Cr Bank / cash / cheques issued   amount × payment rate
                      ± Exchange gain / loss
@@ -23,11 +24,11 @@ from django.utils.translation import gettext as _
 from banking.models import Cheque
 from core.documents import r2
 from core.models import AuditLog, ExchangeRate, NumberSeries
-from inventory.services import StockError, inventory_account, parse_serials, receive
+from inventory.services import StockError, inventory_account, issue, parse_serials, receive
 from ledger.services import Line, PostingError, post_journal, reverse_journal, system_account
 
 from .models import (Bill, BillAllocation, BillLine, GoodsReceipt, GoodsReceiptLine, PurchaseOrder,
-                     PurchaseOrderLine, SupplierPayment)
+                     PurchaseOrderLine, SupplierCredit, SupplierCreditAllocation, SupplierPayment)
 
 ZERO = Decimal("0")
 
@@ -253,7 +254,7 @@ def void_bill(bill, user, date=None):
 def bill_from_order(order, user):
     """A draft bill for everything received but not yet billed (or ordered services)."""
     today = timezone.localdate()
-    bill = Bill.objects.create(company=order.company, branch=order.branch, date=today,
+    bill = Bill.objects.create(company=order.company, prices_include_tax=order.prices_include_tax, branch=order.branch, date=today,
                                due_date=today + timedelta(days=order.supplier.payment_terms_days), supplier=order.supplier,
                                currency=order.currency, rate=order.rate, purchase_order=order, created_by=user)
     for line in order.lines.select_related("item"):
@@ -357,7 +358,11 @@ def supplier_balance(supplier, as_of=None):
     pays = SupplierPayment.objects.filter(supplier=supplier, status="posted")
     if as_of:
         bills, pays = bills.filter(date__lte=as_of), pays.filter(date__lte=as_of)
-    return sum((b.total for b in bills), ZERO) - sum((p.amount for p in pays), ZERO)
+    credits = SupplierCredit.objects.filter(supplier=supplier, status="posted")
+    if as_of:
+        credits = credits.filter(date__lte=as_of)
+    return (sum((b.total for b in bills), ZERO) - sum((p.amount for p in pays), ZERO)
+            - sum((c.total for c in credits), ZERO))
 
 
 def ap_aging(company, as_of=None):
@@ -378,6 +383,12 @@ def ap_aging(company, as_of=None):
             base = r2(pay.unallocated * pay.rate)
             row["buckets"][0] -= base
             row["total"] -= base
+    for credit in SupplierCredit.objects.filter(company=company, status="posted", date__lte=as_of).select_related("supplier"):
+        if credit.available > 0:
+            row = rows.setdefault(credit.supplier_id, {"contact": credit.supplier, "buckets": [ZERO] * 5, "total": ZERO})
+            base = r2(credit.available * credit.rate)
+            row["buckets"][0] -= base
+            row["total"] -= base
     return sorted(rows.values(), key=lambda r: -r["total"])
 
 
@@ -389,6 +400,8 @@ def statement(supplier, date_from, date_to):
         events.append((bill.date, 0, bill.number, bill.supplier_invoice_no, _("Bill"), bill.total, ZERO, bill.due_date))
     for pay in SupplierPayment.objects.filter(supplier=supplier, status="posted", date__gte=date_from, date__lte=date_to):
         events.append((pay.date, 1, pay.number, pay.reference, _("Payment"), ZERO, pay.amount, None))
+    for credit in SupplierCredit.objects.filter(supplier=supplier, status="posted", date__gte=date_from, date__lte=date_to):
+        events.append((credit.date, 1, credit.number, credit.supplier_credit_no, _("Supplier credit"), ZERO, credit.total, None))
     events.sort(key=lambda e: (e[0], e[1]))
     running, rows = opening, []
     for date, _o, number, ref, kind, debit, credit, due in events:
@@ -400,3 +413,101 @@ def statement(supplier, date_from, date_to):
         if bill.balance_due > 0:
             aging[bucket_for((date_to - bill.due_date).days)] += bill.balance_due
     return {"opening": opening, "rows": rows, "closing": running, "aging": aging}
+
+# ---------- Supplier credits (debit notes) ----------
+@transaction.atomic
+def post_supplier_credit(credit, user):
+    if credit.status != "draft":
+        raise PurchaseError(_("Only draft supplier credits can be posted."))
+    company = credit.company
+    lines = list(credit.lines.select_related("item", "tax_rate", "account", "project"))
+    if not lines:
+        raise PurchaseError(_("Add at least one line."))
+    if any(l.qty <= 0 for l in lines):
+        raise PurchaseError(_("Every line needs a quantity greater than zero."))
+    if credit.bill_id and (credit.bill.supplier_id != credit.supplier_id or credit.bill.currency_id != credit.currency_id):
+        raise PurchaseError(_("The original bill belongs to another supplier or currency."))
+    returning = [l for l in lines if l.item_id and l.item.is_stocked and l.return_stock]
+    if returning and not credit.warehouse_id:
+        raise PurchaseError(_("Choose the warehouse the goods leave from."))
+    credit.number = credit.number or NumberSeries.next(company, "DN", credit.date)
+    rate, cur = credit.rate, credit.currency_id
+    memo = f"{credit.number} {credit.supplier.name} {credit.supplier_credit_no}".strip()
+    journal, vat = [], defaultdict(Decimal)
+    for line in lines:
+        base = r2(line.net * rate)
+        if line in returning:
+            try:
+                cost, _parts = issue(line.item, credit.warehouse, line.qty, credit.date, credit.number, kind="return",
+                                     serials=parse_serials(line.serials))
+            except StockError as exc:
+                raise PurchaseError(str(exc)) from exc
+            line.cost = cost
+            line.save(update_fields=["cost"])
+            journal.append(Line(inventory_account(line.item), credit=cost, description=line.label, project=line.project))
+            if base != cost:
+                variance = base - cost
+                journal.append(Line(system_account(company, "price_variance"), debit=max(-variance, ZERO),
+                                    credit=max(variance, ZERO), description=_("Price difference %(sku)s") % {"sku": line.item.sku}))
+        else:
+            journal.append(Line(expense_account(line, company), credit=base, description=line.label, project=line.project,
+                                currency=cur, amount_fc=line.net, rate=rate))
+        if line.tax:
+            vat[line.tax_rate_id] += line.tax
+    vat_account = system_account(company, "vat_input")
+    for _tax, amount in vat.items():
+        journal.append(Line(vat_account, credit=r2(amount * rate), description=_("VAT"), currency=cur, amount_fc=amount, rate=rate))
+    ap_base = sum((l.credit for l in journal), ZERO) - sum((l.debit for l in journal), ZERO)
+    journal.insert(0, Line(system_account(company, "payable"), debit=ap_base, description=memo, currency=cur,
+                           amount_fc=credit.total, rate=rate))
+    try:
+        credit.journal_entry = post_journal(company, credit.date, journal, memo=memo, source="bill",
+                                            source_ref=credit.number, user=user, branch=credit.branch)
+    except PostingError as exc:
+        raise PurchaseError(str(exc)) from exc
+    credit.status, credit.posted_at = "posted", timezone.now()
+    credit.save(update_fields=["number", "status", "journal_entry", "posted_at"])
+    if credit.bill_id and credit.bill.status == "posted" and credit.bill.balance_due > 0:
+        apply_supplier_credit(credit, credit.bill, min(credit.available, credit.bill.balance_due), user)
+    AuditLog.record(company, user, "supplier_credit.posted", credit, f"{credit.number} {credit.total}")
+    return credit
+
+
+@transaction.atomic
+def apply_supplier_credit(credit, bill, amount, user=None, date=None):
+    amount = Decimal(amount)
+    if amount <= 0:
+        raise PurchaseError(_("The amount must be greater than zero."))
+    if bill.supplier_id != credit.supplier_id or bill.currency_id != credit.currency_id:
+        raise PurchaseError(_("Bill %(n)s belongs to another supplier or currency.") % {"n": bill.number})
+    if amount > credit.available:
+        raise PurchaseError(_("Only %(a)s of this credit is still available.") % {"a": f"{credit.available:,.2f}"})
+    if amount > bill.balance_due:
+        raise PurchaseError(_("%(n)s only has %(b)s left to pay.") % {"n": bill.number, "b": f"{bill.balance_due:,.2f}"})
+    SupplierCreditAllocation.objects.create(credit=credit, bill=bill, amount=amount, date=date or timezone.localdate())
+    bill.amount_paid += amount
+    bill.save(update_fields=["amount_paid"])
+    credit.amount_applied += amount
+    credit.save(update_fields=["amount_applied"])
+    AuditLog.record(credit.company, user, "supplier_credit.applied", credit, f"{bill.number} {amount}")
+
+
+@transaction.atomic
+def void_supplier_credit(credit, user, date=None):
+    if credit.status != "posted":
+        raise PurchaseError(_("Only posted supplier credits can be voided."))
+    if credit.amount_applied:
+        raise PurchaseError(_("Remove what this credit was used for first."))
+    date = date or timezone.localdate()
+    from inventory.models import StockMove
+    for move in StockMove.objects.filter(company=credit.company, ref=credit.number, kind="return", qty__lt=0).select_related("item"):
+        try:
+            receive(move.item, move.warehouse, -move.qty, move.unit_cost, date, credit.number, kind="return",
+                    serials=[move.serial_no] if move.serial_no else None, batch_no=move.batch_no,
+                    expiry_date=move.expiry_date)
+        except StockError as exc:
+            raise PurchaseError(str(exc)) from exc
+    reverse_journal(credit.journal_entry, date, user, _("Void %(n)s") % {"n": credit.number})
+    credit.status = "void"
+    credit.save(update_fields=["status"])
+    AuditLog.record(credit.company, user, "supplier_credit.void", credit, credit.number)

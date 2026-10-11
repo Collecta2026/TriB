@@ -19,9 +19,9 @@ from sales.services import AGING_BUCKETS
 from users.permissions import require_perm
 
 from . import services
-from .forms import (BILL_LINES, ORDER_LINES, RECEIPT_LINES, BillForm, GoodsReceiptForm, PurchaseOrderForm,
-                    SupplierPaymentForm)
-from .models import Bill, GoodsReceipt, PurchaseOrder, SupplierPayment
+from .forms import (BILL_LINES, ORDER_LINES, RECEIPT_LINES, SUPPLIER_CREDIT_LINES, ApplySupplierCreditForm, BillForm,
+                    GoodsReceiptForm, PurchaseOrderForm, SupplierCreditForm, SupplierPaymentForm)
+from .models import Bill, GoodsReceipt, PurchaseOrder, SupplierCredit, SupplierPayment
 
 
 def _defaults(request, due=False, warehouse=False):
@@ -59,7 +59,7 @@ ORDER = DocSpec(
              (gettext_lazy("Total"), lambda d: d.total, "money"), (gettext_lazy("Currency"), lambda d: d.currency_id, "text"),
              (gettext_lazy("Status"), lambda d: (d.status, d.get_status_display()), "pill")])
 BILL = DocSpec(
-    key="bill", ns="purchases", perm="purchases", model=Bill, header_form=BillForm, formsets=BILL_LINES,
+    key="bill", voidable=True, recurring_kind="bill", ns="purchases", perm="purchases", model=Bill, header_form=BillForm, formsets=BILL_LINES,
     title=gettext_lazy("Bill"), plural=gettext_lazy("Bills"), print_en="Supplier Bill", print_ar="فاتورة مورد",
     party="supplier", price_source="purchase", statuses=Bill.STATUSES, actions_template="purchases/_bill_actions.html",
     related_template="purchases/_bill_related.html", defaults=lambda r: _defaults(r, due=True),
@@ -183,9 +183,17 @@ def _receipt_form(request, grn):
                 messages.error(request, str(exc))
         else:
             messages.success(request, _("Saved."))
-        return redirect("purchases:receipt", pk=grn.pk)
+        from core.doc_actions import saved_redirect
+        return saved_redirect(request, reverse("purchases:receipt", args=[grn.pk]), reverse("purchases:receipt_new"),
+                              reverse("purchases:receipts"))
     from core.docviews import picker_data
-    return render(request, "purchases/receipt_form.html", {"form": form, "formset": formset, "grn": grn,
+    from core.doc_actions import audit_url
+    bar = {"mode": "form", "save_label": _("Save draft"), "more": [],
+           "cancel": reverse("purchases:receipt", args=[grn.pk]) if grn.pk else reverse("purchases:receipts"),
+           "primary": _("Save and receive into stock") if request.membership.has_perm("inventory.post") else ""}
+    if grn.pk and request.membership.has_perm("audit.view"):
+        bar["more"].append({"label": _("Audit history"), "url": audit_url(grn)})
+    return render(request, "purchases/receipt_form.html", {"form": form, "formset": formset, "grn": grn, "bar": bar,
                                                            "picker": picker_data(request.company, "purchase")})
 
 
@@ -286,9 +294,11 @@ def bill_action(request, pk):
 # ---------- Supplier payments ----------
 @require_perm("purchases.view")
 def payments(request):
+    from core.filters import apply as drill_filter
     qs = SupplierPayment.objects.filter(company=request.company).select_related("supplier", "currency", "bank_account")
+    qs, drill = drill_filter(request, qs, "supplier")
     page = Paginator(qs, 40).get_page(request.GET.get("page"))
-    return render(request, "purchases/payments.html", {"page": page})
+    return render(request, "purchases/payments.html", {"page": page, "drill": drill})
 
 
 @require_perm("purchases.create")
@@ -393,3 +403,90 @@ def not_received(request):
     return render(request, "purchases/not_received.html", {
         "outstanding": services.outstanding_lines(request.company),
         "billed": services.billed_not_received(request.company)})
+
+# ---------- Supplier credits (debit notes) ----------
+def _credit_defaults(request):
+    out = _defaults(request, warehouse=True)
+    bid = request.GET.get("bill", "")
+    bill = Bill.objects.filter(company=request.company, pk=bid, status="posted").first() if bid.isdigit() else None
+    if bill:
+        out.update(bill=bill, supplier=bill.supplier, currency=bill.currency, rate=bill.rate,
+                   warehouse=bill.warehouse or out.get("warehouse"))
+    return out
+
+
+SUPPLIER_CREDIT = DocSpec(
+    key="supplier_credit", voidable=True, ns="purchases", perm="purchases", model=SupplierCredit, header_form=SupplierCreditForm,
+    formsets=SUPPLIER_CREDIT_LINES, title=gettext_lazy("Supplier credit"), plural=gettext_lazy("Supplier credits"),
+    print_en="Debit Note", print_ar="إشعار مدين", party="supplier", price_source="purchase", statuses=SupplierCredit.STATUSES,
+    actions_template="purchases/_supplier_credit_actions.html", related_template="purchases/_supplier_credit_related.html",
+    defaults=_credit_defaults,
+    columns=[(gettext_lazy("Number"), lambda d: d.number, "text"), (gettext_lazy("Date"), lambda d: d.date, "date"),
+             (gettext_lazy("Supplier"), lambda d: d.supplier.name, "text"),
+             (gettext_lazy("Supplier's credit note number"), lambda d: d.supplier_credit_no, "text"),
+             (gettext_lazy("Total"), lambda d: d.total, "money"), (gettext_lazy("Unused credit"), lambda d: d.available, "money"),
+             (gettext_lazy("Status"), lambda d: (d.status, d.get_status_display()), "pill")])
+
+
+def _supplier_credit_after_save(request, doc):
+    if not request.membership.has_perm("purchases.post"):
+        return None
+    try:
+        services.post_supplier_credit(doc, request.user)
+    except services.PurchaseError as exc:
+        messages.error(request, str(exc))
+        return redirect("purchases:supplier_credit", pk=doc.pk)
+    messages.success(request, _("Supplier credit %(n)s posted.") % {"n": doc.number})
+    return redirect("purchases:supplier_credit", pk=doc.pk)
+
+
+@require_perm("purchases.view")
+def supplier_credits(request):
+    return doc_list(request, SUPPLIER_CREDIT)
+
+
+@require_perm("purchases.create")
+def supplier_credit_new(request):
+    return doc_form(request, SUPPLIER_CREDIT, after_save=_supplier_credit_after_save, post_label=_("Save and post"))
+
+
+@require_perm("purchases.edit")
+def supplier_credit_edit(request, pk):
+    return doc_form(request, SUPPLIER_CREDIT, get_doc(request, SUPPLIER_CREDIT, pk), after_save=_supplier_credit_after_save,
+                    post_label=_("Save and post"))
+
+
+@require_perm("purchases.view")
+def supplier_credit(request, pk):
+    doc = get_doc(request, SUPPLIER_CREDIT, pk)
+    return doc_detail(request, SUPPLIER_CREDIT, doc, {
+        "info": _info(doc), "party": doc.supplier, "party_url": reverse("contacts:supplier", args=[doc.supplier_id]),
+        "apply_form": ApplySupplierCreditForm(credit=doc), "allocs": doc.allocations.select_related("bill")})
+
+
+@require_perm("purchases.view")
+def supplier_credit_print(request, pk):
+    return doc_print(request, SUPPLIER_CREDIT, get_doc(request, SUPPLIER_CREDIT, pk))
+
+
+@require_POST
+@require_perm("purchases.post")
+def supplier_credit_action(request, pk):
+    doc = get_doc(request, SUPPLIER_CREDIT, pk)
+    action = request.POST.get("action")
+    try:
+        if action == "post":
+            return _supplier_credit_after_save(request, doc)
+        if action == "apply":
+            form = ApplySupplierCreditForm(request.POST, credit=doc)
+            if form.is_valid():
+                services.apply_supplier_credit(doc, form.cleaned_data["bill"], form.cleaned_data["amount"], request.user)
+                messages.success(request, _("Credit applied to %(n)s.") % {"n": form.cleaned_data["bill"].number})
+            else:
+                messages.error(request, " ".join(e for errs in form.errors.values() for e in errs))
+        elif action == "void" and request.membership.has_perm("purchases.void"):
+            services.void_supplier_credit(doc, request.user)
+            messages.success(request, _("Supplier credit voided."))
+    except services.PurchaseError as exc:
+        messages.error(request, str(exc))
+    return redirect("purchases:supplier_credit", pk=pk)

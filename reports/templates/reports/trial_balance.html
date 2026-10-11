@@ -4,8 +4,7 @@
 {% block content %}
 <div class="page-head"><div><div class="crumbs"><a href="{% url 'reports:index' %}">{% translate "Reports" %}</a></div><h1>{% translate "Trial balance" %}</h1>
   <div class="sub">{{ company.name }} · {{ from }} – {{ to }} · {{ company.base_currency_id }}</div></div>
-  <div class="toolbar">{% include "reports/_period.html" with show_from=1 %}
-    {% if can.reports.export %}<a class="btn" href="?from={{ from|date:'Y-m-d' }}&to={{ to|date:'Y-m-d' }}&format=csv">{% translate "Export to Excel (CSV)" %}</a>{% endif %}</div>
+  {% include "reports/_period.html" with show_from=1 %}
 </div>
 <div class="table-wrap"><table class="tbl">
   <thead>

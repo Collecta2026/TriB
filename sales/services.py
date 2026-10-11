@@ -5,6 +5,8 @@ Invoice:   Dr Customers (AR)          total
                Cr VAT output          VAT
            Dr Cost of goods sold      FIFO cost   (stock items)
                Cr Inventory           FIFO cost
+Credit note: the invoice in reverse (Dr income, Dr VAT output, Cr AR); returned goods Dr Inventory / Cr COGS.
+Refund:    Dr Customers (AR) / Cr Bank or cash.
 Payment:   Dr Bank / cash / cheques in the safe   amount × payment rate
                Cr Customers (AR)       allocated × invoice rate, rest × payment rate
            ± Exchange gain / loss      the difference
@@ -24,7 +26,8 @@ from core.models import AuditLog, NumberSeries
 from inventory.services import StockError, cogs_account, inventory_account, issue, parse_serials, receive
 from ledger.services import Line, PostingError, post_journal, reverse_journal, system_account
 
-from .models import CustomerPayment, Invoice, InvoiceLine, PaymentAllocation, SalesOrder, SalesOrderLine
+from .models import (CreditAllocation, CreditNote, CustomerPayment, CustomerRefund, Invoice, InvoiceLine, PaymentAllocation,
+                     SalesOrder, SalesOrderLine)
 
 ZERO = Decimal("0")
 
@@ -48,7 +51,12 @@ def customer_balance(customer, as_of=None):
     if as_of:
         inv, pay = inv.filter(date__lte=as_of), pay.filter(date__lte=as_of)
     from banking.services import returned_cheques_balance
+    notes = CreditNote.objects.filter(customer=customer, status="posted")
+    refunds = CustomerRefund.objects.filter(customer=customer, status="posted")
+    if as_of:
+        notes, refunds = notes.filter(date__lte=as_of), refunds.filter(date__lte=as_of)
     return (sum((i.total for i in inv), ZERO) - sum((p.amount for p in pay), ZERO)
+            - sum((n.total for n in notes), ZERO) + sum((r.amount for r in refunds), ZERO)
             + returned_cheques_balance(customer, as_of))
 
 
@@ -232,7 +240,7 @@ def copy_lines(source, target, line_model, link_field=None, qty_attr="qty"):
 
 @transaction.atomic
 def quote_to_order(quote, user):
-    order = SalesOrder.objects.create(company=quote.company, branch=quote.branch, date=timezone.localdate(),
+    order = SalesOrder.objects.create(company=quote.company, prices_include_tax=quote.prices_include_tax, branch=quote.branch, date=timezone.localdate(),
                                       customer=quote.customer, currency=quote.currency, rate=quote.rate,
                                       reference=quote.reference, notes=quote.notes, quotation=quote, created_by=user)
     copy_lines(quote, order, SalesOrderLine)
@@ -244,7 +252,7 @@ def quote_to_order(quote, user):
 @transaction.atomic
 def order_to_invoice(order, user):
     today = timezone.localdate()
-    invoice = Invoice.objects.create(company=order.company, branch=order.branch, date=today,
+    invoice = Invoice.objects.create(company=order.company, prices_include_tax=order.prices_include_tax, branch=order.branch, date=today,
                                      due_date=today + timedelta(days=order.customer.payment_terms_days),
                                      customer=order.customer, currency=order.currency, rate=order.rate,
                                      reference=order.reference, warehouse=order.warehouse, sales_order=order,
@@ -256,7 +264,7 @@ def order_to_invoice(order, user):
 @transaction.atomic
 def quote_to_invoice(quote, user):
     today = timezone.localdate()
-    invoice = Invoice.objects.create(company=quote.company, branch=quote.branch, date=today,
+    invoice = Invoice.objects.create(company=quote.company, prices_include_tax=quote.prices_include_tax, branch=quote.branch, date=today,
                                      due_date=today + timedelta(days=quote.customer.payment_terms_days),
                                      customer=quote.customer, currency=quote.currency, rate=quote.rate,
                                      reference=quote.reference, created_by=user)
@@ -301,6 +309,20 @@ def ar_aging(company, as_of=None):
             base = r2(pay.unallocated * pay.rate)
             row["buckets"][0] -= base
             row["total"] -= base
+    # Credit not yet used against an invoice or refunded reduces what the customer owes.
+    for note in CreditNote.objects.filter(company=company, status="posted", date__lte=as_of).select_related("customer"):
+        if note.available > 0:
+            row = rows.setdefault(note.customer_id, {"contact": note.customer, "buckets": [ZERO] * 5, "total": ZERO})
+            base = r2(note.available * note.rate)
+            row["buckets"][0] -= base
+            row["total"] -= base
+    # Refunds of overpayments (not tied to a credit note) cancel out the unallocated payment above.
+    for ref in CustomerRefund.objects.filter(company=company, status="posted", credit_note__isnull=True,
+                                             date__lte=as_of).select_related("customer"):
+        row = rows.setdefault(ref.customer_id, {"contact": ref.customer, "buckets": [ZERO] * 5, "total": ZERO})
+        base = r2(ref.amount * ref.rate)
+        row["buckets"][0] += base
+        row["total"] += base
     # Cheques the bank returned are owed again from the day they came back.
     from banking.models import Cheque
     for chq in Cheque.objects.filter(company=company, status="bounced", customer__isnull=False,
@@ -320,6 +342,10 @@ def statement(customer, date_from, date_to):
         events.append((inv.date, 0, inv.number, _("Invoice"), inv.total, ZERO, inv.due_date))
     for pay in CustomerPayment.objects.filter(customer=customer, status="posted", date__gte=date_from, date__lte=date_to):
         events.append((pay.date, 1, pay.number, _("Payment received"), ZERO, pay.amount, None))
+    for note in CreditNote.objects.filter(customer=customer, status="posted", date__gte=date_from, date__lte=date_to):
+        events.append((note.date, 1, note.number, _("Credit note"), ZERO, note.total, None))
+    for ref in CustomerRefund.objects.filter(customer=customer, status="posted", date__gte=date_from, date__lte=date_to):
+        events.append((ref.date, 2, ref.number, _("Refund"), ref.amount, ZERO, None))
     from banking.models import ChequeEvent
     labels = {"bounced": _("Cheque %(n)s returned unpaid"), "resubmitted": _("Cheque %(n)s resubmitted"),
               "settled": _("Returned cheque %(n)s settled")}
@@ -339,3 +365,178 @@ def statement(customer, date_from, date_to):
         if inv.balance_due > 0:
             aging[bucket_for((date_to - inv.due_date).days)] += inv.balance_due
     return {"opening": opening, "rows": rows, "closing": running, "aging": aging}
+
+# ---------- Credit notes ----------
+def _return_cost(note, line):
+    """Unit cost (base currency) for returned goods: what they cost when sold on the original invoice, else the
+    product's purchase cost."""
+    if note.invoice_id:
+        sold = note.invoice.lines.filter(item=line.item, qty__gt=0).first()
+        if sold and sold.cost:
+            return (sold.cost / sold.qty).quantize(Decimal("0.0001"))
+    return line.item.purchase_cost
+
+
+@transaction.atomic
+def post_credit_note(note, user):
+    if note.status != "draft":
+        raise SalesError(_("Only draft credit notes can be posted."))
+    company = note.company
+    lines = list(note.lines.select_related("item", "tax_rate", "account", "project"))
+    if not lines:
+        raise SalesError(_("Add at least one line."))
+    if any(l.qty <= 0 for l in lines):
+        raise SalesError(_("Every line needs a quantity greater than zero."))
+    if note.invoice_id and (note.invoice.customer_id != note.customer_id or note.invoice.currency_id != note.currency_id):
+        raise SalesError(_("The original invoice belongs to another customer or currency."))
+    returning = [l for l in lines if l.item_id and l.item.is_stocked and l.return_to_stock]
+    if returning and not note.warehouse_id:
+        raise SalesError(_("Choose the warehouse the goods come back to."))
+    note.number = note.number or NumberSeries.next(company, "CN", note.date)
+    rate, cur = note.rate, note.currency_id
+    memo = f"{note.number} {note.customer.name}"
+    journal, vat = [], defaultdict(Decimal)
+    for line in lines:
+        journal.append(Line(income_account(line), debit=r2(line.net * rate), description=line.label[:300] or memo,
+                            project=line.project, currency=cur, amount_fc=line.net, rate=rate))
+        if line.tax:
+            vat[line.tax_rate_id] += line.tax
+        if line in returning:
+            try:
+                value = receive(line.item, note.warehouse, line.qty, _return_cost(note, line), note.date, note.number,
+                                kind="return", serials=parse_serials(line.serials), batch_no=line.batch_no,
+                                expiry_date=line.expiry_date)
+            except StockError as exc:
+                raise SalesError(str(exc)) from exc
+            line.cost = value
+            line.save(update_fields=["cost"])
+            if value:
+                journal += [Line(inventory_account(line.item), debit=value, description=line.item.sku),
+                            Line(cogs_account(line.item), credit=value, description=line.item.sku, project=line.project)]
+    vat_account = system_account(company, "vat_output")
+    for _tax, amount in vat.items():
+        journal.append(Line(vat_account, debit=r2(amount * rate), description=_("VAT"), currency=cur, amount_fc=amount, rate=rate))
+    ar_base = sum((l.debit for l in journal), ZERO) - sum((l.credit for l in journal), ZERO)
+    journal.append(Line(system_account(company, "receivable"), credit=ar_base, description=memo, currency=cur,
+                        amount_fc=note.total, rate=rate))
+    try:
+        note.journal_entry = post_journal(company, note.date, journal, memo=memo, source="invoice",
+                                          source_ref=note.number, user=user, branch=note.branch)
+    except PostingError as exc:
+        raise SalesError(str(exc)) from exc
+    note.status, note.posted_at = "posted", timezone.now()
+    note.save(update_fields=["number", "status", "journal_entry", "posted_at"])
+    if note.invoice_id and note.invoice.status == "posted" and note.invoice.balance_due > 0:
+        apply_credit(note, note.invoice, min(note.available, note.invoice.balance_due), user)
+    AuditLog.record(company, user, "credit_note.posted", note, f"{note.number} {note.total}")
+    return note
+
+
+@transaction.atomic
+def apply_credit(note, invoice, amount, user=None, date=None):
+    """Set part of a credit note against an invoice of the same customer (no journal: both sit in AR)."""
+    amount = Decimal(amount)
+    if amount <= 0:
+        raise SalesError(_("The amount must be greater than zero."))
+    if invoice.customer_id != note.customer_id or invoice.currency_id != note.currency_id:
+        raise SalesError(_("Invoice %(n)s belongs to another customer or currency.") % {"n": invoice.number})
+    if amount > note.available:
+        raise SalesError(_("Only %(a)s of this credit is still available.") % {"a": f"{note.available:,.2f}"})
+    if amount > invoice.balance_due:
+        raise SalesError(_("%(n)s only has %(b)s left to pay.") % {"n": invoice.number, "b": f"{invoice.balance_due:,.2f}"})
+    CreditAllocation.objects.create(credit_note=note, invoice=invoice, amount=amount, date=date or timezone.localdate())
+    invoice.amount_paid += amount
+    invoice.save(update_fields=["amount_paid"])
+    note.amount_applied += amount
+    note.save(update_fields=["amount_applied"])
+    AuditLog.record(note.company, user, "credit_note.applied", note, f"{invoice.number} {amount}")
+
+
+@transaction.atomic
+def void_credit_note(note, user, date=None):
+    if note.status != "posted":
+        raise SalesError(_("Only posted credit notes can be voided."))
+    if note.amount_applied or note.amount_refunded:
+        raise SalesError(_("Remove what this credit was used for first."))
+    date = date or timezone.localdate()
+    from inventory.models import StockMove
+    for move in StockMove.objects.filter(company=note.company, ref=note.number, kind="return", qty__gt=0).select_related("item"):
+        try:
+            issue(move.item, move.warehouse, move.qty, date, note.number, kind="return",
+                  serials=[move.serial_no] if move.serial_no else None)
+        except StockError as exc:
+            raise SalesError(str(exc)) from exc
+    reverse_journal(note.journal_entry, date, user, _("Void %(n)s") % {"n": note.number})
+    note.status = "void"
+    note.save(update_fields=["status"])
+    AuditLog.record(note.company, user, "credit_note.void", note, note.number)
+
+
+def available_credit(customer):
+    """Credit a customer can be refunded: unused credit notes plus unallocated payments, less earlier refunds of them."""
+    notes = sum((n.available for n in CreditNote.objects.filter(customer=customer, status="posted")), ZERO)
+    payments = sum((p.unallocated for p in CustomerPayment.objects.filter(customer=customer, status="posted")), ZERO)
+    refunded = sum((r.amount for r in CustomerRefund.objects.filter(customer=customer, status="posted",
+                                                                       credit_note__isnull=True)), ZERO)
+    return notes + payments - refunded
+
+
+@transaction.atomic
+def post_refund(refund, user):
+    company = refund.company
+    if refund.amount <= 0:
+        raise SalesError(_("The amount must be greater than zero."))
+    if refund.bank_account.currency_id != refund.currency_id:
+        raise SalesError(_("Pay the refund from an account in %(c)s.") % {"c": refund.currency_id})
+    if refund.credit_note_id:
+        note = refund.credit_note
+        if note.customer_id != refund.customer_id:
+            raise SalesError(_("This credit note belongs to another customer."))
+        if refund.amount > note.available:
+            raise SalesError(_("Only %(a)s of this credit is still available.") % {"a": f"{note.available:,.2f}"})
+    elif refund.amount > available_credit(refund.customer):
+        raise SalesError(_("The customer only has %(a)s of credit to refund.") % {"a": f"{available_credit(refund.customer):,.2f}"})
+    refund.number = refund.number or NumberSeries.next(company, "RF", refund.date)
+    refund.save()
+    base = r2(refund.amount * refund.rate)
+    memo = f"{refund.number} {refund.customer.name}"
+    try:
+        refund.journal_entry = post_journal(company, refund.date, [
+            Line(system_account(company, "receivable"), debit=base, description=memo, currency=refund.currency_id,
+                 amount_fc=refund.amount, rate=refund.rate),
+            Line(refund.bank_account.gl_account, credit=base, description=memo, currency=refund.currency_id,
+                 amount_fc=refund.amount, rate=refund.rate),
+        ], memo=memo, source="customer_payment", source_ref=refund.number, user=user)
+    except PostingError as exc:
+        raise SalesError(str(exc)) from exc
+    refund.save(update_fields=["journal_entry", "number"])
+    if refund.credit_note_id:
+        refund.credit_note.amount_refunded += refund.amount
+        refund.credit_note.save(update_fields=["amount_refunded"])
+    AuditLog.record(company, user, "customer_refund.posted", refund, f"{refund.number} {refund.amount}")
+    return refund
+
+
+@transaction.atomic
+def void_refund(refund, user, date=None):
+    if refund.status != "posted":
+        raise SalesError(_("This refund is already void."))
+    reverse_journal(refund.journal_entry, date or timezone.localdate(), user, _("Void %(n)s") % {"n": refund.number})
+    if refund.credit_note_id:
+        refund.credit_note.amount_refunded -= refund.amount
+        refund.credit_note.save(update_fields=["amount_refunded"])
+    refund.status = "void"
+    refund.save(update_fields=["status"])
+    AuditLog.record(refund.company, user, "customer_refund.void", refund, refund.number)
+
+
+@transaction.atomic
+def post_sales_receipt(invoice, deposit_to, user):
+    """A cash sale: post the invoice and record its full payment into the cash box or bank in one step."""
+    post_invoice(invoice, user, allow_over_limit=True)
+    payment = CustomerPayment(company=invoice.company, date=invoice.date, customer=invoice.customer,
+                              currency=invoice.currency, rate=invoice.rate, amount=invoice.total,
+                              method="cash" if deposit_to.kind == "cash" else "bank", bank_account=deposit_to,
+                              reference=invoice.number, created_by=user)
+    post_payment(payment, [(invoice, invoice.total)], user)
+    return payment

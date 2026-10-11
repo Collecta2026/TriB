@@ -1,0 +1,4 @@
+{% load i18n %}
+{% if doc.status == "draft" and can.sales.post %}<form method="post" action="{% url 'sales:credit_action' doc.pk %}">{% csrf_token %}<button class="btn primary" name="action" value="post">{% translate "Post credit note" %}</button></form>{% endif %}
+{% if doc.status == "posted" and doc.available > 0 and can.sales.create %}<a class="btn" href="{% url 'sales:refund_new' %}?credit_note={{ doc.pk }}">{% translate "Refund to customer" %}</a>{% endif %}
+{% if doc.status == "posted" and not doc.amount_applied and not doc.amount_refunded and can.sales.void %}<form method="post" action="{% url 'sales:credit_action' doc.pk %}">{% csrf_token %}<button class="btn danger" name="action" value="void">{% translate "Void" %}</button></form>{% endif %}

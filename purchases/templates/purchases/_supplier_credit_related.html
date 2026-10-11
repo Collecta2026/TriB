@@ -1,0 +1,10 @@
+{% load i18n trib %}{% if doc.status == "posted" %}<div class="panel"><div class="panel-h"><h2>{% translate "Use of this credit" %}</h2>
+  <span class="lbl">{% translate "Unused credit" %}: <b>{{ doc.available|money:doc.currency }}</b></span></div>
+  <table class="tbl"><thead><tr><th>{% translate "Applied to" %}</th><th>{% translate "Date" %}</th><th class="num">{% translate "Amount" %}</th></tr></thead>
+  <tbody>{% for a in allocs %}<tr><td><a href="{% url 'purchases:bill' a.bill_id %}">{{ a.bill.number }}</a> {{ a.bill.supplier_invoice_no }}</td><td>{{ a.date|date:"d/m/Y" }}</td><td class="num">{{ a.amount|num }}</td></tr>
+  {% empty %}<tr><td colspan="3" class="lbl">{% translate "Not used yet." %}</td></tr>{% endfor %}</tbody></table>
+  {% if doc.available > 0 and can.purchases.post %}<form method="post" action="{% url 'purchases:supplier_credit_action' doc.pk %}" class="toolbar" style="margin-top:12px">{% csrf_token %}<input type="hidden" name="action" value="apply">
+    <label class="lbl">{% translate "Apply to bill" %} {{ apply_form.bill }}</label>
+    <label class="lbl">{% translate "Amount" %} <input type="number" step="0.01" min="0" name="amount" value="{{ doc.available|stringformat:'.2f' }}" style="width:140px"></label>
+    <button class="btn primary sm" type="submit">{% translate "Apply" %}</button></form>{% endif %}
+</div>{% endif %}

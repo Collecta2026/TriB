@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load i18n static trib %}
+{% block title %}{% translate "Cash flow forecast" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'reports:index' %}">{% translate "Reports" %}</a> · {% translate "Financial planning" %}</div><h1>{% translate "Cash flow forecast" %}</h1>
+  <div class="sub">{{ company.name }} · {% translate "Next 8 weeks" %} · {{ company.base_currency_id }}</div></div>
+  <div class="toolbar">{% if can.setup.edit %}<a class="btn" href="{% url 'core:settings' %}#id_minimum_cash">{% if fc.minimum is not None %}{% translate "Change minimum cash" %}{% else %}{% translate "Set a minimum cash balance" %}{% endif %}</a>{% endif %}
+    <button class="btn" type="button" data-print>{% include "partials/icon.html" with name="print" %}{% translate "Print" %}</button></div>
+</div>
+{% if fc.first_below %}<div class="msg warning">{% blocktranslate with m=fc.minimum|num:0 d=fc.first_below.start|date:"d/m/Y" %}Cash falls below your minimum of {{ m }} in the week of {{ d }}.{% endblocktranslate %}</div>{% endif %}
+<div class="kpis">
+  <a class="kpi" href="{% url 'banking:accounts' %}"><span class="lbl">{% translate "Cash today" %}</span><span class="n m">{{ fc.opening|num:0 }}</span></a>
+  <div class="kpi"><span class="lbl">{% translate "Expected in 8 weeks" %}</span><span class="n m">{{ fc.closing|num:0 }}</span></div>
+  <div class="kpi"><span class="lbl">{% translate "Minimum cash balance" %}</span><span class="n m">{% if fc.minimum is not None %}{{ fc.minimum|num:0 }}{% else %}—{% endif %}</span></div>
+  <a class="kpi warn" href="{% url 'sales:invoices' %}?pay=overdue"><span class="lbl">{% translate "Overdue invoices (not counted)" %}</span><span class="n m">{{ fc.overdue_in|num:0 }}</span></a>
+</div>
+<section class="blk" style="min-height:0"><div class="chartbox" style="height:240px"><canvas id="fcChart" role="img" aria-label="{% translate 'Cash balance by week' %}"></canvas></div></section>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Week of" %}</th><th class="num">{% translate "Opening" %}</th><th class="num">{% translate "Cheques due in" %}</th><th class="num">{% translate "Invoices due" %}</th>
+    <th class="num">{% translate "Cheques issued" %}</th><th class="num">{% translate "Bills due" %}</th><th class="num">{% translate "Payroll" %}</th><th class="num">{% translate "Closing" %}</th></tr></thead>
+  <tbody>{% for r in fc.rows %}<tr {% if r.below %}class="below"{% endif %}><td>{{ r.start|date:"d/m" }} – {{ r.end|date:"d/m/Y" }}</td><td class="num">{{ r.opening|num:0 }}</td>
+    <td class="num"><a href="{% url 'banking:cheques' %}?status=in_safe">{{ r.cheques_in|num:0 }}</a></td><td class="num"><a href="{% url 'sales:invoices' %}?pay=open">{{ r.invoices|num:0 }}</a></td>
+    <td class="num"><a href="{% url 'banking:cheques' %}?direction=out&status=issued">{{ r.cheques_out|num:0 }}</a></td><td class="num"><a href="{% url 'purchases:bills' %}?pay=open">{{ r.bills|num:0 }}</a></td>
+    <td class="num">{{ r.payroll|num:0 }}</td><td class="num"><b>{{ r.closing|num:0 }}</b></td></tr>{% endfor %}</tbody>
+</table></div>
+<p class="lbl">{% translate "Counted: received cheques by due date, unpaid invoices and bills by due date (overdue bills in the first week), cheques you issued, and payroll at each month end at the last run's net pay. Overdue customer invoices are not counted because when they will be paid is unknown." %}</p>
+{{ fc.chart|json_script:"fc-data" }}
+{% endblock %}
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="{% static 'js/dashboard.js' %}?v=e1"></script>
+{% endblock %}

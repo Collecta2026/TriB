@@ -1,3 +1,4 @@
+import dataclasses
 from datetime import timedelta
 from decimal import Decimal, InvalidOperation
 
@@ -17,9 +18,20 @@ from inventory.models import Warehouse
 from users.permissions import require_perm
 
 from . import services
-from .forms import (INVOICE_LINES, ORDER_LINES, QUOTE_LINES, ConfirmationForm, InvoiceForm, PaymentForm,
-                    QuotationForm, SalesOrderForm, StatementForm)
-from .models import CustomerPayment, Invoice, Quotation, SalesOrder
+from .forms import (CREDIT_LINES, INVOICE_LINES, ORDER_LINES, QUOTE_LINES, ApplyCreditForm, ConfirmationForm, CreditNoteForm,
+                    InvoiceForm, PaymentForm, QuotationForm, RefundForm, SalesOrderForm, SalesReceiptForm, StatementForm)
+from .models import CreditNote, CustomerPayment, CustomerRefund, Invoice, Quotation, SalesOrder
+
+
+def terms_for(days):
+    return {v: k for k, v in Invoice.TERM_DAYS.items()}.get(days, "custom")
+
+
+def party_header(customer):
+    """Email, bill-to and ship-to filled from the customer card."""
+    address = "\n".join(x for x in (customer.name, customer.address, customer.city) if x)
+    return {"email_to": customer.email, "bill_to": address,
+            "ship_to": customer.shipping_address or ""}
 
 
 def _defaults(request, due=False, warehouse=False):
@@ -31,8 +43,10 @@ def _defaults(request, due=False, warehouse=False):
         if customer:
             out["customer"] = customer
             out["currency"] = customer.currency
+            out.update(party_header(customer))
             if due:
                 out["due_date"] = today + timedelta(days=customer.payment_terms_days)
+                out["terms"] = terms_for(customer.payment_terms_days)
     if due and "due_date" not in out:
         out["due_date"] = today + timedelta(days=30)
     if warehouse:
@@ -60,7 +74,7 @@ ORDER = DocSpec(key="order", ns="sales", perm="sales", model=SalesOrder, header_
                 print_ar="أمر بيع", party="customer", columns=COLUMNS, statuses=SalesOrder.STATUSES,
                 actions_template="sales/_order_actions.html", related_template="sales/_order_related.html",
                 editable_statuses=("draft", "open"), defaults=lambda r: _defaults(r, warehouse=True))
-INVOICE = DocSpec(key="invoice", ns="sales", perm="sales", model=Invoice, header_form=InvoiceForm, formsets=INVOICE_LINES,
+INVOICE = DocSpec(key="invoice", voidable=True, recurring_kind="invoice", ns="sales", perm="sales", model=Invoice, header_form=InvoiceForm, formsets=INVOICE_LINES,
                   title=gettext_lazy("Invoice"), plural=gettext_lazy("Invoices"), print_en="Tax Invoice",
                   print_ar="فاتورة ضريبية", party="customer", statuses=Invoice.STATUSES,
                   columns=COLUMNS[:4] + [(gettext_lazy("Due date"), lambda d: d.due_date, "date"),
@@ -251,9 +265,11 @@ def invoice_action(request, pk):
 # ---------- Customer payments ----------
 @require_perm("sales.view")
 def payments(request):
+    from core.filters import apply as drill_filter
     qs = CustomerPayment.objects.filter(company=request.company).select_related("customer", "currency", "bank_account")
+    qs, drill = drill_filter(request, qs, "customer")
     page = Paginator(qs, 40).get_page(request.GET.get("page"))
-    return render(request, "sales/payments.html", {"page": page})
+    return render(request, "sales/payments.html", {"page": page, "drill": drill})
 
 
 @require_perm("sales.create")
@@ -350,3 +366,175 @@ def confirmations(request):
         return render(request, "sales/confirmations_print.html", {"letters": letters, "as_of": as_of,
                                                                   "reply_by": form.cleaned_data["reply_by"]})
     return render(request, "sales/confirmations.html", {"form": form})
+
+# ---------- Sales receipts (cash sales) ----------
+SALES_RECEIPT = dataclasses.replace(INVOICE, header_form=SalesReceiptForm, title=gettext_lazy("Sales receipt"),
+                                    plural=gettext_lazy("Invoices"), defaults=lambda r: _defaults(r, warehouse=True))
+
+
+def _receipt_after_save(request, doc):
+    from banking.models import BankAccount
+    if not request.membership.has_perm("sales.post"):
+        return None
+    deposit_to = BankAccount.objects.filter(company=request.company, pk=request.POST.get("deposit_to") or 0).first()
+    try:
+        payment = services.post_sales_receipt(doc, deposit_to, request.user)
+    except services.SalesError as exc:
+        messages.error(request, str(exc))
+        return redirect("sales:invoice", pk=doc.pk)
+    messages.success(request, _("Sales receipt %(n)s posted and paid (%(p)s).") % {"n": doc.number, "p": payment.number})
+    return redirect("sales:invoice", pk=doc.pk)
+
+
+@require_perm("sales.create")
+def sales_receipt_new(request):
+    return doc_form(request, SALES_RECEIPT, after_save=_receipt_after_save, post_label=_("Save and receive payment"))
+
+
+# ---------- Credit notes ----------
+CREDIT = DocSpec(key="credit", voidable=True, ns="sales", perm="sales", model=CreditNote, header_form=CreditNoteForm,
+                 formsets=CREDIT_LINES, title=gettext_lazy("Credit note"), plural=gettext_lazy("Credit notes"),
+                 print_en="Credit Note", print_ar="إشعار دائن", party="customer", statuses=CreditNote.STATUSES,
+                 columns=COLUMNS[:3] + [(gettext_lazy("Original invoice"), lambda d: d.invoice.number if d.invoice_id else "", "text"),
+                                        (gettext_lazy("Total"), lambda d: d.total, "money"),
+                                        (gettext_lazy("Unused credit"), lambda d: d.available, "money"),
+                                        (gettext_lazy("Status"), lambda d: (d.status, d.get_status_display()), "pill")],
+                 actions_template="sales/_credit_actions.html", related_template="sales/_credit_related.html",
+                 defaults=lambda r: _credit_defaults(r))
+
+
+def _credit_defaults(request):
+    out = _defaults(request, warehouse=True)
+    iid = request.GET.get("invoice", "")
+    inv = Invoice.objects.filter(company=request.company, pk=iid, status="posted").first() if iid.isdigit() else None
+    if inv:
+        out.update(invoice=inv, customer=inv.customer, currency=inv.currency, rate=inv.rate, warehouse=inv.warehouse,
+                   prices_include_tax=inv.prices_include_tax)
+    return out
+
+
+def _credit_after_save(request, doc):
+    if not request.membership.has_perm("sales.post"):
+        return None
+    try:
+        services.post_credit_note(doc, request.user)
+    except services.SalesError as exc:
+        messages.error(request, str(exc))
+        return redirect("sales:credit", pk=doc.pk)
+    messages.success(request, _("Credit note %(n)s posted.") % {"n": doc.number})
+    return redirect("sales:credit", pk=doc.pk)
+
+
+@require_perm("sales.view")
+def credits(request):
+    return doc_list(request, CREDIT)
+
+
+@require_perm("sales.create")
+def credit_new(request):
+    return doc_form(request, CREDIT, after_save=_credit_after_save, post_label=_("Save and post"))
+
+
+@require_perm("sales.edit")
+def credit_edit(request, pk):
+    return doc_form(request, CREDIT, get_doc(request, CREDIT, pk), after_save=_credit_after_save, post_label=_("Save and post"))
+
+
+@require_perm("sales.view")
+def credit(request, pk):
+    doc = get_doc(request, CREDIT, pk)
+    return _detail(request, CREDIT, pk, {"apply_form": ApplyCreditForm(note=doc, initial={"amount": doc.available}),
+                                         "allocs": doc.allocations.select_related("invoice"),
+                                         "refunds": doc.refunds.filter(status="posted")})
+
+
+@require_perm("sales.view")
+def credit_print(request, pk):
+    return doc_print(request, CREDIT, get_doc(request, CREDIT, pk))
+
+
+@require_POST
+@require_perm("sales.post")
+def credit_action(request, pk):
+    doc = get_doc(request, CREDIT, pk)
+    action = request.POST.get("action")
+    try:
+        if action == "post":
+            return _credit_after_save(request, doc)
+        if action == "apply":
+            form = ApplyCreditForm(request.POST, note=doc)
+            if form.is_valid():
+                services.apply_credit(doc, form.cleaned_data["invoice"], form.cleaned_data["amount"], request.user)
+                messages.success(request, _("Credit applied to %(n)s.") % {"n": form.cleaned_data["invoice"].number})
+            else:
+                messages.error(request, " ".join(e for errs in form.errors.values() for e in errs))
+        elif action == "void" and request.membership.has_perm("sales.void"):
+            services.void_credit_note(doc, request.user)
+            messages.success(request, _("Credit note voided."))
+    except services.SalesError as exc:
+        messages.error(request, str(exc))
+    return redirect("sales:credit", pk=pk)
+
+
+# ---------- Refunds ----------
+@require_perm("sales.view")
+def refunds(request):
+    qs = CustomerRefund.objects.filter(company=request.company).select_related("customer", "currency", "bank_account", "credit_note")
+    return render(request, "sales/refunds.html", {"page": Paginator(qs, 40).get_page(request.GET.get("page"))})
+
+
+@require_perm("sales.create")
+def refund_new(request):
+    company = request.company
+    initial = {"date": timezone.localdate(), "currency": company.base_currency, "method": "bank"}
+    nid = request.GET.get("credit_note", "")
+    note = CreditNote.objects.filter(company=company, pk=nid, status="posted").first() if nid.isdigit() else None
+    if note:
+        initial.update(credit_note=note, customer=note.customer, currency=note.currency, rate=note.rate, amount=note.available)
+    cid = request.GET.get("customer", "")
+    if not note and cid.isdigit():
+        customer = Customer.objects.filter(company=company, pk=cid).first()
+        if customer:
+            initial.update(customer=customer, currency=customer.currency)
+    form = RefundForm(request.POST or None, company=company, initial=initial,
+                      instance=CustomerRefund(company=company, created_by=request.user))
+    if request.method == "POST" and form.is_valid():
+        refund = form.save(commit=False)
+        refund.company, refund.created_by = company, request.user
+        try:
+            with transaction.atomic():
+                services.post_refund(refund, request.user)
+        except services.SalesError as exc:
+            messages.error(request, str(exc))
+        else:
+            messages.success(request, _("Refund %(n)s recorded.") % {"n": refund.number})
+            return redirect("sales:refund", pk=refund.pk)
+    customer = form.instance.customer if form.instance.customer_id else initial.get("customer")
+    return render(request, "sales/refund_form.html", {
+        "form": form, "available": services.available_credit(customer) if customer else None, "customer": customer})
+
+
+@require_perm("sales.view")
+def refund(request, pk):
+    r = get_object_or_404(CustomerRefund, pk=pk, company=request.company)
+    return render(request, "sales/refund_detail.html", {"r": r})
+
+
+@require_perm("sales.view")
+def refund_print(request, pk):
+    from core.amount_words import amount_in_words
+    r = get_object_or_404(CustomerRefund, pk=pk, company=request.company)
+    return render(request, "sales/refund_print.html", {
+        "r": r, "words_en": amount_in_words(r.amount, r.currency_id, "en"), "words_ar": amount_in_words(r.amount, r.currency_id, "ar")})
+
+
+@require_POST
+@require_perm("sales.void")
+def refund_void(request, pk):
+    r = get_object_or_404(CustomerRefund, pk=pk, company=request.company)
+    try:
+        services.void_refund(r, request.user)
+        messages.success(request, _("Refund voided."))
+    except services.SalesError as exc:
+        messages.error(request, str(exc))
+    return redirect("sales:refund", pk=pk)

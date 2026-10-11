@@ -1,0 +1,13 @@
+{% load i18n %}<div class="rep-row" data-key="{{ r.key }}" data-name="{{ r.label|lower }} {{ r.desc|lower }}">
+  <a class="rep-name" href="{{ r.url }}" title="{{ r.desc }}">{{ r.label }}</a>
+  <button class="rep-star {% if r.fav %}on{% endif %}" type="button" data-fav="{{ r.key }}" aria-pressed="{% if r.fav %}true{% else %}false{% endif %}" title="{% if r.fav %}{% translate 'Remove from favourites' %}{% else %}{% translate 'Add to favourites' %}{% endif %}" aria-label="{% if r.fav %}{% translate 'Remove from favourites' %}{% else %}{% translate 'Add to favourites' %}{% endif %}">{% include "partials/icon.html" with name="star" %}</button>
+  <div class="hov rep-more">
+    <button class="rep-dots" type="button" aria-haspopup="true" aria-label="{% translate 'More actions' %}">{% include "partials/icon.html" with name="more" %}</button>
+    <div class="hov-pop">
+      <a href="{{ r.url }}">{% translate "Open" %}</a>
+      {% if can_export %}<a href="{% url 'reports:export' %}?url={{ r.url|urlencode }}">{% translate "Export to Excel" %}</a>{% endif %}
+      <a href="{{ r.url }}#print">{% translate "Print" %}</a>
+      <a href="{{ r.url }}" target="_blank" rel="noopener">{% translate "Open in a new tab" %}</a>
+    </div>
+  </div>
+</div>

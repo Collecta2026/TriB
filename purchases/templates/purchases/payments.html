@@ -4,6 +4,7 @@
 {% block content %}
 <div class="page-head"><div><h1>{% translate "Bill payments" %}</h1></div>
   {% if can.purchases.create %}<a class="btn primary" href="{% url 'purchases:payment_new' %}">+ {% translate "Pay bills" %}</a>{% endif %}</div>
+{% include "partials/filter_note.html" %}
 <div class="table-wrap"><table class="tbl">
   <thead><tr><th>{% translate "Number" %}</th><th>{% translate "Date" %}</th><th>{% translate "Supplier" %}</th><th>{% translate "Payment method" %}</th><th class="num">{% translate "Amount" %}</th><th>{% translate "Status" %}</th><th></th></tr></thead>
   <tbody>{% for p in page %}<tr><td><a href="{% url 'purchases:payment' p.pk %}">{{ p.number }}</a></td><td>{{ p.date|date:"d/m/Y" }}</td><td>{{ p.supplier.name }}</td><td>{{ p.get_method_display }}</td>

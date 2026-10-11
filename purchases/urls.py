@@ -5,6 +5,12 @@ from . import views
 app_name = "purchases"
 
 urlpatterns = [
+    path("credits/", views.supplier_credits, name="supplier_credits"),
+    path("credits/new/", views.supplier_credit_new, name="supplier_credit_new"),
+    path("credits/<int:pk>/", views.supplier_credit, name="supplier_credit"),
+    path("credits/<int:pk>/edit/", views.supplier_credit_edit, name="supplier_credit_edit"),
+    path("credits/<int:pk>/print/", views.supplier_credit_print, name="supplier_credit_print"),
+    path("credits/<int:pk>/action/", views.supplier_credit_action, name="supplier_credit_action"),
     path("orders/", views.orders, name="orders"),
     path("orders/new/", views.order_new, name="order_new"),
     path("orders/<int:pk>/", views.order, name="order"),

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'reports:index' %}">{% translate "Reports" %}</a></div><h1>{{ title }}</h1>
+  <div class="sub">{{ company.name }}{% if mode == "period" %} · {{ from|date:"d/m/Y" }} – {{ to|date:"d/m/Y" }}{% elif mode == "asof" %} · {% translate "As of" %} {{ to|date:"d/m/Y" }}{% endif %} · {{ company.base_currency_id }}</div></div>
+  {% if mode == "period" %}{% include "reports/_period.html" with show_from=1 %}{% elif mode == "asof" %}{% include "reports/_period.html" %}{% else %}{% include "reports/_period.html" with hide_dates=1 %}{% endif %}
+</div>
+{% if note %}<p class="lbl" style="margin:0">{{ note }}</p>{% endif %}
+<div class="table-wrap"><table class="tbl rep">
+  <thead><tr>{% for c in columns %}<th {% if c.num %}class="num"{% endif %}>{{ c.label }}</th>{% endfor %}</tr></thead>
+  <tbody>{% for r in rows %}<tr class="{{ r.cls }}">{% for c in r.cells %}<td class="{% if c.num %}num{% endif %}{% if forloop.first and r.indent %} indent-{{ r.indent }}{% endif %}">{% if forloop.first and r.url %}<a href="{{ r.url }}">{{ c.v }}</a>{% elif c.v is None %}{% elif c.num and c.v|is_number %}{% if c.v < 0 %}<span class="neg">{{ c.v|num }}</span>{% else %}{{ c.v|num }}{% endif %}{% else %}{{ c.v }}{% endif %}</td>{% endfor %}</tr>
+  {% empty %}<tr><td colspan="{{ columns|length }}" class="lbl">{% translate "Nothing to show for these dates." %}</td></tr>{% endfor %}</tbody>
+  {% if foot %}<tfoot><tr>{% for c in foot %}<td class="{% if c.num %}num{% endif %}">{% if c.v is None %}{% elif c.num and c.v|is_number %}{{ c.v|num }}{% else %}{{ c.v }}{% endif %}</td>{% endfor %}</tr></tfoot>{% endif %}
+</table></div>
+{% endblock %}

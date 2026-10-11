@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Refund receipt" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'sales:refunds' %}">{% translate "Refunds" %}</a></div><h1>{% translate "Refund receipt" %}</h1>
+  <div class="sub">{% translate "Pay a customer back. Record the returned goods with a credit note first; then refund its unused credit." %}</div></div></div>
+{% if customer and available is not None %}<div class="msg">{% blocktranslate with c=customer.name a=available|num %}{{ c }} has {{ a }} of credit available to refund.{% endblocktranslate %}</div>{% endif %}
+<div class="panel"><form method="post" class="form doc-entry">{% csrf_token %}
+  {% include "partials/form_fields.html" %}
+  <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save refund" %}</button><a class="btn" href="{% url 'sales:refunds' %}">{% translate "Cancel" %}</a></div>
+</form></div>
+{% endblock %}

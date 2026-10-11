@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{{ r.number }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'sales:refunds' %}">{% translate "Refunds" %}</a></div>
+  <h1>{{ r.number }} <span class="pill {{ r.status|pill_class }}">{{ r.get_status_display }}</span></h1>
+  <div class="sub">{{ r.date|date:"d/m/Y" }} · <a href="{% url 'contacts:customer' r.customer_id %}">{{ r.customer.name }}</a>{% if r.journal_entry_id %} · <a href="{% url 'ledger:journal' r.journal_entry_id %}">{{ r.journal_entry.number }}</a>{% endif %}</div></div>
+  <div class="toolbar"><a class="btn primary" href="{% url 'sales:refund_print' r.pk %}">{% translate "Print / save as PDF" %}</a>
+    {% if r.status == "posted" and can.sales.void %}<form method="post" action="{% url 'sales:refund_void' r.pk %}">{% csrf_token %}<button class="btn danger" type="submit">{% translate "Void" %}</button></form>{% endif %}</div></div>
+<div class="panel"><table class="tbl"><tbody>
+  <tr><td class="lbl">{% translate "Amount refunded" %}</td><td><b>{{ r.amount|money:r.currency }}</b></td></tr>
+  <tr><td class="lbl">{% translate "Paid by" %}</td><td>{{ r.get_method_display }} · {{ r.bank_account.name }}{% if r.cheque_number %} · #{{ r.cheque_number }}{% endif %}</td></tr>
+  <tr><td class="lbl">{% translate "For credit note" %}</td><td>{% if r.credit_note %}<a href="{% url 'sales:credit' r.credit_note_id %}">{{ r.credit_note.number }}</a>{% else %}{% translate "Overpayment" %}{% endif %}</td></tr>
+  <tr><td class="lbl">{% translate "Reference" %}</td><td>{{ r.reference|default:"—" }}</td></tr>
+</tbody></table></div>
+{% attachments r %}
+{% endblock %}
