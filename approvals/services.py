@@ -124,3 +124,18 @@ def pending_for(user, company):
         "voucher", "voucher__currency", "voucher__created_by", "rule"
     )
     return [r for r in candidates if check_authority(r, user) is None]
+
+
+def waiting_for(user, company, membership):
+    """Everything waiting for this user: vouchers (approval rules), purchase orders and bills (role limits)."""
+    from purchases.services import bills_waiting_for, orders_waiting_for
+
+    vouchers = pending_for(user, company) if membership.has_perm("vouchers.approve") else []
+    orders = orders_waiting_for(company, user, membership)
+    bills = bills_waiting_for(company, user, membership)
+    return {"vouchers": vouchers, "orders": orders, "bills": bills, "count": len(vouchers) + len(orders) + len(bills)}
+
+
+def can_open_inbox(membership):
+    return membership is not None and any(membership.has_perm(c) for c in
+                                          ("vouchers.approve", "purchases.approve", "purchases.post"))

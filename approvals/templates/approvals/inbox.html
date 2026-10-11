@@ -9,7 +9,18 @@
     <div class="ap-main"><div class="ap-type">{{ r.voucher.get_kind_display }} · <b>{{ r.voucher.number }}</b></div><div>{{ r.voucher.party_name|default:r.voucher.description }}</div></div>
     <div class="ap-amt"><b>{{ r.voucher.total|money:r.voucher.currency }}</b><div>{% translate "From" %} {{ r.voucher.created_by }} · {% blocktranslate with a=r.current_order b=r.total_steps %}level {{ a }} of {{ b }}{% endblocktranslate %}</div></div>
     <div class="ap-act"><a class="btn primary sm" href="{% url 'vouchers:detail' r.voucher.pk %}">{% translate "Review" %}</a></div>
-  </div>{% empty %}<p class="lbl">{% translate "Nothing is waiting for you." %}</p>{% endfor %}
+  </div>{% endfor %}
+  {% for o in orders %}<div class="ap-row">
+    <div class="ap-main"><div class="ap-type">{% translate "Purchase order" %} · <b>{{ o.number }}</b></div><div>{{ o.supplier }}</div></div>
+    <div class="ap-amt"><b>{{ o.total|money:o.currency }}</b><div>{% translate "From" %} {{ o.created_by }}{% if o.approvals %} · {% blocktranslate count n=o.approvals|length %}{{ n }} approval so far{% plural %}{{ n }} approvals so far{% endblocktranslate %}{% endif %}</div></div>
+    <div class="ap-act"><a class="btn primary sm" href="{% url 'purchases:order' o.pk %}">{% translate "Review" %}</a></div>
+  </div>{% endfor %}
+  {% for b in bills %}<div class="ap-row">
+    <div class="ap-main"><div class="ap-type">{% translate "Bill" %} · <b>{{ b.supplier_invoice_no|default:b.supplier.code }}</b></div><div>{{ b.supplier }}</div></div>
+    <div class="ap-amt"><b>{{ b.total|money:b.currency }}</b><div>{% translate "Sent for approval by" %} {{ b.approval_requested_by }}</div></div>
+    <div class="ap-act"><a class="btn primary sm" href="{% url 'purchases:bill' b.pk %}">{% translate "Review" %}</a></div>
+  </div>{% endfor %}
+  {% if not waiting and not orders and not bills %}<p class="lbl">{% translate "Nothing is waiting for you." %}</p>{% endif %}
 </div>
 <div class="panel"><h2>{% translate "Your recent decisions" %}</h2>
   <div class="table-wrap"><table class="tbl"><tbody>

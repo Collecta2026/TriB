@@ -1,4 +1,6 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
@@ -12,12 +14,17 @@ from .forms import RuleForm
 from .models import ApprovalAction, ApprovalRule, ApprovalStep
 
 
-@require_perm("vouchers.approve")
+@login_required
 def inbox(request):
-    waiting = services.pending_for(request.user, request.company)
+    if request.membership is None:
+        return redirect("core:no_company")
+    if not services.can_open_inbox(request.membership):
+        raise PermissionDenied
+    everything = services.waiting_for(request.user, request.company, request.membership)
     recent = ApprovalAction.objects.filter(user=request.user, request__company=request.company).select_related(
         "request__voucher", "request__voucher__currency")[:20]
-    return render(request, "approvals/inbox.html", {"waiting": waiting, "recent": recent})
+    return render(request, "approvals/inbox.html", {"waiting": everything["vouchers"], "orders": everything["orders"],
+                                                    "bills": everything["bills"], "recent": recent})
 
 
 @require_perm("setup.view")
