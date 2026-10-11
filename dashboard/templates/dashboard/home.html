@@ -6,152 +6,86 @@
   <h1>{% blocktranslate %}{{ greeting }}, {{ first_name }}!{% endblocktranslate %}</h1>
   <div class="opts">
     <button class="optbtn" id="privBtn" type="button" aria-pressed="false">{% include "partials/icon.html" with name="eye" %}<span>{% translate "Privacy" %}</span></button>
+    <button class="optbtn" id="custBtn" type="button">{% include "partials/icon.html" with name="sliders" %}<span>{% translate "Customise" %}</span></button>
   </div>
 </div>
 
-<nav class="apps" aria-label="{% translate 'Apps' %}">
-  {% for a in nav.apps %}<a class="app-p" href="{{ a.url }}"><span class="c{% cycle '' ' s' %}">{% include "partials/icon.html" with name=a.icon %}</span>{{ a.label }}</a>{% endfor %}
-  <span class="app-p soon"><span class="c">{% include "partials/icon.html" with name="trend" %}</span>{% translate "Planning" %}<span class="tag">{% translate "soon" %}</span></span>
-</nav>
+<div class="apps-wrap">
+  <button class="apps-nav prev" type="button" aria-label="{% translate 'Scroll back' %}" hidden>{% include "partials/icon.html" with name="chevl" %}</button>
+  <nav class="apps" id="appsRow" aria-label="{% translate 'Apps' %}">
+    {% for a in nav.apps %}<a class="app-p" href="{{ a.url }}"><span class="c{% cycle '' ' s' %}">{% include "partials/icon.html" with name=a.icon %}</span>{{ a.label }}</a>{% endfor %}
+    <span class="app-p soon"><span class="c">{% include "partials/icon.html" with name="trend" %}</span>{% translate "Planning" %}<span class="tag">{% translate "soon" %}</span></span>
+  </nav>
+  <button class="apps-nav next" type="button" aria-label="{% translate 'Scroll for more' %}">{% include "partials/icon.html" with name="chev" %}</button>
+</div>
 
-<section>
-  <div class="sh"><h2>{% translate "Business feed" %}</h2></div>
-  <div class="feed" style="margin-top:4px">
-    {% for color, text, url_name, action in feed %}<div class="fi"><span class="d" style="background:{{ color }}"></span><span class="tx">{{ text }}</span><a class="link" href="{% url url_name %}">{{ action }}</a></div>
-    {% empty %}<div class="fi"><span class="tx lbl">{% translate "Nothing new right now. Check back soon!" %}</span></div>{% endfor %}
+<section class="feed-sec" aria-labelledby="feedH">
+  <div class="sh"><h2 id="feedH">{% translate "Business feed" %}</h2><a class="link" href="{% url 'core:alerts' %}">{% translate "View all" %}{% if feed_all|length > feed|length %} ({{ feed_all|length }}){% endif %}</a></div>
+  <div class="feed-grid">
+    {% for c in feed %}<article class="ftile {{ c.tone }}{% if c.rows %} tall{% endif %}">
+      <div class="ft-main"><span class="ft-dot" aria-hidden="true"></span>
+        <div class="ft-body"><div class="ft-title">{{ c.title }}</div><div class="ft-text">{{ c.text }}</div></div>
+        <a class="ft-act" href="{{ c.url }}">{{ c.action }}</a></div>
+      {% if c.rows %}<div class="fc-rows">{% for r in c.rows %}<div class="fc-row">
+        <a href="{{ r.url }}"><b>{{ r.label }}</b><span class="lbl">{{ r.sub|truncatechars:36 }}</span></a>
+        <span class="m tnum">{{ r.amount|money:r.currency }}</span>
+        <form method="post" action="{{ r.approve }}">{% csrf_token %}<button class="btn primary sm" name="action" value="approve">{% translate "Approve" %}</button></form>
+      </div>{% endfor %}</div>{% endif %}
+    </article>{% empty %}<article class="ftile good"><div class="ft-main"><span class="ft-dot" aria-hidden="true"></span><div class="ft-body"><div class="ft-title">{% translate "All caught up" %}</div><div class="ft-text">{% translate "Nothing new right now. Check back soon!" %}</div></div></div></article>{% endfor %}
   </div>
 </section>
 
-<div class="acts"><h2>{% translate "Create actions" %}</h2>
-  {% if can.sales.create %}<a class="act" href="{% url 'sales:invoice_new' %}">{% translate "Create invoice" %}</a><a class="act" href="{% url 'sales:payment_new' %}">{% translate "Receive payment" %}</a><a class="act" href="{% url 'sales:order_new' %}">{% translate "Sales order" %}</a>{% endif %}
-  {% if can.purchases.create %}<a class="act" href="{% url 'purchases:order_new' %}">{% translate "Purchase order" %}</a><a class="act" href="{% url 'purchases:bill_new' %}">{% translate "Create bill" %}</a><a class="act" href="{% url 'purchases:payment_new' %}">{% translate "Pay bills" %}</a>{% endif %}
-  {% if can.vouchers.create %}<a class="act" href="{% url 'vouchers:new' 'receipt' %}">{% translate "Receipt voucher" %}</a><a class="act" href="{% url 'vouchers:new' 'payment' %}">{% translate "Payment voucher" %}</a><a class="act" href="{% url 'vouchers:new' 'journal' %}">{% translate "Journal voucher" %}</a>{% endif %}
-  {% if can.payroll.create %}<a class="act" href="{% url 'payroll:runs' %}">{% translate "Run payroll" %}</a>{% endif %}
-  {% if can.cheques.view %}<a class="act" href="{% url 'banking:cheques' %}">{% translate "Cheques" %}</a>{% endif %}
+<div class="acts" id="acts"><h2>{% translate "Create actions" %}</h2>
+  {% if can.sales.create %}<a class="act" href="{% url 'sales:invoice_new' %}">{% translate "Create invoice" %}</a>{% endif %}
+  {% if can.vouchers.create %}<a class="act" href="{% url 'vouchers:new' 'payment' %}">{% translate "Record expense" %}</a>{% endif %}
+  {% if can.banking.post %}<a class="act" href="{% url 'banking:deposit_new' %}">{% translate "Add bank deposit" %}</a>{% endif %}
+  {% if can.vouchers.create %}<a class="act" href="{% url 'vouchers:new' 'payment' %}?method=cheque">{% translate "Create cheque" %}</a>{% endif %}
+  {% if can.sales.create %}<a class="act" href="{% url 'sales:payment_new' %}">{% translate "Receive payment" %}</a>{% endif %}
+  {% if can.purchases.create %}<a class="act" href="{% url 'purchases:bill_new' %}">{% translate "Create bill" %}</a>
+    <a class="act x" href="{% url 'purchases:payment_new' %}">{% translate "Pay bills" %}</a>
+    <a class="act x" href="{% url 'purchases:order_new' %}">{% translate "Purchase order" %}</a>{% endif %}
+  {% if can.sales.create %}<a class="act x" href="{% url 'sales:quote_new' %}">{% translate "Estimate (quotation)" %}</a>
+    <a class="act x" href="{% url 'sales:order_new' %}">{% translate "Sales order" %}</a>
+    <a class="act x" href="{% url 'sales:credit_new' %}">{% translate "Credit note" %}</a>{% endif %}
+  {% if can.vouchers.create %}<a class="act x" href="{% url 'vouchers:new' 'receipt' %}">{% translate "Receipt voucher" %}</a>
+    <a class="act x" href="{% url 'vouchers:new' 'journal' %}">{% translate "Journal entry" %}</a>{% endif %}
+  {% if can.banking.post %}<a class="act x" href="{% url 'banking:transfers' %}">{% translate "Transfer" %}</a>{% endif %}
+  {% if can.payroll.create %}<a class="act x" href="{% url 'payroll:runs' %}">{% translate "Run payroll" %}</a>{% endif %}
+  <button class="act more" type="button" data-acts-more data-less="{% translate 'Show less' %}" aria-expanded="false">{% translate "Show all" %}</button>
+</div>
+
+<div class="dash-bar" id="dashBar" hidden>
+  <div><b>{% translate "Customise dashboard" %}</b><span class="lbl">{% translate "Drag a widget by its handle to move it. Drag its corner to make it wider or narrower." %}</span></div>
+  <div class="toolbar">
+    <div class="hov add-w"><button class="btn" type="button" id="addWidgets" aria-haspopup="true">+ {% translate "Add widgets" %}</button>
+      <div class="hov-pop wpick">{% for w in widgets %}<label class="check"><input type="checkbox" data-wtoggle="{{ w.key }}" {% if not w.hidden %}checked{% endif %}> {{ w.title }}</label>{% endfor %}</div></div>
+    <button class="btn" type="button" data-dash-reset>{% translate "Reset layout" %}</button>
+    <button class="btn" type="button" data-dash-cancel>{% translate "Cancel" %}</button>
+    <button class="btn primary" type="button" data-dash-save>{% translate "Save" %}</button>
+  </div>
 </div>
 
 <div class="sh"><h2>{% translate "Business at a glance" %}</h2></div>
-<div class="glance">
-  <section class="blk">
-    <div class="bh"><h3>{% translate "Profit & loss" %}</h3><span class="lbl">{{ year }}</span></div>
-    <div><div class="lbl">{% blocktranslate %}Net profit for {{ year }}{% endblocktranslate %}</div>
-      <div class="kv"><span class="big">{{ pl.net|money:company.base_currency }}</span>{% if pl.margin is not None %}<span class="pill info">{{ pl.margin|floatformat:1 }}% {% translate "margin" %}</span>{% endif %}</div></div>
-    <div class="plrow"><div><div class="v">{{ pl.income|money:company.base_currency }}</div><div class="lbl">{% translate "Income" %}</div></div>
-      {% if pl.income_review %}<a class="link rv" href="{% url 'vouchers:list' %}?kind=receipt">{% blocktranslate with n=pl.income_review %}{{ n }} to review{% endblocktranslate %}</a>{% else %}<span></span>{% endif %}
-      <div class="hbar" style="width:{{ pl.income_bar.width|floatformat:2 }}%;--hc:var(--good)"><span style="width:{{ pl.income_bar.solid|floatformat:2 }}%;background:var(--good)"></span><span class="hatch" style="width:{{ pl.income_bar.hatch|floatformat:2 }}%"></span></div></div>
-    <div class="plrow"><div><div class="v">{{ pl.expense|money:company.base_currency }}</div><div class="lbl">{% translate "Expenses" %}</div></div>
-      {% if pl.expense_review %}<a class="link rv" href="{% url 'vouchers:list' %}?kind=payment">{% blocktranslate with n=pl.expense_review %}{{ n }} to review{% endblocktranslate %}</a>{% else %}<span></span>{% endif %}
-      <div class="hbar" style="width:{{ pl.expense_bar.width|floatformat:2 }}%;--hc:var(--brand)"><span style="width:{{ pl.expense_bar.solid|floatformat:2 }}%;background:var(--brand)"></span><span class="hatch" style="width:{{ pl.expense_bar.hatch|floatformat:2 }}%"></span></div></div>
-    <div class="bfoot">{% if can.reports.view %}<a class="link" href="{% url 'reports:profit_loss' %}">{% translate "View profit and loss" %}</a>{% endif %}</div>
-  </section>
-
-  <section class="blk">
-    <div class="bh"><h3>{% translate "Expenses" %}</h3><span class="lbl">{% translate "Last 30 days" %}</span></div>
-    <div><div class="lbl">{% translate "Spending for last 30 days" %}</div><div class="big">{{ exp.total|money:company.base_currency }}</div>
-      {% if exp.change is not None %}<span class="lbl">{% if exp.change >= 0 %}▲{% else %}▼{% endif %} {{ exp.change|floatformat:0 }}% {% translate "from prior 30 days" %}</span>{% endif %}</div>
-    {% if exp.items %}<div class="exp"><div class="donut"><canvas id="expChart" aria-label="{% translate 'Expenses' %}" role="img"></canvas></div>
-      <div class="elist">{% for name, v in exp.items %}<div><i style="background:var(--c{{ forloop.counter }})"></i><span>{{ name }}</span><span class="m tnum">{{ v|num:0 }}</span></div>{% endfor %}</div></div>
-    {% else %}<p class="lbl">{% translate "No expenses posted in the last 30 days." %}</p>{% endif %}
-    <div class="bfoot">{% if can.vouchers.create %}<a class="link" href="{% url 'vouchers:new' 'payment' %}">{% translate "Record a payment" %}</a>{% endif %}</div>
-  </section>
-
-  <section class="blk">
-    <div class="bh"><h3>{% translate "Bank accounts" %}</h3><span class="lbl">{% translate "As of today" %}</span></div>
-    <div class="rows">{% for r in bank.rows %}<div class="row"><div class="bico">{% if r.acc.kind == "cash" %}{% include "partials/icon.html" with name="wallet" %}{% else %}{{ r.acc.bank.short_name|default:"BK" }}{% endif %}</div>
-      <div><div class="nm">{{ r.acc.name }}</div><div class="sub">{% translate "Chart account" %} {{ r.acc.gl_account.code }}</div></div><div class="amt">{{ r.own|money:r.acc.currency }}</div></div>
-    {% empty %}<p class="lbl">{% translate "No bank accounts yet." %}</p>{% endfor %}</div>
-    <div class="bfoot"><span><span class="lbl">{% translate "Total available" %}</span> <b>{{ bank.total|money:company.base_currency }}</b></span>{% if can.banking.view %}<a class="link" href="{% url 'banking:accounts' %}">{% translate "View all" %}</a>{% endif %}</div>
-  </section>
-
-  {% if invoices %}<section class="blk">
-    <div class="bh"><h3>{% translate "Invoices" %}</h3><span class="lbl">{% translate "Last 365 days" %}</span></div>
-    <div><div class="lbl">{% translate "Unpaid" %}</div><div class="big">{{ invoices.unpaid|money:company.base_currency }}</div></div>
-    <div class="stackbar"><span style="width:{{ invoices.overdue_pct|floatformat:2 }}%;background:var(--crit)"></span><span style="flex:1;background:var(--c2)"></span></div>
-    <div class="tiles"><div class="tile crit"><span class="lbl">{% translate "Overdue" %}</span><span class="n">{{ invoices.n_overdue }}</span><span class="a">{{ invoices.overdue|money:company.base_currency }}</span></div>
-      <div class="tile"><span class="lbl">{% translate "Not due yet" %}</span><span class="a">{{ invoices.not_due|money:company.base_currency }}</span></div></div>
-    <div><div class="lbl">{% translate "Paid in the last 30 days" %}</div><div class="kv"><b>{{ invoices.paid30|money:company.base_currency }}</b></div></div>
-    <div class="bfoot"><a class="link" href="{% url 'sales:invoices' %}">{% translate "View invoices" %}</a>{% if can.sales.create %}<a class="link" href="{% url 'sales:invoice_new' %}">{% translate "Create invoice" %}</a>{% endif %}</div>
-  </section>{% endif %}
-
-  {% if sales %}<section class="blk w2">
-    <div class="bh"><h3>{% translate "Sales" %}</h3><span class="lbl">{% blocktranslate with d=sales.days %}Last {{ d }} days{% endblocktranslate %}</span></div>
-    <div class="kv"><div><div class="lbl">{% translate "Total sales" %}</div><div class="big">{{ sales.total|money:company.base_currency }}</div></div>
-      {% if sales.total %}<span class="pill good">{% translate "Gross margin" %} {{ sales.margin|money:company.base_currency }}</span>{% endif %}</div>
-    <div class="cols" style="gap:16px">
-      <div><div class="lbl" style="margin-bottom:4px">{% translate "By category" %}</div>
-        <table class="tbl"><tbody>{% for g in sales.groups %}<tr><td>{{ g.category.name|default:_("Uncategorised") }}</td><td class="num lbl">{{ g.qty|num:0 }} {% translate "units" %}</td><td class="num"><b>{{ g.revenue|num:0 }}</b></td></tr>
-        {% empty %}<tr><td class="lbl">{% translate "No sales in this period." %}</td></tr>{% endfor %}</tbody></table></div>
-      <div><div class="lbl" style="margin-bottom:4px">{% translate "Best sellers" %}</div>
-        <table class="tbl"><tbody>{% for r in sales.top %}<tr><td>{% if r.item %}{{ r.item.sku }} · {{ r.item.name|truncatechars:28 }}{% else %}{{ r.label|truncatechars:34 }}{% endif %}</td><td class="num lbl">{{ r.qty|num:0 }}</td><td class="num"><b>{{ r.revenue|num:0 }}</b></td></tr>
-        {% empty %}<tr><td class="lbl">—</td></tr>{% endfor %}</tbody></table></div>
-    </div>
-    <div class="bfoot">{% if can.reports.view %}<a class="link" href="{% url 'reports:sales_by_item' %}">{% translate "Sales by product" %}</a>{% endif %}</div>
-  </section>{% endif %}
-
-  {% if ar %}<section class="blk">
-    <div class="bh"><h3>{% translate "Accounts receivable" %}</h3><span class="lbl">{% translate "As of today" %}</span></div>
-    <div><div class="lbl">{% blocktranslate count n=ar.customers %}Owed by {{ n }} customer{% plural %}Owed by {{ n }} customers{% endblocktranslate %}</div><div class="big">{{ ar.total|money:company.base_currency }}</div></div>
-    <div class="stackbar">{% for b in ar.buckets %}{% if b.pct %}<span style="width:{{ b.pct|floatformat:2 }}%;background:{{ b.color }}" title="{{ b.label }}"></span>{% endif %}{% endfor %}</div>
-    <div class="elist">{% for b in ar.buckets %}<div><i style="background:{{ b.color }}"></i><span>{{ b.label }}</span><span class="m tnum">{{ b.amount|num:0 }}</span></div>{% endfor %}</div>
-    <div class="bfoot">{% if can.reports.view %}<a class="link" href="{% url 'reports:ar_aging' %}">{% translate "Ageing report" %}</a>{% endif %}<a class="link" href="{% url 'sales:statements' %}">{% translate "Statements" %}</a></div>
-  </section>{% endif %}
-
-  {% if orders %}<section class="blk">
-    <div class="bh"><h3>{% translate "Customer orders" %}</h3><span class="lbl">{% blocktranslate count n=orders.count %}{{ n }} open{% plural %}{{ n }} open{% endblocktranslate %}</span></div>
-    <div class="rows">{% for r in orders.rows %}<div class="row"><div class="bico">{% include "partials/icon.html" with name="sales" %}</div>
-      <div><div class="nm"><a href="{% url 'sales:order' r.o.pk %}">{{ r.o.number|default:_("Draft") }}</a> · {{ r.o.customer.name }}</div><div class="sub">{{ r.o.date|date:"d/m/Y" }} · {{ r.o.get_status_display }}</div></div>
-      <div class="amt">{{ r.open|money:r.o.currency }}</div></div>
-    {% empty %}<p class="lbl">{% translate "No open sales orders." %}</p>{% endfor %}</div>
-    <div class="bfoot"><a class="link" href="{% url 'sales:orders' %}">{% translate "View all" %}</a>{% if can.sales.create %}<a class="link" href="{% url 'sales:order_new' %}">{% translate "New order" %}</a>{% endif %}</div>
-  </section>{% endif %}
-
-  {% if ap %}<section class="blk">
-    <div class="bh"><h3>{% translate "Accounts payable" %}</h3><span class="lbl">{% translate "As of today" %}</span></div>
-    <div><div class="lbl">{% translate "You owe suppliers" %}</div><div class="big">{{ ap.total|money:company.base_currency }}</div>{% if ap.overdue %}<span class="pill crit">{% translate "Overdue" %} {{ ap.overdue|num:0 }}</span>{% endif %}</div>
-    <div class="rows">{% for r in ap.top %}<div class="row"><div class="bico">{% include "partials/icon.html" with name="wallet" %}</div><div><div class="nm">{{ r.contact.name }}</div></div><div class="amt">{{ r.total|num:0 }}</div></div>{% endfor %}</div>
-    <div class="bfoot">{% if can.reports.view %}<a class="link" href="{% url 'reports:ap_aging' %}">{% translate "Ageing report" %}</a>{% endif %}<a class="link" href="{% url 'purchases:payments' %}">{% translate "Pay bills" %}</a></div>
-  </section>{% endif %}
-
-  {% if stock %}<section class="blk">
-    <div class="bh"><h3>{% translate "Stock alerts" %}</h3><span class="lbl">{% translate "Value" %} {{ stock.value|num:0 }}</span></div>
-    <div class="tiles"><a class="tile {% if stock.expired %}crit{% endif %}" href="{% url 'inventory:expiry' %}?within=expired"><span class="lbl">{% translate "Expired batches" %}</span><span class="n">{{ stock.expired|length }}</span></a>
-      <a class="tile {% if stock.soon %}warn{% endif %}" href="{% url 'inventory:expiry' %}?within=90"><span class="lbl">{% translate "Expiring in 90 days" %}</span><span class="n">{{ stock.soon|length }}</span></a></div>
-    <div class="rows">{% for i, q in stock.low %}<div class="row"><div class="bico">{% include "partials/icon.html" with name="box" %}</div><div><div class="nm">{{ i.sku }} · {{ i.name }}</div><div class="sub">{% translate "Reorder level" %} {{ i.reorder_level|num:0 }}</div></div><div class="amt">{{ q|num:0 }}</div></div>
-    {% empty %}<p class="lbl">{% translate "Nothing needs reordering." %}</p>{% endfor %}</div>
-    <div class="bfoot"><a class="link" href="{% url 'inventory:overview' %}">{% translate "Inventory overview" %}</a></div>
-  </section>{% endif %}
-
-  <section class="blk">
-    <div class="bh"><h3>{% translate "Post-dated cheques" %}</h3><span class="lbl">{% translate "Received" %}</span></div>
-    <div class="tiles">{% for t in cheques.tiles %}<div class="tile {{ t.cls }}"><span class="lbl">{{ t.label }}</span><span class="n">{{ t.n }}</span><span class="a">{{ t.a|money:company.base_currency }}</span></div>{% endfor %}</div>
-    <div class="rows">{% for c in cheques.next %}<div class="row"><div class="bico">{% include "partials/icon.html" with name="cheque" %}</div><div><div class="nm">{{ c.party_name }}</div><div class="sub">#{{ c.number }} · {% translate "Due" %} {{ c.due_date }}</div></div><div class="amt">{{ c.amount|money:c.currency }}</div></div>{% endfor %}</div>
-    <div class="bfoot">{% if can.cheques.view %}<a class="link" href="{% url 'banking:cheques' %}">{% translate "View all" %}</a>{% endif %}</div>
-  </section>
-
-  <section class="blk w2">
-    <div class="bh"><h3>{% translate "Cash flow" %}</h3><span class="lbl">{% translate "Last 12 weeks" %}</span></div>
-    <div><div class="lbl">{% translate "Today's cash balance" %}</div><div class="big">{{ bank.total|money:company.base_currency }}</div></div>
-    <div class="chartbox"><canvas id="cashChart" aria-label="{% translate 'Cash flow' %}" role="img"></canvas></div>
-    <div class="bfoot"><span class="lbl">{% translate "The 13-week forecast arrives with the planning suite." %}</span></div>
-  </section>
-
-  <section class="blk w2">
-    <div class="bh"><h3>{% translate "Approvals" %}</h3><span class="lbl">{{ approvals_count }}</span></div>
-    <div>{% for r in approvals %}<div class="ap-row">
-      <div class="ap-main"><div class="ap-type">{{ r.voucher.get_kind_display }} · <b>{{ r.voucher.number }}</b></div><div>{{ r.voucher.party_name|default:r.voucher.description }}</div></div>
-      <div class="ap-amt"><b>{{ r.voucher.total|money:r.voucher.currency }}</b><div>{% translate "From" %} {{ r.voucher.created_by }}</div></div>
-      <div class="ap-act"><a class="btn sm" href="{% url 'vouchers:detail' r.voucher.pk %}">{% translate "Review" %}</a>
-        <form method="post" action="{% url 'vouchers:action' r.voucher.pk %}">{% csrf_token %}<button class="btn primary sm" name="action" value="approve">{% translate "Approve" %}</button></form></div>
-    </div>{% empty %}<p class="lbl">{% translate "Nothing is waiting for you." %}</p>{% endfor %}</div>
-  </section>
-
-  <section class="blk soon-blk"><div class="bh"><h3>{% translate "ETA e-invoicing" %}</h3></div><p>{% translate "Submission to the Egyptian Tax Authority arrives in the next release." %}</p></section>
+<div class="dash-wrap">
+  <div class="glance" id="glance" data-save-url="{% url 'dashboard:layout' %}">
+    {% for w in widgets %}<section class="blk" data-widget="{{ w.key }}" data-w="{{ w.w }}" aria-label="{{ w.title }}" {% if w.hidden %}hidden{% endif %}>
+      {% with tpl="dashboard/widgets/"|add:w.key|add:".html" %}{% include tpl %}{% endwith %}
+    </section>{% endfor %}
+  </div>
+  <aside class="dash-help" id="dashHelp" hidden aria-labelledby="dashHelpH">
+    <div class="dh-h"><h2 id="dashHelpH">{% translate "Learn how to customise your dashboard layout" %}</h2><button class="iconbtn" type="button" data-help-close aria-label="{% translate 'Close' %}">{% include "partials/icon.html" with name="close" %}</button></div>
+    <ol>
+      <li><b>{% translate "Add or remove widgets" %}</b><span>{% translate "Select Add widgets and tick the ones you want. Untick a widget, or select × on it, to hide it." %}</span></li>
+      <li><b>{% translate "Move a widget" %}</b><span>{% translate "Drag it by the handle at its top corner and drop it where you want it. With the keyboard, focus the handle and use the arrow keys." %}</span></li>
+      <li><b>{% translate "Resize a widget" %}</b><span>{% translate "Drag the corner at its bottom edge to make it one to four columns wide." %}</span></li>
+      <li><b>{% translate "Save" %}</b><span>{% translate "Select Save to keep your layout. It is saved for you only; other users keep their own." %}</span></li>
+    </ol>
+    <p class="lbl">{% translate "Every number, tile and row on the dashboard opens the list or report behind it." %}</p>
+  </aside>
 </div>
-
-{{ trend|json_script:"trend-data" }}
-<script id="exp-data" type="application/json">[{% for name, v in exp.items %}{{ v|num:2|cut:"," }}{% if not forloop.last %},{% endif %}{% endfor %}]</script>
+<div hidden id="dashLabels" data-move="{% translate 'Move widget' %}" data-resize="{% translate 'Resize widget' %}" data-hide="{% translate 'Hide widget' %}" data-saved="{% translate 'Dashboard layout saved.' %}" data-failed="{% translate 'Could not save. Try again.' %}"></div>
 {% endblock %}
 {% block scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="{% static 'js/dashboard.js' %}"></script>
+<script src="{% static 'js/dashboard.js' %}?v=e1"></script>
 {% endblock %}

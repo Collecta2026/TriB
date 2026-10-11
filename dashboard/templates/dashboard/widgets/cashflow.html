@@ -1,0 +1,10 @@
+{% load i18n trib %}<div class="bh"><h3>{% translate "Cash flow" %}</h3>
+  <div class="seg" role="group" aria-label="{% translate 'Chart' %}"><button type="button" class="on" data-flow="balance">{% translate "Cash balance" %}</button><button type="button" data-flow="inout">{% translate "Money in & out" %}</button></div></div>
+<div class="flow-top">
+  <a class="kpi-link" href="{% url 'banking:accounts' %}"><span class="lbl">{% translate "Today's cash balance" %}</span><span class="big m">{{ flow.today|money:company.base_currency }}</span></a>
+  <a class="kpi-link" href="{% url 'reports:cash_flows' %}?period=last_365"><span class="lbl"><i class="sw" style="background:var(--good)"></i>{% translate "Money in" %} · {% translate "12 months" %}</span><b class="m">{{ flow.money_in|num:0 }}</b></a>
+  <a class="kpi-link" href="{% url 'reports:cash_flows' %}?period=last_365"><span class="lbl"><i class="sw" style="background:var(--sun)"></i>{% translate "Money out" %} · {% translate "12 months" %}</span><b class="m">{{ flow.money_out|num:0 }}</b></a>
+</div>
+<div class="chartbox"><canvas id="cashChart" aria-label="{% translate 'Cash flow by month. Select a month to open its statement of cash flows.' %}" role="img"></canvas></div>
+<div class="bfoot"><a class="link" href="{% url 'reports:cash_overview' %}">{% translate "Cash flow overview" %}</a><span class="lbl">{% translate "Select a month to see where the cash went." %}</span></div>
+{{ flow.chart|json_script:"flow-data" }}

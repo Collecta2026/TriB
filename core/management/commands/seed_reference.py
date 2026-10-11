@@ -1,3 +1,4 @@
+from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
 from core.services import seed_banks, seed_currencies
@@ -10,3 +11,5 @@ class Command(BaseCommand):
         seed_currencies()
         seed_banks()
         self.stdout.write(self.style.SUCCESS("Currencies and banks are up to date."))
+        # Lets you regain access on a server with no shell; does nothing unless the reset variables are set.
+        call_command("reset_password_from_env", stdout=self.stdout)

@@ -161,6 +161,13 @@ def company_settings(request):
 def audit_log(request):
     rows = AuditLog.objects.filter(company=request.company).select_related("user")
     q = request.GET.get("q", "").strip()
-    if q:
+    obj_type, obj_id = request.GET.get("type", ""), request.GET.get("id", "")
+    if obj_type and obj_id.isdigit():
+        # Audit history of one document: its own records, plus any that mention its number.
+        cond = Q(object_type=obj_type, object_id=obj_id)
+        if q:
+            cond |= Q(summary__icontains=q)
+        rows = rows.filter(cond)
+    elif q:
         rows = rows.filter(Q(summary__icontains=q) | Q(action__icontains=q) | Q(user__email__icontains=q))
     return render(request, "core/audit.html", {"rows": rows[:300], "q": q})

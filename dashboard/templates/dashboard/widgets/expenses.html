@@ -1,0 +1,9 @@
+{% load i18n trib %}<div class="bh"><h3>{% translate "Expenses" %}</h3><span class="lbl">{% translate "Last 30 days" %}</span></div>
+<a class="kpi-link" href="{{ exp.url }}"><span class="lbl">{% translate "Spending for last 30 days" %}</span><span class="big m">{{ exp.total|money:company.base_currency }}</span>
+  {% if exp.change is not None %}<span class="lbl">{% if exp.change >= 0 %}▲{% else %}▼{% endif %} {{ exp.change|floatformat:0 }}% {% translate "from prior 30 days" %}</span>{% endif %}</a>
+{% if exp.items %}<div class="exp"><div class="donut"><canvas id="expChart" aria-label="{% translate 'Expenses' %}" role="img"></canvas></div>
+  <div class="elist">{% for name, v, url in exp.items %}<a href="{{ url }}"><i style="background:var(--c{{ forloop.counter }})"></i><span>{{ name }}</span><span class="m tnum">{{ v|num:0 }}</span></a>{% endfor %}</div></div>
+{% else %}<p class="lbl">{% translate "No expenses posted in the last 30 days." %}</p>{% endif %}
+<div class="bfoot"><a class="link" href="{{ exp.url }}">{% translate "See every expense" %}</a>{% if can.vouchers.create %}<a class="link" href="{% url 'vouchers:new' 'payment' %}">{% translate "Record a payment" %}</a>{% endif %}</div>
+<script id="exp-data" type="application/json">[{% for name, v, url in exp.items %}{{ v|num:2|cut:"," }}{% if not forloop.last %},{% endif %}{% endfor %}]</script>
+<script id="exp-urls" type="application/json">[{% for name, v, url in exp.items %}"{{ url|escapejs }}"{% if not forloop.last %},{% endif %}{% endfor %}]</script>

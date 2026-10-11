@@ -1,47 +1,146 @@
 {% extends "base.html" %}
 {% load i18n trib %}
 {% block title %}{{ obj.name }}{% endblock %}
-{% block content %}
-<div class="page-head"><div><div class="crumbs"><a href="{% if kind == 'customer' %}{% url 'contacts:customers' %}{% else %}{% url 'contacts:suppliers' %}{% endif %}">{{ cfg.plural }}</a></div>
-  <h1>{{ obj.name }}</h1><div class="sub">{{ obj.code }}{% if obj.name_ar and obj.name_en %} · {{ obj.name_en }} / {{ obj.name_ar }}{% endif %}</div></div>
-  <div class="toolbar">
-    {% if kind == "customer" %}
-      {% if can.sales.create %}<a class="btn primary" href="{% url 'sales:invoice_new' %}?customer={{ obj.pk }}">{% translate "New invoice" %}</a>
-      <a class="btn" href="{% url 'sales:payment_new' %}?customer={{ obj.pk }}">{% translate "Receive payment" %}</a>
-      <a class="btn" href="{% url 'sales:order_new' %}?customer={{ obj.pk }}">{% translate "Sales order" %}</a>{% endif %}
-      <a class="btn" href="{% url 'sales:statements' %}?customer={{ obj.pk }}">{% translate "Statement" %}</a>
-    {% else %}
-      {% if can.purchases.create %}<a class="btn primary" href="{% url 'purchases:bill_new' %}?supplier={{ obj.pk }}">{% translate "New bill" %}</a>
-      <a class="btn" href="{% url 'purchases:payment_new' %}?supplier={{ obj.pk }}">{% translate "Pay bills" %}</a>
-      <a class="btn" href="{% url 'purchases:order_new' %}?supplier={{ obj.pk }}">{% translate "Purchase order" %}</a>{% endif %}
-      <a class="btn" href="{% url 'purchases:statements' %}?supplier={{ obj.pk }}">{% translate "Statement" %}</a>
-    {% endif %}
-    {% if can.contacts.edit %}<a class="btn" href="{% if kind == 'customer' %}{% url 'contacts:customer_edit' obj.pk %}{% else %}{% url 'contacts:supplier_edit' obj.pk %}{% endif %}">{% translate "Edit" %}</a>{% endif %}
+{% block content %}{% get_current_language as LANGUAGE_CODE %}
+<div class="crumbs"><a href="{% if kind == 'customer' %}{% url 'contacts:customers' %}{% else %}{% url 'contacts:suppliers' %}{% endif %}">{{ cfg.plural }}</a></div>
+<section class="hub-head panel">
+  <div class="hub-id">
+    <div class="hub-badge" aria-hidden="true">{{ obj.name|slice:":2"|upper }}</div>
+    <h1>{{ obj.name }}</h1>
+    <div class="lbl">{{ obj.code }}{% if obj.name_ar and obj.name_en %} · {% if LANGUAGE_CODE == "ar" %}{{ obj.name_en }}{% else %}{{ obj.name_ar }}{% endif %}{% endif %}</div>
+    <div class="hub-quick">
+      {% if obj.email %}<a class="qbtn" href="mailto:{{ obj.email }}" title="{% translate 'Email' %}" aria-label="{% translate 'Email' %}">{% include "partials/icon.html" with name="chat" %}</a>{% endif %}
+      {% if kind == "customer" %}
+        {% if can.sales.create %}<a class="qbtn" href="{% url 'sales:invoice_new' %}?customer={{ obj.pk }}" title="{% translate 'New invoice' %}" aria-label="{% translate 'New invoice' %}">{% include "partials/icon.html" with name="sales" %}</a>
+        <a class="qbtn" href="{% url 'sales:payment_new' %}?customer={{ obj.pk }}" title="{% translate 'Receive payment' %}" aria-label="{% translate 'Receive payment' %}">{% include "partials/icon.html" with name="wallet" %}</a>{% endif %}
+        <a class="qbtn" href="{% url 'sales:statements' %}?customer={{ obj.pk }}" title="{% translate 'Statement' %}" aria-label="{% translate 'Statement' %}">{% include "partials/icon.html" with name="file" %}</a>
+      {% else %}
+        {% if can.purchases.create %}<a class="qbtn" href="{% url 'purchases:bill_new' %}?supplier={{ obj.pk }}" title="{% translate 'New bill' %}" aria-label="{% translate 'New bill' %}">{% include "partials/icon.html" with name="sales" %}</a>
+        <a class="qbtn" href="{% url 'purchases:payment_new' %}?supplier={{ obj.pk }}" title="{% translate 'Pay bills' %}" aria-label="{% translate 'Pay bills' %}">{% include "partials/icon.html" with name="wallet" %}</a>{% endif %}
+        <a class="qbtn" href="{% url 'purchases:statements' %}?supplier={{ obj.pk }}" title="{% translate 'Statement' %}" aria-label="{% translate 'Statement' %}">{% include "partials/icon.html" with name="file" %}</a>
+      {% endif %}
+      {% if can.contacts.edit %}<a class="qbtn" href="{% if kind == 'customer' %}{% url 'contacts:customer_edit' obj.pk %}{% else %}{% url 'contacts:supplier_edit' obj.pk %}{% endif %}" title="{% translate 'Edit' %}" aria-label="{% translate 'Edit' %}">{% include "partials/icon.html" with name="sliders" %}</a>{% endif %}
+    </div>
   </div>
-</div>
-<div class="cols-3">
-  <div class="blk" style="min-height:0"><div class="bh"><h3>{% translate "Open balance" %}</h3></div><div class="big">{{ balance|money:obj.currency }}</div>
-    {% if kind == "customer" and obj.credit_limit %}<div class="lbl">{% translate "Credit limit" %}: {{ obj.credit_limit|num }}</div>{% endif %}</div>
-  <div class="blk" style="min-height:0"><div class="bh"><h3>{% translate "Contact" %}</h3></div>
-    <div>{{ obj.contact_person }}</div><div class="lbl">{{ obj.phone }} · {{ obj.email }}</div><div class="lbl">{{ obj.address|linebreaksbr }}</div></div>
-  <div class="blk" style="min-height:0"><div class="bh"><h3>{% translate "Terms" %}</h3></div>
-    <div>{{ obj.payment_terms_days }} {% translate "days" %} · {{ obj.currency_id }}</div><div class="lbl">{% translate "Tax registration number" %}: {{ obj.tax_id|default:"—" }}</div></div>
-</div>
-<div class="panel"><h2>{% translate "Open items" %}</h2>
-  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Number" %}</th><th>{% translate "Date" %}</th><th>{% translate "Due date" %}</th><th class="num">{% translate "Total" %}</th><th class="num">{% translate "Balance due" %}</th><th>{% translate "Status" %}</th></tr></thead>
-  <tbody>{% for d in open_docs %}<tr><td><a href="{% if kind == 'customer' %}{% url 'sales:invoice' d.pk %}{% else %}{% url 'purchases:bill' d.pk %}{% endif %}">{{ d.number }}</a></td><td>{{ d.date|date:"d/m/Y" }}</td><td>{{ d.due_date|date:"d/m/Y" }}</td><td class="num">{{ d.total|num }}</td><td class="num">{{ d.balance_due|num }}</td><td><span class="pill {{ d.payment_state|pill_class }}">{{ d.payment_state|state_label }}</span></td></tr>
-  {% empty %}<tr><td colspan="6" class="lbl">{% translate "Nothing outstanding." %}</td></tr>{% endfor %}</tbody></table></div>
-</div>
-<div class="cols">
-  <div class="panel"><h2>{% if kind == "customer" %}{% translate "Recent invoices" %}{% else %}{% translate "Recent bills" %}{% endif %}</h2>
-    <table class="tbl"><tbody>{% for d in invoices|default:bills %}<tr><td><a href="{% if kind == 'customer' %}{% url 'sales:invoice' d.pk %}{% else %}{% url 'purchases:bill' d.pk %}{% endif %}">{{ d.number|default:_("Draft") }}</a></td><td>{{ d.date|date:"d/m/Y" }}</td><td class="num">{{ d.total|num }}</td><td><span class="pill {{ d.status|pill_class }}">{{ d.get_status_display }}</span></td></tr>{% empty %}<tr><td class="lbl">—</td></tr>{% endfor %}</tbody></table>
-  </div>
-  <div class="panel"><h2>{% translate "Recent payments" %}</h2>
-    <table class="tbl"><tbody>{% for p in payments %}<tr><td><a href="{% if kind == 'customer' %}{% url 'sales:payment' p.pk %}{% else %}{% url 'purchases:payment' p.pk %}{% endif %}">{{ p.number }}</a></td><td>{{ p.date|date:"d/m/Y" }}</td><td class="num">{{ p.amount|num }}</td><td><span class="pill {{ p.status|pill_class }}">{{ p.get_status_display }}</span></td></tr>{% empty %}<tr><td class="lbl">—</td></tr>{% endfor %}</tbody></table>
-  </div>
-</div>
-<div class="panel"><h2>{% if kind == "customer" %}{% translate "Sales orders" %}{% else %}{% translate "Purchase orders" %}{% endif %}</h2>
-  <table class="tbl"><tbody>{% for d in orders %}<tr><td><a href="{% if kind == 'customer' %}{% url 'sales:order' d.pk %}{% else %}{% url 'purchases:order' d.pk %}{% endif %}">{{ d.number|default:_("Draft") }}</a></td><td>{{ d.date|date:"d/m/Y" }}</td><td class="num">{{ d.total|num }}</td><td><span class="pill {{ d.status|pill_class }}">{{ d.get_status_display }}</span></td></tr>{% empty %}<tr><td class="lbl">—</td></tr>{% endfor %}</tbody></table>
-</div>
-{% attachments obj %}
+  <dl class="hub-info">
+    <div><dt>{% translate "Email" %}</dt><dd>{% if obj.email %}<a href="mailto:{{ obj.email }}">{{ obj.email }}</a>{% else %}<span class="lbl">—</span>{% endif %}</dd></div>
+    <div><dt>{% translate "Phone" %}</dt><dd>{% if obj.phone %}<a href="tel:{{ obj.phone }}">{{ obj.phone }}</a>{% else %}<span class="lbl">—</span>{% endif %}</dd></div>
+    <div><dt>{% translate "Billing address" %}</dt><dd>{{ obj.address|default:"—"|linebreaksbr }}{% if obj.city %}<br>{{ obj.city }}{% endif %}</dd></div>
+    <div><dt>{% translate "Shipping address" %}</dt><dd>{% if obj.shipping_address %}{{ obj.shipping_address|linebreaksbr }}{% else %}<span class="lbl">{% translate "Same as billing address" %}</span>{% endif %}</dd></div>
+    <div><dt>{% translate "Terms" %}</dt><dd>{{ obj.payment_terms_days }} {% translate "days" %} · {{ obj.currency_id }}</dd></div>
+    <div><dt>{% translate "Notes" %}</dt><dd>{% if obj.notes %}{{ obj.notes|truncatechars:120 }}{% else %}<a class="link" href="?tab=notes">{% translate "Add notes" %}</a>{% endif %}</dd></div>
+  </dl>
+  <aside class="hub-sum">
+    <h2>{% translate "Financial summary" %}</h2>
+    <a href="?tab=transactions&status=open"><span class="lbl"><i class="sw" style="background:var(--sun)"></i>{% translate "Open balance" %}</span><b class="m">{{ balance|money:obj.currency }}</b></a>
+    <a href="?tab=transactions&status=overdue"><span class="lbl"><i class="sw" style="background:var(--crit)"></i>{% translate "Overdue payment" %}</span><b class="m">{{ overdue|money:obj.currency }}</b></a>
+    {% if kind == "customer" and obj.credit_limit %}<span class="lbl">{% translate "Credit limit" %}: {{ obj.credit_limit|num }}</span>{% endif %}
+  </aside>
+</section>
+
+<nav class="tabs" role="tablist" aria-label="{{ obj.name }}">
+  <button type="button" role="tab" data-tab="transactions">{% translate "Transaction list" %}</button>
+  <button type="button" role="tab" data-tab="activity">{% translate "Activity feed" %}</button>
+  <button type="button" role="tab" data-tab="statements">{% translate "Statements" %}</button>
+  <button type="button" role="tab" data-tab="recurring">{% translate "Recurring transactions" %}</button>
+  {% if kind == "customer" %}<button type="button" role="tab" data-tab="projects">{% translate "Projects" %}</button>{% endif %}
+  <button type="button" role="tab" data-tab="details">{% if kind == "customer" %}{% translate "Customer details" %}{% else %}{% translate "Supplier details" %}{% endif %}</button>
+  <button type="button" role="tab" data-tab="files">{% translate "Documents & files" %}</button>
+  <button type="button" role="tab" data-tab="notes">{% translate "Notes" %}</button>
+  <span class="tab-soon">{% translate "Tasks" %}<i>{% translate "soon" %}</i></span>
+  {% if kind == "customer" %}<span class="tab-soon">{% translate "Opportunities" %}<i>{% translate "soon" %}</i></span>{% endif %}
+  <span class="tab-soon">{% translate "Conversations" %}<i>{% translate "soon" %}</i></span>
+</nav>
+
+<section class="tabpanel" data-panel="transactions" role="tabpanel">
+  <form method="get" class="hub-filters" id="hubFilters">
+    <input type="hidden" name="tab" value="transactions">
+    <div class="hov batch"><button type="button" class="btn" data-batch-btn disabled aria-haspopup="true">{% translate "Batch actions" %} ▾</button>
+      <div class="hov-pop"><button type="button" data-batch="print">{% include "partials/icon.html" with name="print" %}{% translate "Print selected" %}</button>
+        <button type="button" data-batch="export">{% include "partials/icon.html" with name="download" %}{% translate "Export selected (CSV)" %}</button></div></div>
+    <label class="lbl">{% translate "Type" %}<select name="type" onchange="this.form.submit()"><option value="">{% translate "All transactions" %}</option>{% for k, l in types %}<option value="{{ k }}" {% if filters.type == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+    <label class="lbl">{% translate "Status" %}<select name="status" onchange="this.form.submit()"><option value="">{% translate "All" %}</option>{% for k, l in statuses %}<option value="{{ k }}" {% if filters.status == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+    <label class="lbl">{% translate "Date" %}<select name="period" onchange="this.form.submit()"><option value="">{% translate "All" %}</option>{% for k, l in periods %}<option value="{{ k }}" {% if filters.period == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+    {% if filters.type or filters.status or filters.period %}<a class="link" href="?tab=transactions">{% translate "Clear filter" %}</a>{% endif %}
+    <div class="hub-tools">
+      <button type="button" class="iconbtn" data-print title="{% translate 'Print' %}" aria-label="{% translate 'Print' %}">{% include "partials/icon.html" with name="print" %}</button>
+      {% if can.reports.export %}<a class="iconbtn" href="{% url 'reports:export' %}?url={{ request.get_full_path|urlencode }}" title="{% translate 'Export to Excel' %}" aria-label="{% translate 'Export to Excel' %}">{% include "partials/icon.html" with name="download" %}</a>{% endif %}
+      <div class="hov"><button type="button" class="iconbtn" title="{% translate 'Columns' %}" aria-label="{% translate 'Columns' %}" aria-haspopup="true">{% include "partials/icon.html" with name="gear" %}</button>
+        <div class="hov-pop cols-pop">
+          <label class="check"><input type="checkbox" data-col-toggle="no" checked> {% translate "No." %}</label>
+          <label class="check"><input type="checkbox" data-col-toggle="memo" checked> {% translate "Memo" %}</label>
+          <label class="check"><input type="checkbox" data-col-toggle="type" checked> {% translate "Type" %}</label></div></div>
+    </div>
+  </form>
+  <div class="table-wrap"><table class="tbl hub-list" id="hubList">
+    <thead><tr><th class="sel-col"><input type="checkbox" data-select-all aria-label="{% translate 'Select all' %}"></th><th>{% translate "Date" %}</th><th data-col="type">{% translate "Type" %}</th><th data-col="no">{% translate "No." %}</th>
+      <th data-col="memo">{% translate "Memo" %}</th><th class="num">{% translate "Amount" %}</th><th>{% translate "Status" %}</th><th class="num">{% translate "Action" %}</th></tr></thead>
+    <tbody>{% for r in rows %}<tr>
+      <td class="sel-col">{% if r.select %}<input type="checkbox" data-sel="{{ r.select }}" aria-label="{{ r.type }} {{ r.number }}">{% endif %}</td>
+      <td>{{ r.date|date:"d/m/Y" }}</td><td data-col="type">{{ r.type }}</td><td data-col="no"><a href="{{ r.url }}">{{ r.number|default:_("Draft") }}</a></td>
+      <td data-col="memo" class="lbl">{{ r.memo|truncatechars:40 }}</td>
+      <td class="num">{% if r.amount is not None %}{{ r.amount|money:r.currency }}{% endif %}</td>
+      <td><span class="st st-{{ r.icon }}">{{ r.status_label }}</span></td>
+      <td class="num hub-act">{% for label, url in r.actions %}{% if not forloop.first %}<span class="sep">|</span>{% endif %}<a href="{{ url }}">{{ label }}</a>{% endfor %}</td>
+    </tr>{% empty %}<tr><td colspan="8" class="lbl">{% if total_rows %}{% translate "No transactions match these filters." %}{% else %}{% translate "No transactions yet." %}{% endif %}</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+
+<section class="tabpanel" data-panel="activity" role="tabpanel" hidden>
+  {% if activity %}<ul class="activity">{% for a in activity %}<li><span class="lbl">{{ a.created_at|date:"d/m/Y H:i" }}</span> <b>{{ a.user|default:"—" }}</b> · {{ a.summary|default:a.action }}</li>{% endfor %}</ul>
+  {% else %}<p class="lbl">{% translate "No activity recorded yet." %}</p>{% endif %}
+</section>
+
+<section class="tabpanel" data-panel="statements" role="tabpanel" hidden>
+  <p>{% if kind == "customer" %}{% translate "Statements list every invoice, payment and credit in a period with the running balance, ready to print or send." %}{% else %}{% translate "Your account with this supplier: every bill, payment and credit in a period with the running balance." %}{% endif %}</p>
+  <div class="toolbar"><a class="btn primary" href="{% if kind == 'customer' %}{% url 'sales:statements' %}?customer={{ obj.pk }}{% else %}{% url 'purchases:statements' %}?supplier={{ obj.pk }}{% endif %}">{% translate "Create statement" %}</a>
+  {% if kind == "customer" %}<a class="btn" href="{% url 'sales:confirmations' %}">{% translate "Balance confirmations" %}</a>{% endif %}</div>
+</section>
+
+<section class="tabpanel" data-panel="recurring" role="tabpanel" hidden>
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Name" %}</th><th>{% translate "Repeat" %}</th><th>{% translate "Next date" %}</th><th>{% translate "Status" %}</th></tr></thead>
+    <tbody>{% for t in recurring %}<tr><td>{{ t.name }}</td><td>{{ t.get_frequency_display }}</td><td>{{ t.next_date|date:"d/m/Y" }}</td><td><span class="pill {% if t.is_active %}good{% endif %}">{% if t.is_active %}{% translate "Active" %}{% else %}{% translate "Stopped" %}{% endif %}</span></td></tr>
+    {% empty %}<tr><td colspan="4" class="lbl">{% translate "No recurring transactions. Open a posted document and select Make recurring." %}</td></tr>{% endfor %}</tbody></table></div>
+  <p><a class="link" href="{% url 'core:recurring' %}">{% translate "All recurring transactions" %}</a></p>
+</section>
+
+{% if kind == "customer" %}<section class="tabpanel" data-panel="projects" role="tabpanel" hidden>
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Code" %}</th><th>{% translate "Name" %}</th><th>{% translate "Status" %}</th><th class="num">{% translate "Budget" %}</th></tr></thead>
+    <tbody>{% for pr in projects %}<tr><td>{{ pr.code }}</td><td>{{ pr.name }}</td><td>{{ pr.get_status_display }}</td><td class="num">{{ pr.budget|num }}</td></tr>
+    {% empty %}<tr><td colspan="4" class="lbl">{% translate "No projects for this customer." %}</td></tr>{% endfor %}</tbody></table></div>
+  {% if can.projects.create %}<p><a class="btn" href="{% url 'projects:new' %}">+ {% translate "Project" %}</a></p>{% endif %}
+</section>{% endif %}
+
+<section class="tabpanel" data-panel="details" role="tabpanel" hidden>
+  <div class="cols"><table class="tbl"><tbody>
+    <tr><td class="lbl">{% translate "Code" %}</td><td>{{ obj.code }}</td></tr>
+    <tr><td class="lbl">{% translate "Name (English)" %}</td><td>{{ obj.name_en }}</td></tr>
+    <tr><td class="lbl">{% translate "Name (Arabic)" %}</td><td>{{ obj.name_ar|default:"—" }}</td></tr>
+    <tr><td class="lbl">{% translate "Contact person" %}</td><td>{{ obj.contact_person|default:"—" }}</td></tr>
+    <tr><td class="lbl">{% translate "Tax registration number" %}</td><td>{{ obj.tax_id|default:"—" }}</td></tr>
+    <tr><td class="lbl">{% translate "Commercial register" %}</td><td>{{ obj.commercial_register|default:"—" }}</td></tr>
+  </tbody></table><table class="tbl"><tbody>
+    <tr><td class="lbl">{% translate "Currency" %}</td><td>{{ obj.currency_id }}</td></tr>
+    <tr><td class="lbl">{% translate "Payment terms (days)" %}</td><td>{{ obj.payment_terms_days }}</td></tr>
+    {% if kind == "customer" %}<tr><td class="lbl">{% translate "Credit limit" %}</td><td>{{ obj.credit_limit|num }}</td></tr>{% else %}<tr><td class="lbl">{% translate "Bank details" %}</td><td>{{ obj.bank_details|default:"—"|linebreaksbr }}</td></tr>{% endif %}
+    <tr><td class="lbl">{% translate "Country" %}</td><td>{{ obj.country }}</td></tr>
+    <tr><td class="lbl">{% translate "Active" %}</td><td>{% if obj.is_active %}{% translate "Yes" %}{% else %}{% translate "No" %}{% endif %}</td></tr>
+  </tbody></table></div>
+  {% if can.contacts.edit %}<p><a class="btn" href="{% if kind == 'customer' %}{% url 'contacts:customer_edit' obj.pk %}{% else %}{% url 'contacts:supplier_edit' obj.pk %}{% endif %}">{% translate "Edit" %}</a></p>{% endif %}
+</section>
+
+<section class="tabpanel" data-panel="files" role="tabpanel" hidden>
+  <div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "File" %}</th><th>{% translate "Attached to" %}</th><th class="num">{% translate "Size" %}</th><th>{% translate "Uploaded" %}</th></tr></thead>
+    <tbody>{% for a in files %}<tr><td><a href="{% url 'core:attachment' a.pk %}" target="_blank" rel="noopener">{{ a.filename }}</a></td><td class="lbl">{{ a.target }}</td><td class="num">{{ a.size|filesize }}</td><td>{{ a.uploaded_at|date:"d/m/Y" }}</td></tr>
+    {% empty %}<tr><td colspan="4" class="lbl">{% translate "No files attached yet." %}</td></tr>{% endfor %}</tbody></table></div>
+  {% attachments obj %}
+</section>
+
+<section class="tabpanel" data-panel="notes" role="tabpanel" hidden>
+  <form method="post" action="{% if kind == 'customer' %}{% url 'contacts:customer_notes' obj.pk %}{% else %}{% url 'contacts:supplier_notes' obj.pk %}{% endif %}" class="form">{% csrf_token %}
+    <textarea name="notes" rows="6" aria-label="{% translate 'Notes' %}" {% if not can.contacts.edit %}readonly{% endif %}>{{ obj.notes }}</textarea>
+    {% if can.contacts.edit %}<div class="form-actions"><button class="btn primary" type="submit">{% translate "Save notes" %}</button></div>{% endif %}
+  </form>
+</section>
+<div hidden id="hubData" data-tab="{{ tab }}" data-batch-url="{% url 'core:batch_print' %}"></div>
 {% endblock %}

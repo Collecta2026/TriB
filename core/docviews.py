@@ -13,6 +13,9 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 
+REGISTRY = {}  # (ns, key) -> DocSpec, for the shared More actions (copy, delete, share)
+
+
 @dataclass
 class DocSpec:
     key: str                      # e.g. "invoice"
@@ -34,6 +37,13 @@ class DocSpec:
     editable_statuses: tuple = ("draft",)
     defaults: object = None       # callable(request) -> dict for a new document
     list_filter: object = None    # callable(request, qs) -> qs
+
+    voidable: bool = False        # posted documents have a "void" action on <key>_action
+    recurring_kind: str = ""      # "invoice" / "bill" when Make recurring applies
+    shareable: bool = True        # Share link / WhatsApp for the customer or supplier
+
+    def __post_init__(self):
+        REGISTRY.setdefault((self.ns, self.key), self)  # copies made with dataclasses.replace keep the original
 
     def url(self, kind, pk=None):
         names = {"list": f"{self.ns}:{self.key}s", "new": f"{self.ns}:{self.key}_new", "detail": f"{self.ns}:{self.key}",
@@ -62,22 +72,34 @@ def get_doc(request, spec, pk):
     return get_object_or_404(spec.model, pk=pk, company=request.company)
 
 
-def picker_data(company, source):
-    """Product and VAT data for the line-item autofill script."""
+def picker_data(company, source, party=""):
+    """Product and VAT data for the line-item autofill script, and the customer card for the header."""
     from inventory.models import Item
     from ledger.models import TaxRate
 
     items = {}
     for i in Item.objects.filter(company=company, is_active=True).select_related("sales_tax", "purchase_tax"):
         items[i.id] = {
-            "sku": i.sku, "name": i.name, "desc": i.name,
+            "sku": i.sku, "name": i.name, "desc": i.name, "barcode": i.barcode,
+            "search": f"{i.sku} {i.barcode} {i.name_en} {i.name_ar}".lower(),
             "price": str(i.sales_price if source == "sales" else i.purchase_cost),
             "tax": (i.sales_tax_id if source == "sales" else i.purchase_tax_id) or "",
             "tracking": i.tracking, "stocked": i.is_stocked,
         }
     taxes = {t.id: str(t.rate) for t in TaxRate.objects.filter(company=company)}
     default_tax = TaxRate.objects.filter(company=company, is_default=True).values_list("id", flat=True).first()
-    return json.dumps({"items": items, "taxes": taxes, "defaultTax": default_tax or ""})
+    parties = {}
+    if party == "customer":
+        from contacts.models import Customer
+        for c in Customer.objects.filter(company=company, is_active=True):
+            parties[c.id] = {"email": c.email, "bill": "\n".join(x for x in (c.name, c.address, c.city) if x),
+                             "ship": c.shipping_address, "days": c.payment_terms_days,
+                             "edit": reverse("contacts:customer_edit", args=[c.id])}
+    elif party == "supplier":
+        from contacts.models import Supplier
+        for s in Supplier.objects.filter(company=company, is_active=True):
+            parties[s.id] = {"days": s.payment_terms_days, "edit": reverse("contacts:supplier_edit", args=[s.id])}
+    return json.dumps({"items": items, "taxes": taxes, "defaultTax": default_tax or "", "parties": parties})
 
 
 def doc_list(request, spec, template="docs/list.html", extra=None):
@@ -97,10 +119,12 @@ def doc_list(request, spec, template="docs/list.html", extra=None):
         qs = qs.filter(cond)
     if spec.list_filter:
         qs = spec.list_filter(request, qs)
+    from .filters import apply as drill_filter
+    qs, drill = drill_filter(request, qs, party)
     page = Paginator(qs.prefetch_related("lines__tax_rate"), 40).get_page(request.GET.get("page"))
     rows = [{"obj": o, "url": spec.url("detail", o.pk), "cells": [(fn(o), kind) for _label, fn, kind in spec.columns]}
             for o in page]
-    ctx = {"spec": spec, "page": page, "rows": rows, "status": status, "q": q,
+    ctx = {"spec": spec, "page": page, "rows": rows, "status": status, "q": q, "drill": drill,
            "can_create": request.membership.has_perm(f"{spec.perm}.create")}
     ctx.update(extra or {})
     return render(request, template, ctx)
@@ -112,8 +136,9 @@ def doc_form(request, spec, doc=None, after_save=None, post_label=None):
     company = request.company
     if doc is None:
         require(request, spec, "create")
-        doc = spec.model(company=company, created_by=request.user, currency=company.base_currency,
-                         **(spec.defaults(request) if spec.defaults else {}))
+        names = {f.name for f in spec.model._meta.get_fields()}
+        defaults = {k: v for k, v in (spec.defaults(request) if spec.defaults else {}).items() if k in names}
+        doc = spec.model(company=company, created_by=request.user, **{"currency": company.base_currency, **defaults})
     else:
         require(request, spec, "edit")
         if doc.status not in spec.editable_statuses:
@@ -132,35 +157,53 @@ def doc_form(request, spec, doc=None, after_save=None, post_label=None):
         doc.save()
         formset.instance = doc
         formset.save()
+        from .doc_actions import saved_redirect
+
         if after_save and "post" in request.POST:
             response = after_save(request, doc)
             if response is not None:
+                then = request.POST.get("then", "")
+                if then in ("share", "whatsapp", "send") and doc.number:
+                    return redirect(f"{spec.url('detail', doc.pk)}?{then}=1")
                 return response
         messages.success(request, _("Saved."))
-        return redirect(spec.url("detail", doc.pk))
+        return saved_redirect(request, spec.url("detail", doc.pk), spec.url_new, spec.url_list)
+    from .doc_actions import bar_for
+
+    can_post = request.membership.has_perm(f"{spec.perm}.post") and after_save is not None
     return render(request, "docs/form.html", {
         "spec": spec, "doc": doc, "form": form, "formset": formset,
-        "picker": picker_data(company, spec.price_source),
-        "can_post": request.membership.has_perm(f"{spec.perm}.post") and after_save is not None,
-        "post_label": post_label,
+        "picker": picker_data(company, spec.price_source, spec.party),
+        "can_post": can_post, "post_label": post_label,
+        "bar": {**bar_for(request, spec, doc, "form"), "primary": post_label if can_post else "", "primary_name": "post"},
     })
 
 
 def doc_detail(request, spec, doc, extra=None):
+    from .doc_actions import bar_for
+
     require(request, spec, "view")
+    editable = doc.status in spec.editable_statuses and request.membership.has_perm(f"{spec.perm}.edit")
     ctx = {"spec": spec, "doc": doc, "lines": doc.lines.select_related("item", "tax_rate", "project", "account"),
-           "editable": doc.status in spec.editable_statuses and request.membership.has_perm(f"{spec.perm}.edit")}
+           "editable": editable, "bar": {**bar_for(request, spec, doc, "detail"),
+                                         "edit": spec.url("edit", doc.pk) if editable else ""}}
     ctx.update(extra or {})
     return render(request, "docs/detail.html", ctx)
 
 
 def doc_print(request, spec, doc, extra=None):
+    """Print / PDF. ?delivery=1 prints a delivery note (no prices); ?embed=1 is the bare page for previews."""
+    from .doc_actions import print_context
+
     require(request, spec, "view")
-    ctx = {"spec": spec, "doc": doc, "lines": doc.lines.select_related("item", "tax_rate"),
-           "party": getattr(doc, spec.party, None) if spec.party else None,
-           "words_en": doc.words("en"), "words_ar": doc.words("ar")}
+    ctx = print_context(spec, doc, delivery=request.GET.get("delivery") == "1" and spec.party == "customer",
+                        company=request.company)
     ctx.update(extra or {})
-    return render(request, "docs/print.html", ctx)
+    embed = request.GET.get("embed") == "1"
+    response = render(request, "docs/shared.html" if embed else "docs/print.html", {**ctx, "embed": embed})
+    if embed:
+        response["X-Frame-Options"] = "SAMEORIGIN"  # shown inside Review and send
+    return response
 
 
 def action_redirect(request, spec, doc, fn, success, *args):

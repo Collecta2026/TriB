@@ -1,0 +1,6 @@
+{% load i18n trib %}<div class="bh"><h3>{% translate "Customer orders" %}</h3><a class="lbl" href="{% url 'sales:orders' %}?status=open">{% blocktranslate count n=orders.count %}{{ n }} open{% plural %}{{ n }} open{% endblocktranslate %}</a></div>
+<div class="rows">{% for r in orders.rows %}<a class="row" href="{% url 'sales:order' r.o.pk %}"><div class="bico">{% include "partials/icon.html" with name="sales" %}</div>
+  <div><div class="nm">{{ r.o.number|default:_("Draft") }} · {{ r.o.customer.name }}</div><div class="sub">{{ r.o.date|date:"d/m/Y" }} · {{ r.o.get_status_display }}</div></div>
+  <div class="amt m">{{ r.open|money:r.o.currency }}</div></a>
+{% empty %}<p class="lbl">{% translate "No open sales orders." %}</p>{% endfor %}</div>
+<div class="bfoot"><a class="link" href="{% url 'sales:orders' %}?status=open">{% translate "View all" %}</a>{% if can.sales.create %}<a class="link" href="{% url 'sales:order_new' %}">{% translate "New order" %}</a>{% endif %}</div>

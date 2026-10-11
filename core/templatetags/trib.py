@@ -128,3 +128,51 @@ def state_label(state):
 def filesize(n):
     n = int(n or 0)
     return f"{n / 1048576:.1f} MB" if n >= 1048576 else f"{max(1, n // 1024)} KB"
+
+
+@register.simple_tag
+def report_periods():
+    from reports.periods import PERIODS
+
+    return PERIODS
+
+
+@register.simple_tag(takes_context=True)
+def report_period_key(context):
+    """The period the report view resolved (This month, Last year… or 'custom' for typed dates)."""
+    return getattr(context["request"], "report_period", "custom")
+
+
+@register.filter
+def sub(value, other):
+    try:
+        return Decimal(value) - Decimal(other)
+    except (InvalidOperation, TypeError, ValueError):
+        return ""
+
+
+@register.filter
+def is_number(value):
+    return isinstance(value, (int, float, Decimal)) and not isinstance(value, bool)
+
+
+HEADER_GROUPS = [
+    ("party", ("customer", "supplier", "invoice", "bill", "credit_note")),
+    ("email", ("email_to", "email_cc", "email_bcc")),
+    ("address", ("bill_to", "ship_to")),
+    ("ship", ("ship_via", "ship_date", "tracking_no")),
+    ("dates", ("terms", "date", "due_date", "valid_until", "expected_date", "deposit_to")),
+    ("extra", ("tags", "prices_include_tax")),
+    ("notes", ("notes",)),
+]
+
+
+@register.simple_tag
+def header_groups(form):
+    """Split a document header form into the QuickBooks layout blocks; everything else goes to "more"."""
+    out, used = {}, set()
+    for key, names in HEADER_GROUPS:
+        out[key] = [form[n] for n in names if n in form.fields and not form.fields[n].widget.is_hidden]
+        used.update(names)
+    out["more"] = [f for f in form.visible_fields() if f.name not in used]
+    return out

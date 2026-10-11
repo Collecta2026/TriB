@@ -1,0 +1,12 @@
+{% load i18n trib %}<div class="bh"><h3>{% translate "Sales" %}</h3><span class="lbl">{% blocktranslate with d=sales.days %}Last {{ d }} days{% endblocktranslate %}</span></div>
+<div class="kv"><a class="kpi-link" href="{% url 'reports:sales_customer' %}?period=custom&from={{ sales.from|date:'Y-m-d' }}&to={{ today|date:'Y-m-d' }}"><span class="lbl">{% translate "Total sales" %}</span><span class="big m">{{ sales.total|money:company.base_currency }}</span></a>
+  {% if sales.total %}<a class="pill good" href="{% url 'reports:sales_by_item' %}?from={{ sales.from|date:'Y-m-d' }}&to={{ today|date:'Y-m-d' }}">{% translate "Gross margin" %} <span class="m">{{ sales.margin|num:0 }}</span></a>{% endif %}</div>
+<div class="cols" style="gap:14px">
+  <div><div class="lbl" style="margin-bottom:4px">{% translate "By category" %}</div>
+    <table class="tbl mini"><tbody>{% for g in sales.groups %}<tr data-href="{% url 'reports:sales_by_item' %}?from={{ sales.from|date:'Y-m-d' }}&to={{ today|date:'Y-m-d' }}"><td>{{ g.category.name|default:_("Uncategorised") }}</td><td class="num lbl">{{ g.qty|num:0 }} {% translate "units" %}</td><td class="num m"><b>{{ g.revenue|num:0 }}</b></td></tr>
+    {% empty %}<tr><td class="lbl">{% translate "No sales in this period." %}</td></tr>{% endfor %}</tbody></table></div>
+  <div><div class="lbl" style="margin-bottom:4px">{% translate "Best sellers" %}</div>
+    <table class="tbl mini"><tbody>{% for r in sales.top %}<tr {% if r.item %}data-href="{% url 'inventory:item' r.item.pk %}"{% endif %}><td>{% if r.item %}{{ r.item.sku }} · {{ r.item.name|truncatechars:28 }}{% else %}{{ r.label|truncatechars:34 }}{% endif %}</td><td class="num lbl">{{ r.qty|num:0 }}</td><td class="num m"><b>{{ r.revenue|num:0 }}</b></td></tr>
+    {% empty %}<tr><td class="lbl">—</td></tr>{% endfor %}</tbody></table></div>
+</div>
+<div class="bfoot">{% if can.reports.view %}<a class="link" href="{% url 'reports:sales_by_item' %}?from={{ sales.from|date:'Y-m-d' }}&to={{ today|date:'Y-m-d' }}">{% translate "Sales by product" %}</a><a class="link" href="{% url 'reports:sales_customer' %}?from={{ sales.from|date:'Y-m-d' }}&to={{ today|date:'Y-m-d' }}">{% translate "Sales by customer" %}</a>{% endif %}</div>

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Subscriptions and billing" %}{% endblock %}
+{% block content %}{% get_current_language as LANGUAGE_CODE %}
+<div class="page-head"><div><h1>{% translate "Subscriptions and billing" %}</h1><div class="sub">{{ company.name }}</div></div></div>
+<div class="kpis">
+  <div class="kpi"><span class="lbl">{% translate "Plan" %}</span><span class="n">{% if LANGUAGE_CODE == "ar" %}{{ product.name_ar }}{% else %}{{ product.name_en }}{% endif %} · {% translate "Business" %}</span></div>
+  <div class="kpi"><span class="lbl">{% translate "Active users" %}</span><span class="n">{{ users }}</span></div>
+  <div class="kpi"><span class="lbl">{% translate "Files stored" %}</span><span class="n">{{ storage.n|default:0 }}</span><span class="lbl">{{ storage.size|default:0|filesize }}</span></div>
+</div>
+<section class="panel"><h2>{% translate "Add-ons" %}</h2>
+  <table class="tbl"><tbody>{% for label, on in addons %}<tr><td>{{ label }}</td><td class="num">{% if on %}<span class="pill good">{% translate "Included" %}</span>{% else %}<span class="pill">{% translate "Not included" %}</span>{% endif %}</td></tr>{% endfor %}</tbody></table>
+  <p class="lbl">{% translate "Billing and plan changes are handled by Heliolink. Contact your Heliolink account manager to add users or add-ons." %}</p></section>
+{% endblock %}

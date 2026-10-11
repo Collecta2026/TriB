@@ -5,6 +5,7 @@ from decimal import Decimal
 from django.db.models import Count, Q, Sum
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 
 from approvals.services import pending_for
 from banking.models import Cheque
@@ -47,14 +48,18 @@ def expenses_block(company, today):
     start, prior_start = today - timedelta(days=29), today - timedelta(days=59)
     current = profit_and_loss(company, start, today)
     prior = profit_and_loss(company, prior_start, start - timedelta(days=1))
+    from django.urls import reverse
+
+    period = f"from={start:%Y-%m-%d}&to={today:%Y-%m-%d}"
     items = sorted(current["expense"], key=lambda x: x[1], reverse=True)
-    top = [(a.name, v) for a, v in items[:4]]
+    top = [(a.name, v, f"{reverse('reports:statement')}?account={a.pk}&{period}") for a, v in items[:4]]
     rest = sum((v for _a, v in items[4:]), ZERO)
+    detail = f"{reverse('reports:pl_detail')}?{period}"
     if rest:
-        top.append((_("Other"), rest))
+        top.append((_("Other"), rest, detail))
     total = current["total_expense"]
     change = float((total - prior["total_expense"]) / prior["total_expense"] * 100) if prior["total_expense"] else None
-    return {"total": total, "items": top, "change": change}
+    return {"total": total, "items": top, "change": change, "url": detail}
 
 
 def bank_block(company):
@@ -67,15 +72,46 @@ def bank_block(company):
     return {"rows": rows, "total": total}
 
 
-def cash_trend(company, today, weeks=12):
+def cash_flow_block(company, today, months=12):
+    """Cash and bank over the last 12 months: month-end balance, money in and money out. Moves between your own
+    accounts (transfers, deposits) cancel out within one entry, so they count as neither in nor out."""
+    from django.urls import reverse
+
+    from ledger.models import JournalLine
+    from reports.extra import month_end
+
     cash_accounts = list(Account.objects.filter(company=company, subtype__in=("bank", "cash"), is_group=False))
-    labels, values = [], []
-    for i in range(weeks, -1, -1):
-        day = today - timedelta(weeks=i)
-        totals = balances(company, date_to=day, accounts=cash_accounts)
-        values.append(float(sum((d - c for d, c in totals.values()), ZERO)))
-        labels.append(day.isoformat())
-    return {"labels": labels, "values": values, "today": values[-1] if values else 0}
+    start = date(today.year, today.month, 1)
+    for _i in range(months - 1):
+        start = date(start.year - (start.month == 1), (start.month - 2) % 12 + 1, 1)
+    opening = balances(company, date_to=start - timedelta(days=1), accounts=cash_accounts)
+    balance = sum((d - c for d, c in opening.values()), ZERO)
+    per_entry = (JournalLine.objects.filter(account__in=cash_accounts, entry__date__gte=start, entry__date__lte=today)
+                 .values("entry_id", "entry__date").annotate(d=Sum("debit"), c=Sum("credit")))
+    flows = {}
+    for e in per_entry:
+        key = e["entry__date"].replace(day=1)
+        net = e["d"] - e["c"]
+        f = flows.setdefault(key, [ZERO, ZERO])
+        if net > 0:
+            f[0] += net
+        else:
+            f[1] -= net
+    rows, m = [], start
+    for _i in range(months):
+        money_in, money_out = flows.get(m, [ZERO, ZERO])
+        balance += money_in - money_out
+        end = min(month_end(m), today)
+        rows.append({"month": m, "in": money_in, "out": money_out, "balance": balance,
+                     "url": f"{reverse('reports:cash_flows')}?from={m:%Y-%m-%d}&to={end:%Y-%m-%d}"})
+        m = date(m.year + (m.month == 12), m.month % 12 + 1, 1)
+    return {
+        "rows": rows, "today": balance,
+        "money_in": sum((r["in"] for r in rows), ZERO), "money_out": sum((r["out"] for r in rows), ZERO),
+        "chart": {"labels": [r["month"].isoformat() for r in rows], "balance": [float(r["balance"]) for r in rows],
+                  "in": [float(r["in"]) for r in rows], "out": [float(r["out"]) for r in rows],
+                  "urls": [r["url"] for r in rows]},
+    }
 
 
 def cheques_block(company, today):
@@ -88,8 +124,14 @@ def cheques_block(company, today):
         ("week", _("Due this week"), open_.filter(due_date__lte=today + timedelta(days=7)).aggregate(n=Count("id"), a=Sum("amount")), "warn"),
         ("bounced", _("Bounced this month"), received.filter(status="bounced", bounced_on__gte=month_start).aggregate(n=Count("id"), a=Sum("amount")), "crit"),
     ]
+    from django.urls import reverse
+
+    base = reverse("banking:cheques")
+    urls = {"in_safe": f"{base}?status=in_safe", "under_collection": f"{base}?status=under_collection",
+            "week": f"{base}?due=7", "bounced": f"{base}?status=bounced&bounced=month"}
     return {
-        "tiles": [{"key": k, "label": label, "n": agg["n"] or 0, "a": agg["a"] or ZERO, "cls": cls} for k, label, agg, cls in tiles],
+        "tiles": [{"key": k, "label": label, "n": agg["n"] or 0, "a": agg["a"] or ZERO, "cls": cls, "url": urls[k]}
+                  for k, label, agg, cls in tiles],
         "next": open_.order_by("due_date").select_related("currency")[:3],
         "due_week": tiles[2][2]["n"] or 0, "due_week_amount": tiles[2][2]["a"] or ZERO,
         "bounced": tiles[3][2]["n"] or 0,
@@ -104,7 +146,7 @@ def sales_block(company, today, days=90):
     items = sorted((r for g in groups for r in g["items"]), key=lambda r: -r["revenue"])[:6]
     total = sum((g["revenue"] for g in groups), ZERO)
     return {"groups": groups[:6], "top": items, "total": total,
-            "margin": sum((g["margin"] for g in groups), ZERO), "days": days}
+            "margin": sum((g["margin"] for g in groups), ZERO), "days": days, "from": today - timedelta(days=days)}
 
 
 def invoices_block(company, today):
@@ -122,6 +164,7 @@ def invoices_block(company, today):
     for p in CustomerPayment.objects.filter(company=company, status="posted", date__gte=today - timedelta(days=29)):
         paid30 += p.amount * p.rate
     return {"unpaid": unpaid, "overdue": overdue, "not_due": unpaid - overdue, "n_overdue": n_overdue, "paid30": paid30,
+            "paid_from": today - timedelta(days=29),
             "overdue_pct": float(overdue / unpaid * 100) if unpaid else 0}
 
 
@@ -171,72 +214,198 @@ def stock_block(company, today):
             "expired": [b for b in batches if b["state"] == "expired"], "soon": [b for b in batches if b["state"] == "soon"]}
 
 
-def feed(company, user, today, approvals, cheques, extra=None):
-    items = list(extra or [])
-    if approvals:
-        items.append(("var(--crit)", _("%(n)s documents are waiting for your approval") % {"n": len(approvals)}, "approvals:inbox", _("Review")))
-    if cheques["due_week"]:
-        items.append(("var(--warn)", _("%(n)s received cheques are due within 7 days") % {"n": cheques["due_week"]}, "banking:cheques", _("View")))
-    if cheques["bounced"]:
-        items.append(("var(--crit)", _("%(n)s cheques bounced this month") % {"n": cheques["bounced"]}, "banking:cheques", _("View")))
-    rejected = Voucher.objects.filter(company=company, created_by=user, status="rejected").count()
-    if rejected:
-        items.append(("var(--crit)", _("%(n)s of your vouchers were rejected and need changes") % {"n": rejected}, "vouchers:list", _("Fix")))
-    drafts = Voucher.objects.filter(company=company, created_by=user, status="draft").count()
-    if drafts:
-        items.append(("var(--brand)", _("You have %(n)s draft vouchers") % {"n": drafts}, "vouchers:list", _("Open")))
-    missing = [c.code for c in company.currencies.exclude(code=company.base_currency_id)
-               if not ExchangeRate.objects.filter(company=company, currency=c, date=today).exists()]
-    if missing:
-        items.append(("var(--warn)", _("No exchange rate saved for today: %(codes)s") % {"codes": ", ".join(missing)}, "core:settings", _("Add")))
-    return items
+def _money(amount, company):
+    return f"{company.base_currency_id} {amount:,.0f}"
 
 
-def build(company, user, membership):
+def _card(tone, icon, title, text, url, action, rows=None):
+    return {"tone": tone, "icon": icon, "title": title, "text": text, "url": url, "action": action, "rows": rows or []}
+
+
+def alerts(company, user, membership, today=None, approvals=None):
+    """Business feed cards (also the bell's alerts): approvals first, then what needs attention, then good news.
+    Each card links to the exact filtered list behind it."""
+    from django.urls import reverse
+
     from core.models import RecurringTemplate
 
-    today = timezone.localdate()
+    today = today or timezone.localdate()
     can = membership.has_perm
-    approvals = pending_for(user, company) if can("vouchers.approve") else []
-    cheques = cheques_block(company, today)
-    hour = timezone.localtime().hour
-    data = {
-        "greeting": _("Good morning") if hour < 12 else _("Good afternoon") if hour < 17 else _("Good evening"),
-        "pl": profit_block(company, today),
-        "exp": expenses_block(company, today),
-        "bank": bank_block(company),
-        "trend": cash_trend(company, today),
-        "approvals": approvals[:5],
-        "approvals_count": len(approvals),
-        "cheques": cheques,
-        "year": today.year,
-    }
-    extra = []
-    if can("sales.view"):
-        data.update(sales=sales_block(company, today), invoices=invoices_block(company, today),
-                    ar=receivables_block(company, today), orders=orders_block(company))
-        if data["invoices"]["n_overdue"]:
-            extra.append(("var(--crit)", _("%(n)s invoices are overdue") % {"n": data["invoices"]["n_overdue"]},
-                          "reports:ar_aging", _("Chase")))
-    if can("purchases.view"):
-        data["ap"] = payables_block(company, today)
-    if can("inventory.view"):
-        data["stock"] = stock_block(company, today)
-        if data["stock"]["expired"]:
-            extra.append(("var(--crit)", _("%(n)s batches in stock have expired") % {"n": len(data["stock"]["expired"])},
-                          "inventory:expiry", _("Write off")))
-        if data["stock"]["low_count"]:
-            extra.append(("var(--warn)", _("%(n)s products are at or below their reorder level") % {
-                "n": data["stock"]["low_count"]}, "inventory:overview", _("Reorder")))
+    cards = []
+    if approvals is None:
+        approvals = pending_for(user, company) if can("vouchers.approve") else []
+    if approvals:
+        rows = [{"label": f"{r.voucher.get_kind_display()} · {r.voucher.number}",
+                 "sub": r.voucher.party_name or r.voucher.description, "amount": r.voucher.total,
+                 "currency": r.voucher.currency, "url": reverse("vouchers:detail", args=[r.voucher.pk]),
+                 "approve": reverse("vouchers:action", args=[r.voucher.pk])} for r in approvals[:3]]
+        cards.append(_card("crit", "shield", _("Approvals"),
+                           _("%(n)s documents are waiting for your approval") % {"n": len(approvals)},
+                           reverse("approvals:inbox"), _("Review all"), rows))
     if can("payroll.approve") or can("payroll.authorise"):
         from payroll.models import PayrollRun
         waiting = PayrollRun.objects.filter(company=company, status__in=(
             ["prepared"] if can("payroll.approve") else []) + (["approved"] if can("payroll.authorise") else [])).count()
         if waiting:
-            extra.append(("var(--crit)", _("A payroll run is waiting for your sign-off"), "payroll:runs", _("Review")))
+            cards.append(_card("crit", "payroll", _("Payroll"), _("A payroll run is waiting for your sign-off"),
+                               reverse("payroll:runs"), _("Review")))
+    if can("sales.view"):
+        from sales.models import CustomerPayment, Invoice
+        overdue = [i for i in Invoice.objects.filter(company=company, status="posted", due_date__lt=today)
+                   .prefetch_related("lines__tax_rate") if i.balance_due > 0]
+        if overdue:
+            amount = sum((i.balance_due * i.rate for i in overdue), ZERO)
+            cards.append(_card("crit", "sales", _("Overdue invoices"), _("%(n)s invoices are overdue · %(a)s") % {
+                "n": len(overdue), "a": _money(amount, company)}, f"{reverse('sales:invoices')}?pay=overdue", _("Chase")))
+        week = CustomerPayment.objects.filter(company=company, status="posted", date__gte=today - timedelta(days=6))
+        agg = week.aggregate(n=Count("id"))
+        if agg["n"]:
+            total = sum((p.amount * p.rate for p in week), ZERO)
+            cards.append(_card("good", "wallet", _("Customer payments"),
+                               _("%(n)s payments received in the last 7 days, %(a)s in total") % {
+                                   "n": agg["n"], "a": f"{total:,.0f} {company.base_currency_id}"},
+                               f"{reverse('sales:payments')}?from={today - timedelta(days=6):%Y-%m-%d}", _("View")))
+    if can("purchases.view"):
+        from purchases.models import Bill
+        due = [b for b in Bill.objects.filter(company=company, status="posted", due_date__lte=today + timedelta(days=7))
+               .prefetch_related("lines__tax_rate") if b.balance_due > 0]
+        if due:
+            amount = sum((b.balance_due * b.rate for b in due), ZERO)
+            cards.append(_card("warn", "wallet", _("Bills to pay"), _("%(n)s bills due within 7 days or overdue · %(a)s") % {
+                "n": len(due), "a": _money(amount, company)}, f"{reverse('purchases:bills')}?pay=due7", _("Pay bills")))
+    if can("cheques.view"):
+        received = Cheque.objects.filter(company=company, direction="in")
+        week = list(received.filter(status__in=("in_safe", "under_collection"), due_date__lte=today + timedelta(days=7)))
+        if week:
+            cards.append(_card("warn", "cheque", _("Cheques due"), _("%(n)s cheques due this week · %(a)s") % {
+                "n": len(week), "a": _money(sum((c.base_amount for c in week), ZERO), company)},
+                f"{reverse('banking:cheques')}?due=7", _("View")))
+        bounced = received.filter(status="bounced", bounced_on__gte=today.replace(day=1)).count()
+        if bounced:
+            cards.append(_card("crit", "cheque", _("Returned cheques"), _("%(n)s cheques bounced this month") % {"n": bounced},
+                               f"{reverse('banking:cheques')}?status=bounced&bounced=month", _("View")))
+    if can("inventory.view"):
+        from inventory.services import batches_on_hand
+        batches = batches_on_hand(company, expiring_within=60, today=today)
+        expired = sum(1 for b in batches if b["state"] == "expired")
+        soon = len(batches) - expired
+        if batches:
+            cards.append(_card("crit" if expired else "warn", "box", _("Stock expiry"),
+                               _("%(soon)s batches expire within 60 days, %(n)s expired") % {"soon": soon, "n": expired},
+                               f"{reverse('inventory:expiry')}?within={'expired' if expired and not soon else '60'}", _("View")))
+    if company.minimum_cash is not None and can("reports.view"):
+        from reports.forecast import cash_forecast
+        fc = cash_forecast(company, today)
+        if fc["first_below"]:
+            cards.insert(1 if cards and cards[0]["icon"] == "shield" else 0, _card(
+                "warn", "trend", _("Cash forecast"), _("Cash falls below your %(m)s minimum in the week of %(d)s") % {
+                    "m": _money(company.minimum_cash, company), "d": f"{fc['first_below']['start']:%d/%m}"},
+                reverse("reports:cash_forecast"), _("See forecast")))
+    rejected = Voucher.objects.filter(company=company, created_by=user, status="rejected").count()
+    if rejected:
+        cards.append(_card("crit", "alert", _("Rejected vouchers"),
+                           _("%(n)s of your vouchers were rejected and need changes") % {"n": rejected},
+                           f"{reverse('vouchers:list')}?status=rejected", _("Fix")))
+    drafts = Voucher.objects.filter(company=company, created_by=user, status="draft").count()
+    if drafts:
+        cards.append(_card("brand", "file", _("Drafts"), _("You have %(n)s draft vouchers") % {"n": drafts},
+                           f"{reverse('vouchers:list')}?status=draft", _("Open")))
     if can("vouchers.create"):
         due = RecurringTemplate.objects.filter(company=company, is_active=True, next_date__lte=today).count()
         if due:
-            extra.append(("var(--brand)", _("%(n)s recurring transactions are due") % {"n": due}, "core:recurring", _("Create")))
-    data["feed"] = feed(company, user, today, approvals, cheques, extra)
+            cards.append(_card("brand", "list", _("Recurring transactions"),
+                               _("%(n)s recurring transactions are due") % {"n": due}, reverse("core:recurring"), _("Create")))
+    missing = [c.code for c in company.currencies.exclude(code=company.base_currency_id)
+               if not ExchangeRate.objects.filter(company=company, currency=c, date=today).exists()]
+    if missing:
+        cards.append(_card("warn", "percent", _("Exchange rates"),
+                           _("No exchange rate saved for today: %(codes)s") % {"codes": ", ".join(missing)},
+                           reverse("core:settings"), _("Add")))
+    return cards
+
+
+# Home page widgets: key, title, default width (of 4 columns), permission needed (None = everyone).
+WIDGETS = [
+    ("cashflow", gettext_lazy("Cash flow"), 2, None),
+    ("pl", gettext_lazy("Profit & loss"), 1, None),
+    ("bank", gettext_lazy("Bank accounts"), 1, None),
+    ("invoices", gettext_lazy("Invoices"), 1, "sales.view"),
+    ("expenses", gettext_lazy("Expenses"), 1, None),
+    ("ar", gettext_lazy("Accounts receivable"), 1, "sales.view"),
+    ("ap", gettext_lazy("Accounts payable"), 1, "purchases.view"),
+    ("sales", gettext_lazy("Sales"), 2, "sales.view"),
+    ("orders", gettext_lazy("Customer orders"), 1, "sales.view"),
+    ("stock", gettext_lazy("Stock alerts"), 1, "inventory.view"),
+    ("cheques", gettext_lazy("Post-dated cheques"), 1, None),
+]
+WIDGET_KEYS = [w[0] for w in WIDGETS]
+
+
+def layout_for(saved, membership):
+    """The user's saved order, widths and hidden widgets, plus any widget added since (shown at the end)."""
+    available = {key: (title, width) for key, title, width, perm in WIDGETS if perm is None or membership.has_perm(perm)}
+    out, seen = [], set()
+    for w in saved or []:
+        key = w.get("key") if isinstance(w, dict) else None
+        if key in available and key not in seen:
+            seen.add(key)
+            width = w.get("w") if isinstance(w.get("w"), int) else available[key][1]
+            out.append({"key": key, "title": available[key][0], "w": max(1, min(4, width)), "hidden": bool(w.get("hidden"))})
+    for key, (title, width) in available.items():
+        if key not in seen:
+            out.append({"key": key, "title": title, "w": width, "hidden": False})
+    return out
+
+
+def clean_layout(posted):
+    """Validate a layout sent from the Customise screen."""
+    out, seen = [], set()
+    for w in posted if isinstance(posted, list) else []:
+        if not isinstance(w, dict) or w.get("key") not in WIDGET_KEYS or w["key"] in seen:
+            continue
+        seen.add(w["key"])
+        width = w.get("w")
+        out.append({"key": w["key"], "w": max(1, min(4, width)) if isinstance(width, int) else 1,
+                    "hidden": bool(w.get("hidden"))})
+    return out
+
+
+def build(company, user, membership):
+    from core.models import UserPreference
+
+    today = timezone.localdate()
+    can = membership.has_perm
+    pref = UserPreference.for_user(user, company)
+    widgets = layout_for(pref.dashboard_layout, membership)
+    keys = {w["key"] for w in widgets}
+    approvals = pending_for(user, company) if can("vouchers.approve") else []
+    hour = timezone.localtime().hour
+    data = {
+        "greeting": _("Good morning") if hour < 12 else _("Good afternoon") if hour < 17 else _("Good evening"),
+        "widgets": widgets, "year": today.year, "today": today,
+        "feed_all": alerts(company, user, membership, today, approvals),
+    }
+    data["feed"] = data["feed_all"][:6]
+    if "pl" in keys:
+        data["pl"] = profit_block(company, today)
+    if "expenses" in keys:
+        data["exp"] = expenses_block(company, today)
+    if "bank" in keys or "cashflow" in keys:
+        data["bank"] = bank_block(company)
+    if "cashflow" in keys:
+        data["flow"] = cash_flow_block(company, today)
+    if "cheques" in keys:
+        data["cheques"] = cheques_block(company, today)
+    if "sales" in keys:
+        data["sales"] = sales_block(company, today)
+    if "invoices" in keys:
+        data["invoices"] = invoices_block(company, today)
+    if "ar" in keys:
+        data["ar"] = receivables_block(company, today)
+    if "orders" in keys:
+        data["orders"] = orders_block(company)
+    if "ap" in keys:
+        data["ap"] = payables_block(company, today)
+    if "stock" in keys:
+        data["stock"] = stock_block(company, today)
     return data

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="page-head"><div>{% if back %}<div class="crumbs"><a href="{% url back.0 %}">{{ back.1 }}</a></div>{% endif %}<h1>{{ title }}</h1>{% if intro %}<div class="sub">{{ intro }}</div>{% endif %}</div></div>
+<div class="panel" style="max-width:860px">
+  <form method="post" class="form">{% csrf_token %}
+    {% include "partials/form_fields.html" %}
+    {% if can_save is None or can_save %}<div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button></div>{% endif %}
+  </form>
+</div>
+{% endblock %}

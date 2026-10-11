@@ -1,0 +1,6 @@
+{% load i18n trib %}<div class="bh"><h3>{% translate "Stock alerts" %}</h3><a class="lbl" href="{% url 'inventory:stock' %}">{% translate "Value" %} <span class="m">{{ stock.value|num:0 }}</span></a></div>
+<div class="tiles"><a class="tile {% if stock.expired %}crit{% endif %}" href="{% url 'inventory:expiry' %}?within=expired"><span class="lbl">{% translate "Expired batches" %}</span><span class="n">{{ stock.expired|length }}</span></a>
+  <a class="tile {% if stock.soon %}warn{% endif %}" href="{% url 'inventory:expiry' %}?within=90"><span class="lbl">{% translate "Expiring in 90 days" %}</span><span class="n">{{ stock.soon|length }}</span></a></div>
+<div class="rows">{% for i, q in stock.low %}<a class="row" href="{% url 'inventory:item' i.pk %}"><div class="bico">{% include "partials/icon.html" with name="box" %}</div><div><div class="nm">{{ i.sku }} · {{ i.name }}</div><div class="sub">{% translate "Reorder level" %} {{ i.reorder_level|num:0 }}</div></div><div class="amt">{{ q|num:0 }}</div></a>
+{% empty %}<p class="lbl">{% translate "Nothing needs reordering." %}</p>{% endfor %}</div>
+<div class="bfoot"><a class="link" href="{% url 'inventory:overview' %}">{% translate "Inventory overview" %}</a>{% if can.inventory.view %}<a class="link" href="{% url 'reports:stock_detail' %}">{% translate "Valuation detail" %}</a>{% endif %}</div>

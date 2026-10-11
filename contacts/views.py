@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 
@@ -59,27 +60,60 @@ def contact_form(request, kind, pk=None):
 
 
 def contact_detail(request, kind, pk):
+    from django.db.models import Q
+
+    from core.attachments import for_object
+    from core.docviews import REGISTRY
+    from core.models import Attachment, AuditLog, RecurringTemplate
+
+    from . import hub
+
     cfg = KINDS[kind]
     obj = get_object_or_404(cfg["model"], pk=pk, company=request.company)
-    ctx = {"kind": kind, "cfg": cfg, "obj": obj}
-    if kind == "customer":
-        from sales.models import CustomerPayment, Invoice, Quotation, SalesOrder
-        from sales.services import customer_balance
-        ctx.update(balance=customer_balance(obj),
-                   open_docs=[i for i in Invoice.objects.filter(customer=obj, status="posted") if i.balance_due > 0],
-                   invoices=Invoice.objects.filter(customer=obj).order_by("-date")[:10],
-                   orders=SalesOrder.objects.filter(customer=obj).order_by("-date")[:10],
-                   quotes=Quotation.objects.filter(customer=obj).order_by("-date")[:5],
-                   payments=CustomerPayment.objects.filter(customer=obj).order_by("-date")[:10])
-    else:
-        from purchases.models import Bill, PurchaseOrder, SupplierPayment
-        from purchases.services import supplier_balance
-        ctx.update(balance=supplier_balance(obj),
-                   open_docs=[b for b in Bill.objects.filter(supplier=obj, status="posted") if b.balance_due > 0],
-                   bills=Bill.objects.filter(supplier=obj).order_by("-date")[:10],
-                   orders=PurchaseOrder.objects.filter(supplier=obj).order_by("-date")[:10],
-                   payments=SupplierPayment.objects.filter(supplier=obj).order_by("-date")[:10])
-    return render(request, "contacts/detail.html", ctx)
+    can = request.membership.has_perm
+    all_rows = hub.customer_rows(obj, can) if kind == "customer" else hub.supplier_rows(obj, can)
+    rows, filters = hub.filtered(all_rows, request)
+    overdue = sum((r.get("doc_due", 0) for r in all_rows if r["status"] == "overdue"), 0)
+    ids = hub.related_ids(all_rows)
+    # Documents & files: the contact's own files and everything attached to its documents.
+    files_q = Q(target=obj._meta.label_lower, target_id=obj.pk)
+    for (ns, key), pks in ids.items():
+        spec = REGISTRY.get((ns, key))
+        if spec:
+            files_q |= Q(target=spec.model._meta.label_lower, target_id__in=pks)
+    files = Attachment.objects.filter(files_q, company=request.company).defer("data").order_by("-uploaded_at")[:100]
+    activity_q = Q(object_type=obj._meta.label, object_id=str(obj.pk))
+    for (ns, key), pks in ids.items():
+        spec = REGISTRY.get((ns, key))
+        if spec:
+            activity_q |= Q(object_type=spec.model._meta.label, object_id__in=[str(x) for x in pks])
+    activity = AuditLog.objects.filter(activity_q, company=request.company).select_related("user")[:60] \
+        if can("audit.view") else []
+    recurring_kind = "invoice" if kind == "customer" else "bill"
+    recurring_ids = ids.get(("sales", "invoice") if kind == "customer" else ("purchases", "bill"), [])
+    recurring = RecurringTemplate.objects.filter(company=request.company, kind=recurring_kind, source_id__in=recurring_ids)
+    projects = obj.projects.all() if kind == "customer" else []
+    return render(request, "contacts/detail.html", {
+        "kind": kind, "cfg": cfg, "obj": obj, "rows": rows, "filters": filters, "total_rows": len(all_rows),
+        "types": hub.TYPES[kind], "statuses": hub.STATUSES, "periods": hub.PERIODS,
+        "balance": hub.summary(kind, obj, [])["balance"], "overdue": overdue,
+        "files": files, "activity": activity, "recurring": recurring, "projects": projects,
+        "tab": request.GET.get("tab", "transactions"), "contact_files": for_object(obj),
+    })
+
+
+@require_perm("contacts.edit")
+def contact_notes(request, kind, pk):
+    from django.views.decorators.http import require_POST  # noqa: F401 (POST only, checked below)
+
+    cfg = KINDS[kind]
+    obj = get_object_or_404(cfg["model"], pk=pk, company=request.company)
+    if request.method == "POST":
+        obj.notes = request.POST.get("notes", "")[:5000]
+        obj.save(update_fields=["notes"])
+        AuditLog.record(request.company, request.user, f"{kind}.notes", obj, obj.name_en, ip=client_ip(request))
+        messages.success(request, _("Notes saved."))
+    return redirect(f"{reverse(f'contacts:{kind}', args=[obj.pk])}?tab=notes")
 
 
 customers = require_perm("contacts.view")(lambda r: contact_list(r, "customer"))
@@ -90,3 +124,5 @@ suppliers = require_perm("contacts.view")(lambda r: contact_list(r, "supplier"))
 supplier_new = require_perm("contacts.create")(lambda r: contact_form(r, "supplier"))
 supplier_edit = require_perm("contacts.edit")(lambda r, pk: contact_form(r, "supplier", pk))
 supplier = require_perm("contacts.view")(lambda r, pk: contact_detail(r, "supplier", pk))
+customer_notes = lambda r, pk: contact_notes(r, "customer", pk)  # noqa: E731
+supplier_notes = lambda r, pk: contact_notes(r, "supplier", pk)  # noqa: E731

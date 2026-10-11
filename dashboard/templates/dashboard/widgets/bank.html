@@ -1,0 +1,5 @@
+{% load i18n trib %}<div class="bh"><h3>{% translate "Bank accounts" %}</h3><span class="lbl">{% translate "As of today" %}</span></div>
+<div class="rows">{% for r in bank.rows %}<a class="row" href="{% url 'reports:statement' %}?account={{ r.acc.gl_account_id }}&period=this_month"><div class="bico">{% if r.acc.kind == "cash" %}{% include "partials/icon.html" with name="wallet" %}{% else %}{{ r.acc.bank.short_name|default:"BK" }}{% endif %}</div>
+  <div><div class="nm">{{ r.acc.name }}</div><div class="sub">{% translate "Chart account" %} {{ r.acc.gl_account.code }}</div></div><div class="amt m">{{ r.own|money:r.acc.currency }}</div></a>
+{% empty %}<p class="lbl">{% translate "No bank accounts yet." %}</p>{% endfor %}</div>
+<div class="bfoot"><a class="kv" href="{% url 'banking:accounts' %}" style="color:inherit"><span class="lbl">{% translate "Total available" %}</span> <b class="m">{{ bank.total|money:company.base_currency }}</b></a>{% if can.banking.view %}<a class="link" href="{% url 'banking:transactions' %}">{% translate "Bank transactions" %}</a>{% endif %}</div>

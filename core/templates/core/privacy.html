@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Privacy" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Privacy" %}</h1><div class="sub">{% translate "How TriB looks after your data, and your privacy choices." %}</div></div></div>
+<div class="cols">
+  <section class="panel"><h2>{% translate "Your privacy choices" %}</h2>
+    <form method="post" class="form">{% csrf_token %}
+      <label class="check"><input type="checkbox" name="blur" {% if choices.blur %}checked{% endif %}> {% translate "Hide amounts on the dashboard when I open it (privacy mode)" %}</label>
+      <p class="lbl">{% translate "Useful when others can see your screen. Select Privacy on the home page to show or hide amounts at any time." %}</p>
+      <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button></div>
+    </form></section>
+  <section class="panel"><h2>{% translate "How your data is handled" %}</h2>
+    <ul class="plain">
+      <li>{% translate "Your company's records are kept in its own space. Only users you add can see them, and only what their role allows." %}</li>
+      <li>{% translate "Every change to a posted record is kept in the audit log." %}</li>
+      <li>{% translate "Files you attach are stored with your records, not shared with anyone." %}</li>
+      <li>{% translate "TriB does not sell data or show advertising, and uses no tracking cookies." %}</li>
+    </ul>
+    <p><a href="{% url 'core:cookies' %}">{% translate "See the cookies TriB uses" %}</a></p></section>
+</div>
+{% endblock %}

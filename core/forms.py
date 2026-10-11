@@ -43,7 +43,7 @@ class CompanyForm(forms.ModelForm):
     class Meta:
         model = Company
         fields = ["name_en", "name_ar", "tax_id", "commercial_register", "phone", "email", "address",
-                  "fiscal_year_start_month", "lock_date", "auto_post_on_approval", "enforce_sod"]
+                  "fiscal_year_start_month", "lock_date", "auto_post_on_approval", "enforce_sod", "minimum_cash"]
         widgets = {"lock_date": forms.DateInput(attrs={"type": "date"}), "address": forms.Textarea(attrs={"rows": 2})}
 
 

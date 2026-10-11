@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Cookies" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Cookies" %}</h1><div class="sub">{% translate "TriB uses only the cookies it needs to work. There are no advertising or tracking cookies." %}</div></div></div>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Name" %}</th><th>{% translate "Why it is needed" %}</th><th>{% translate "How long it lasts" %}</th></tr></thead>
+  <tbody>
+    <tr><td><code>sessionid</code></td><td>{% translate "Keeps you signed in." %}</td><td>{% blocktranslate %}Until you sign out or close the browser (at most {{ session_hours }} hours){% endblocktranslate %}</td></tr>
+    <tr><td><code>csrftoken</code></td><td>{% translate "Protects your forms from being sent by other websites." %}</td><td>{% translate "1 year" %}</td></tr>
+    <tr><td><code>django_language</code></td><td>{% translate "Remembers English or Arabic." %}</td><td>{% translate "1 year" %}</td></tr>
+  </tbody>
+</table></div>
+<section class="panel"><h2>{% translate "Stored on this computer only" %}</h2>
+  <p>{% translate "Column widths in line grids and privacy mode are remembered in this browser, so each computer can be set up its own way. Nothing here leaves your computer." %}</p>
+  <button class="btn" type="button" data-clear-local data-done="{% translate 'Cleared. This computer no longer remembers your layout choices.' %}">{% translate "Clear what this computer remembers" %}</button>
+  <span class="lbl" data-clear-msg role="status"></span></section>
+{% endblock %}

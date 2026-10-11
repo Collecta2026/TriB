@@ -8,19 +8,21 @@ from django.utils.translation import gettext_lazy as _
 APPS = [
     {"key": "accounting", "label": _("Accounting"), "icon": "book", "items": [
         (_("Bank transactions"), "banking:transactions", "banking.view"),
+        (_("Receipts"), "core:receipts", "vouchers.create"),
         (_("Reconcile"), "banking:reconcile", "banking.post"),
         (_("Rules"), "banking:rules", "banking.edit"),
-        (_("Receipts"), "core:receipts", "vouchers.create"),
         (_("Chart of accounts"), "ledger:accounts", "ledger.view"),
+        (_("Recurring transactions"), "core:recurring", "vouchers.create"),
         (_("Journal entries"), "ledger:journals", "ledger.view"),
         (_("Vouchers"), "vouchers:list", "vouchers.view"),
-        (_("Recurring transactions"), "core:recurring", "vouchers.create"),
         (_("Cost centres"), "ledger:cost_centers", "ledger.view"),
+        (_("My accountant"), "core:accountant", "users.view"),
     ]},
     {"key": "expenses", "label": _("Expenses & Bills"), "icon": "wallet", "items": [
         (_("Expense transactions"), "purchases:expenses", "purchases.view"),
         (_("Bills"), "purchases:bills", "purchases.view"),
         (_("Pay bills"), "purchases:payments", "purchases.view"),
+        (_("Supplier credits"), "purchases:supplier_credits", "purchases.view"),
         (_("Purchase orders"), "purchases:orders", "purchases.view"),
         (_("Suppliers"), "contacts:suppliers", "contacts.view"),
         (_("Supplier statements"), "purchases:statements", "purchases.view"),
@@ -28,6 +30,8 @@ APPS = [
     {"key": "sales", "label": _("Sales & Get Paid"), "icon": "sales", "items": [
         (_("Invoices"), "sales:invoices", "sales.view"),
         (_("Receive payments"), "sales:payments", "sales.view"),
+        (_("Credit notes"), "sales:credits", "sales.view"),
+        (_("Refunds"), "sales:refunds", "sales.view"),
         (_("Sales orders"), "sales:orders", "sales.view"),
         (_("Quotations"), "sales:quotes", "sales.view"),
         (_("Products & services"), "inventory:items", "inventory.view"),
@@ -80,6 +84,8 @@ APPS = [
     {"key": "banking", "label": _("Banking & cheques"), "icon": "bank", "items": [
         (_("Bank accounts"), "banking:accounts", "banking.view"),
         (_("Cheques"), "banking:cheques", "cheques.view"),
+        (_("Bank deposits"), "banking:deposits", "banking.view"),
+        (_("Transfers"), "banking:transfers", "banking.view"),
         (_("Returned cheques"), "banking:bounced", "cheques.view"),
         (_("Cheque reconciliation"), "banking:cheque_reconciliation", "cheques.view"),
         (_("Bank transactions"), "banking:transactions", "banking.view"),
@@ -166,5 +172,10 @@ def menu_for(user, company, membership, path=""):
     apps = visible_apps(membership, path)
     by_key = {a["key"]: a for a in apps}
     pinned = [by_key[k] for k in (pref.pinned_apps or []) if k in by_key]
-    return {"apps": apps, "pinned": pinned, "pinned_keys": [a["key"] for a in pinned],
-            "bookmarks": list(Bookmark.objects.filter(user=user, company=company)[:30])}
+    bookmarks = list(Bookmark.objects.filter(user=user, company=company)[:30])
+    marked = {b.url for b in bookmarks}
+    for app in apps:
+        for item in app["items"]:
+            item["bm"] = item["url"] in marked
+    return {"apps": apps, "pinned": pinned, "pinned_keys": [a["key"] for a in pinned], "bookmarks": bookmarks,
+            "blur": bool((pref.privacy_choices or {}).get("blur"))}

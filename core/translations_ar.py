@@ -509,3 +509,12 @@ AR.update(AR2B)
 from .translations_ar_r2c import AR2C  # noqa: E402
 
 AR.update(AR2C)
+from .translations_ar_r2d import AR2D  # noqa: E402
+
+AR.update(AR2D)
+from .translations_ar_r2e import AR2E  # noqa: E402
+
+AR.update(AR2E)
+from .translations_ar_r2f import AR2F  # noqa: E402
+
+AR.update(AR2F)

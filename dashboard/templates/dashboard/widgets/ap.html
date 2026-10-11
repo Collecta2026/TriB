@@ -1,0 +1,5 @@
+{% load i18n trib %}<div class="bh"><h3>{% translate "Accounts payable" %}</h3><span class="lbl">{% translate "As of today" %}</span></div>
+<div class="kv"><a class="kpi-link" href="{% url 'reports:ap_aging' %}"><span class="lbl">{% translate "You owe suppliers" %}</span><span class="big m">{{ ap.total|money:company.base_currency }}</span></a>
+  {% if ap.overdue %}<a class="pill crit" href="{% url 'purchases:bills' %}?pay=overdue">{% translate "Overdue" %} <span class="m">{{ ap.overdue|num:0 }}</span></a>{% endif %}</div>
+<div class="rows">{% for r in ap.top %}<a class="row" href="{% url 'purchases:statements' %}?supplier={{ r.contact.pk }}"><div class="bico">{% include "partials/icon.html" with name="wallet" %}</div><div><div class="nm">{{ r.contact.name }}</div></div><div class="amt m">{{ r.total|num:0 }}</div></a>{% endfor %}</div>
+<div class="bfoot">{% if can.reports.view %}<a class="link" href="{% url 'reports:supplier_summary' %}">{% translate "Supplier balances" %}</a>{% endif %}<a class="link" href="{% url 'purchases:bills' %}?pay=due7">{% translate "Pay bills" %}</a></div>

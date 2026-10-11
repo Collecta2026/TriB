@@ -87,4 +87,13 @@ AR2C = {
     "deposited, not yet paid": "مودعة ولم تُصرف بعد",
     "not yet presented to the bank": "لم تُقدَّم للبنك بعد",
     "received, not yet deposited": "مستلمة ولم تُودع بعد",
+    # Entry grids
+    "Columns": "الأعمدة",
+    "Drag to resize · double-click to reset": "اسحب لتغيير العرض · انقر مرتين للإرجاع",
+    "No match": "لا توجد نتائج",
+    "Reset columns": "إعادة ضبط الأعمدة",
+    "Show list": "عرض القائمة",
+    "Tab moves along the line · Enter adds a new line · Ctrl+Delete removes a line · drag a column edge to resize it":
+        "Tab للتنقل في السطر · Enter لإضافة سطر جديد · Ctrl+Delete لحذف سطر · اسحب حافة العمود لتغيير عرضه",
+    "Type or choose…": "اكتب أو اختر…",
 }

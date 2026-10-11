@@ -1,0 +1,2 @@
+{% load i18n %}{% for c in cards %}<a class="al-i {{ c.tone }}" href="{{ c.url }}"><span class="fc-ic">{% include "partials/icon.html" with name=c.icon %}</span><span><b>{{ c.title }}</b><span class="lbl">{{ c.text }}</span></span></a>
+{% empty %}<p class="lbl al-none">{% translate "You're all caught up. No alerts right now." %}</p>{% endfor %}

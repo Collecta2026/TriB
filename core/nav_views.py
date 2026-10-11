@@ -171,7 +171,11 @@ def _source_id(company, kind, number):
 def recurring(request):
     from .recurring import run_due, source_document
     company = request.company
-    form = RecurringForm(request.POST or None, initial={"next_date": timezone.localdate()})
+    initial = {"next_date": timezone.localdate()}
+    if request.GET.get("kind") in dict(RecurringTemplate.KINDS) and request.GET.get("number"):
+        # "Make recurring" from a document's action bar
+        initial.update(kind=request.GET["kind"], number=request.GET["number"][:30], name=request.GET["number"][:30])
+    form = RecurringForm(request.POST or None, initial=initial)
     if request.method == "POST" and "run" in request.POST:
         created = run_due(company, request.user)
         messages.success(request, _("%(n)s draft documents created.") % {"n": len(created)} if created

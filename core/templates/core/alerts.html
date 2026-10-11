@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Alerts" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Alerts" %}</h1><div class="sub">{% translate "What needs your attention. Select an alert to open the list behind it." %}</div></div></div>
+<div class="panel al-page">{% include "core/_alerts.html" %}</div>
+{% endblock %}

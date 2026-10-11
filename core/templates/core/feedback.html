@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Feedback" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "Feedback" %}</h1><div class="sub">{% translate "Tell us what would make TriB better, or what isn't working." %}</div></div></div>
+<div class="panel" style="max-width:760px">
+  <form method="post" class="form">{% csrf_token %}
+    <div class="field"><label>{{ form.kind.label }}</label><div class="checks">{% for r in form.kind %}<label class="check">{{ r.tag }} {{ r.choice_label }}</label>{% endfor %}</div></div>
+    <div class="field"><label for="{{ form.message.id_for_label }}">{{ form.message.label }}</label>{{ form.message }}{{ form.message.errors }}</div>
+    <div class="form-actions"><button class="btn primary" type="submit">{% translate "Send feedback" %}</button></div>
+  </form>
+</div>
+{% if mine %}<section class="panel"><h2>{% translate "What you sent" %}</h2>
+  <table class="tbl"><tbody>{% for f in mine %}<tr><td style="width:130px">{{ f.created_at|date:"d/m/Y" }}</td><td style="width:200px">{{ f.get_kind_display }}</td><td>{{ f.message|linebreaksbr }}</td></tr>{% endfor %}</tbody></table></section>{% endif %}
+{% if everyone %}<section class="panel"><h2>{% translate "Feedback from your team" %}</h2>
+  <table class="tbl"><tbody>{% for f in everyone %}<tr><td style="width:130px">{{ f.created_at|date:"d/m/Y" }}</td><td style="width:160px">{{ f.user|default:"" }}</td><td style="width:200px">{{ f.get_kind_display }}</td><td>{{ f.message|linebreaksbr }}{% if f.page %}<div class="lbl">{{ f.page }}</div>{% endif %}</td></tr>{% endfor %}</tbody></table></section>{% endif %}
+{% endblock %}

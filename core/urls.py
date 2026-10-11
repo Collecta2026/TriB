@@ -1,10 +1,28 @@
 from django.urls import path
 
-from . import attachments, nav_views, views
+from . import attachments, doc_actions, nav_views, settings_views, views
 
 app_name = "core"
 
 urlpatterns = [
+    path("s/<str:token>/", doc_actions.shared, name="shared"),
+    path("docs/print/", doc_actions.batch_print, name="batch_print"),
+    path("docs/<str:ns>/<str:key>/<int:pk>/copy/", doc_actions.doc_copy, name="doc_copy"),
+    path("docs/<str:ns>/<str:key>/<int:pk>/delete/", doc_actions.doc_delete, name="doc_delete"),
+    path("docs/<str:ns>/<str:key>/<int:pk>/share/", doc_actions.doc_share, name="doc_share"),
+    path("docs/<str:ns>/<str:key>/<int:pk>/send/", doc_actions.doc_send, name="doc_send"),
+    path("attachments/", settings_views.attachments_list, name="attachments"),
+    path("bookmarks/toggle/", settings_views.bookmark_toggle, name="bookmark_toggle"),
+    path("alerts/", settings_views.alerts, name="alerts"),
+    path("help/", settings_views.help_page, name="help"),
+    path("settings/reports/", settings_views.report_settings, name="report_settings"),
+    path("settings/additional-info/", settings_views.additional_info, name="additional_info"),
+    path("settings/accountant/", settings_views.accountant, name="accountant"),
+    path("lists/", settings_views.all_lists, name="lists"),
+    path("subscription/", settings_views.subscription, name="subscription"),
+    path("feedback/", settings_views.feedback, name="feedback"),
+    path("privacy/", settings_views.privacy, name="privacy"),
+    path("cookies/", settings_views.cookies, name="cookies"),
     path("attachments/upload/", attachments.upload, name="attachment_upload"),
     path("attachments/<int:pk>/", attachments.download, name="attachment"),
     path("attachments/<int:pk>/delete/", attachments.delete, name="attachment_delete"),

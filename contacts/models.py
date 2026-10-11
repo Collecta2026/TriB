@@ -13,6 +13,8 @@ class Contact(Bilingual):
     tax_id = models.CharField(_("Tax registration number"), max_length=30, blank=True)
     commercial_register = models.CharField(_("Commercial register"), max_length=30, blank=True)
     address = models.TextField(_("Address"), blank=True)
+    shipping_address = models.TextField(_("Shipping address"), blank=True,
+                                        help_text=_("Leave empty when goods go to the main address."))
     city = models.CharField(_("City"), max_length=80, blank=True)
     country = models.CharField(_("Country"), max_length=80, blank=True, default="Egypt")
     currency = models.ForeignKey(Currency, on_delete=models.PROTECT, verbose_name=_("Currency"))

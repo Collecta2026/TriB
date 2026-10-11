@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "My accountant" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "My accountant" %}</h1><div class="sub">{% translate "Invite your accountant to work in TriB with you. They sign in with their own email and see only what the Accountant role allows." %}</div></div>
+  {% if can.users.create %}<a class="btn primary" href="{% url 'users:user_new' %}{% if role %}?role={{ role.pk }}{% endif %}">+ {% translate "Invite your accountant" %}</a>{% endif %}</div>
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Name" %}</th><th>{% translate "Email" %}</th><th>{% translate "Status" %}</th><th></th></tr></thead>
+  <tbody>{% for m in members %}<tr><td>{{ m.user }}</td><td>{{ m.user.email }}</td><td><span class="pill {% if m.is_active %}good{% else %}crit{% endif %}">{% if m.is_active %}{% translate "Active" %}{% else %}{% translate "Inactive" %}{% endif %}</span></td>
+    <td>{% if can.users.edit %}<a class="link" href="{% url 'users:user_edit' m.pk %}">{% translate "Edit" %}</a>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="4" class="lbl">{% translate "No accountant has been invited yet." %}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% if role and can.users.view %}<p class="lbl">{% translate "What the Accountant role can do is set in" %} <a href="{% url 'users:role_edit' role.pk %}">{% translate "Users & roles" %}</a>.</p>{% endif %}
+{% endblock %}

@@ -1,0 +1,10 @@
+{% load i18n trib %}<div class="bh"><h3>{% translate "Profit & loss" %}</h3><span class="lbl">{{ year }}</span></div>
+<a class="kpi-link" href="{% url 'reports:profit_loss' %}?period=this_year"><span class="lbl">{% blocktranslate %}Net profit for {{ year }}{% endblocktranslate %}</span>
+  <span class="kv"><span class="big m">{{ pl.net|money:company.base_currency }}</span>{% if pl.margin is not None %}<span class="pill info">{{ pl.margin|floatformat:1 }}% {% translate "margin" %}</span>{% endif %}</span></a>
+<a class="plrow drill-row" href="{% url 'reports:pl_detail' %}?period=this_year"><div><div class="v m">{{ pl.income|money:company.base_currency }}</div><div class="lbl">{% translate "Income" %}</div></div>
+  {% if pl.income_review %}<span class="link rv">{% blocktranslate with n=pl.income_review %}{{ n }} to review{% endblocktranslate %}</span>{% else %}<span></span>{% endif %}
+  <div class="hbar" style="width:{{ pl.income_bar.width|floatformat:2 }}%;--hc:var(--good)"><span style="width:{{ pl.income_bar.solid|floatformat:2 }}%;background:var(--good)"></span><span class="hatch" style="width:{{ pl.income_bar.hatch|floatformat:2 }}%"></span></div></a>
+<a class="plrow drill-row" href="{% url 'reports:pl_detail' %}?period=this_year"><div><div class="v m">{{ pl.expense|money:company.base_currency }}</div><div class="lbl">{% translate "Expenses" %}</div></div>
+  {% if pl.expense_review %}<span class="link rv">{% blocktranslate with n=pl.expense_review %}{{ n }} to review{% endblocktranslate %}</span>{% else %}<span></span>{% endif %}
+  <div class="hbar" style="width:{{ pl.expense_bar.width|floatformat:2 }}%;--hc:var(--brand)"><span style="width:{{ pl.expense_bar.solid|floatformat:2 }}%;background:var(--brand)"></span><span class="hatch" style="width:{{ pl.expense_bar.hatch|floatformat:2 }}%"></span></div></a>
+<div class="bfoot"><a class="link" href="{% url 'reports:profit_loss' %}?period=this_year">{% translate "View profit and loss" %}</a>{% if pl.income_review or pl.expense_review %}<a class="link" href="{% url 'vouchers:list' %}?status=draft">{% translate "Review drafts" %}</a>{% endif %}</div>

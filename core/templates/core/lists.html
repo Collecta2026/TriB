@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "All lists" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% translate "All lists" %}</h1><div class="sub">{% translate "The names, codes and settings your transactions use." %}</div></div></div>
+<div class="lists-grid">{% for title, rows in groups %}<section class="panel"><h2>{{ title }}</h2>
+  {% for label, url in rows %}<a class="list-link" href="{{ url }}">{{ label }}{% include "partials/icon.html" with name="chev" %}</a>{% endfor %}</section>{% endfor %}</div>
+{% endblock %}

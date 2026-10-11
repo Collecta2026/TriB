@@ -27,6 +27,9 @@ class TradeDocument(models.Model):
     rate = models.DecimalField(_("Exchange rate"), max_digits=18, decimal_places=6, default=1)
     reference = models.CharField(_("Reference"), max_length=60, blank=True)
     notes = models.TextField(_("Notes"), blank=True)
+    # "Amounts are: inclusive of VAT" — the rate typed on each line already contains the VAT.
+    prices_include_tax = models.BooleanField(_("Amounts include VAT"), default=False)
+    tags = models.JSONField(_("Tags"), default=list, blank=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -90,14 +93,33 @@ class TradeLine(models.Model):
         ordering = ["id"]
 
     @property
-    def net(self):
+    def _inclusive(self):
+        if not self.tax_rate_id:
+            return False
+        try:
+            doc = self.document
+        except Exception:  # a line not yet attached to its document
+            return False
+        return bool(doc is not None and doc.prices_include_tax)
+
+    @property
+    def amount(self):
+        """Quantity × rate less discount, as typed (before taking VAT out of inclusive prices)."""
         gross = Decimal(self.qty or 0) * Decimal(self.unit_price or 0)
         return r2(gross * (1 - Decimal(self.discount_pct or 0) / 100))
+
+    @property
+    def net(self):
+        if self._inclusive:
+            return r2(self.amount * 100 / (100 + self.tax_rate.rate))
+        return self.amount
 
     @property
     def tax(self):
         if not self.tax_rate_id:
             return Decimal("0")
+        if self._inclusive:
+            return self.amount - self.net
         return r2(self.net * self.tax_rate.rate / 100)
 
     @property

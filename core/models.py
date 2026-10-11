@@ -76,6 +76,10 @@ class Company(Bilingual):
     auto_post_on_approval = models.BooleanField(_("Post documents automatically when fully approved"), default=True)
     enforce_sod = models.BooleanField(_("The person who creates a document cannot approve it"), default=True)
     addons = models.JSONField(default=dict, blank=True)
+    minimum_cash = models.DecimalField(_("Minimum cash balance"), max_digits=19, decimal_places=2, null=True, blank=True,
+                                       help_text=_("The business feed warns you when the cash forecast falls below this."))
+    # Settings → Additional info: industry, business type, size, website… (shown on reports and the profile page).
+    profile = models.JSONField(default=dict, blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -212,6 +216,13 @@ class UserPreference(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="+")
     pinned_apps = models.JSONField(default=list, blank=True)
     bookmarks_seeded = models.BooleanField(default=False)
+    # Home page: [{"key": "cashflow", "w": 2, "hidden": false}, …] in display order; empty = default layout.
+    dashboard_layout = models.JSONField(default=list, blank=True)
+    report_favourites = models.JSONField(default=list, blank=True)
+    # Settings → Default report settings: {"period": "this_year", "compare": "previous_period", "zero_rows": false}
+    report_defaults = models.JSONField(default=dict, blank=True)
+    # Settings → Privacy / Cookies: {"usage": false, "tips": true}
+    privacy_choices = models.JSONField(default=dict, blank=True)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["user", "company"], name="uniq_pref")]
@@ -247,6 +258,50 @@ class RecurringTemplate(models.Model):
         ordering = ["next_date", "name"]
 
 
+class Feedback(models.Model):
+    """Settings → Feedback: ideas and problems sent from inside TriB."""
+
+    KINDS = [("idea", _("Idea or suggestion")), ("problem", _("Something isn't working")), ("praise", _("Something I like"))]
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="+")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="+")
+    kind = models.CharField(_("Type"), max_length=10, choices=KINDS, default="idea")
+    message = models.TextField(_("Your feedback"))
+    page = models.CharField(_("Page"), max_length=300, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
 def client_ip(request):
     forwarded = request.META.get("HTTP_X_FORWARDED_FOR", "")
     return forwarded.split(",")[0].strip() if forwarded else request.META.get("REMOTE_ADDR")
+
+
+class ShareLink(models.Model):
+    """A private, read-only link to one document, for a customer or supplier to open without signing in."""
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="+")
+    target = models.CharField(max_length=60)  # e.g. "sales.invoice"
+    target_id = models.PositiveBigIntegerField()
+    token = models.CharField(max_length=64, unique=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    views = models.PositiveIntegerField(default=0)
+    last_viewed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["company", "target", "target_id"])]
+
+    @classmethod
+    def for_object(cls, obj, user):
+        import secrets
+
+        link = cls.objects.filter(company_id=obj.company_id, target=obj._meta.label_lower, target_id=obj.pk,
+                                  revoked_at__isnull=True).first()
+        if link is None:
+            link = cls.objects.create(company_id=obj.company_id, target=obj._meta.label_lower, target_id=obj.pk,
+                                      token=secrets.token_urlsafe(24), created_by=user)
+        return link

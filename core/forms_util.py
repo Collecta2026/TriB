@@ -32,11 +32,54 @@ def scope_fields(form, company):
             field.queryset = qs
 
 
+class TagsField(forms.CharField):
+    """Tags typed as "Haulage: Same day, Urgent" and stored as a list."""
+
+    widget = forms.TextInput
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault("required", False)
+        kwargs.setdefault("label", _("Tags"))
+        kwargs.setdefault("help_text", _("Separate tags with commas."))
+        super().__init__(**kwargs)
+        self.widget.attrs.update({"placeholder": _("Start typing to add a tag"), "data-tags": ""})
+
+    def prepare_value(self, value):
+        if isinstance(value, (list, tuple)):
+            return ", ".join(value)
+        return value
+
+    def to_python(self, value):
+        if isinstance(value, (list, tuple)):
+            return list(value)
+        seen, out = set(), []
+        for tag in (value or "").split(","):
+            tag = " ".join(tag.split())[:40]
+            if tag and tag.lower() not in seen:
+                seen.add(tag.lower())
+                out.append(tag)
+        return out[:12]
+
+
+VAT_MODES = [("False", _("Exclusive of VAT")), ("True", _("Inclusive of VAT"))]
+
+
 class CompanyModelForm(forms.ModelForm):
     def __init__(self, *args, company, **kwargs):
         super().__init__(*args, **kwargs)
         self.company = company
         scope_fields(self, company)
+        if "tags" in self.fields:
+            self.fields["tags"] = TagsField()
+        if "prices_include_tax" in self.fields:
+            self.fields["prices_include_tax"] = forms.TypedChoiceField(
+                label=_("Amounts are"), choices=VAT_MODES, coerce=lambda v: v in (True, "True"), required=False)
+        for name in ("email_to", "email_cc", "email_bcc"):
+            if name in self.fields:
+                self.fields[name].widget.attrs.setdefault("autocomplete", "off")
+        for name in ("bill_to", "ship_to"):
+            if name in self.fields:
+                self.fields[name].widget = forms.Textarea(attrs={"rows": 3})
         if "rate" in self.fields:
             self.fields["rate"].required = False
             self.fields["rate"].help_text = _("Leave at 1 to use the latest saved rate for foreign currencies.")
@@ -70,6 +113,12 @@ class LineForm(CompanyModelForm):
                 self.fields[name].widget.attrs.update({"step": "any", "min": "0"})
         if "description" in self.fields:
             self.fields["description"].required = False
+            # One line high, grows with the text (grid.js), like the description cell in QuickBooks.
+            self.fields["description"].widget = forms.Textarea(attrs={
+                "rows": 1, "data-autogrow": "", "maxlength": self.fields["description"].max_length or 300})
+        for name in ("serials", "notes"):
+            if name in self.fields and isinstance(self.fields[name].widget, forms.Textarea):
+                self.fields[name].widget.attrs.update({"rows": 1, "data-autogrow": ""})
 
     def clean(self):
         data = super().clean()
@@ -78,7 +127,8 @@ class LineForm(CompanyModelForm):
         # Bill lines for goods already received on an item receipt carry them on the receipt instead.
         if ("expiry_date" in self.fields and item is not None and item.is_stocked and item.tracking == "batch"
                 and not getattr(self.instance, "receipt_line_id", None) and not data.get("DELETE")
-                and (data.get("qty_change") is None or data["qty_change"] > 0)):
+                and (data.get("qty_change") is None or data["qty_change"] > 0)
+                and data.get("return_to_stock", True)):
             if not data.get("batch_no"):
                 self.add_error("batch_no", _("Enter the batch number."))
             if not data.get("expiry_date"):
