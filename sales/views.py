@@ -12,6 +12,7 @@ from django.utils.translation import gettext_lazy
 from django.views.decorators.http import require_POST
 
 from contacts.models import Customer
+from core import access
 from core.docviews import DocSpec, doc_detail, doc_form, doc_list, doc_print, get_doc
 from core.models import client_ip
 from inventory.models import Warehouse
@@ -39,7 +40,7 @@ def _defaults(request, due=False, warehouse=False):
     out = {"date": today}
     cid = request.GET.get("customer")
     if cid and cid.isdigit():
-        customer = Customer.objects.filter(company=request.company, pk=cid).first()
+        customer = access.scope(Customer.objects.filter(company=request.company, pk=cid)).first()
         if customer:
             out["customer"] = customer
             out["currency"] = customer.currency
@@ -50,7 +51,7 @@ def _defaults(request, due=False, warehouse=False):
     if due and "due_date" not in out:
         out["due_date"] = today + timedelta(days=30)
     if warehouse:
-        out["warehouse"] = Warehouse.objects.filter(company=request.company, is_active=True).first()
+        out["warehouse"] = access.scope(Warehouse.objects.filter(company=request.company, is_active=True)).first()
     return out
 
 
@@ -266,14 +267,15 @@ def invoice_action(request, pk):
 @require_perm("sales.view")
 def payments(request):
     from core.filters import apply as drill_filter
-    qs = CustomerPayment.objects.filter(company=request.company).select_related("customer", "currency", "bank_account")
+    qs = access.scope(CustomerPayment.objects.filter(company=request.company)).select_related("customer", "currency", "bank_account")
     qs, drill = drill_filter(request, qs, "customer")
     page = Paginator(qs, 40).get_page(request.GET.get("page"))
     from contacts.models import Customer
     from core.filters import DATES
     return render(request, "sales/payments.html", {
         "page": page, "drill": drill, "filter_dates": DATES, "list_key": "sales-payments", "filter_party_label": _("Customer"),
-        "filter_party": list(Customer.objects.filter(company=request.company, is_active=True).values_list("pk", "name_en"))})
+        "filter_party": list(access.scope(Customer.objects.filter(company=request.company, is_active=True))
+                             .values_list("pk", "name_en"))})
 
 
 @require_perm("sales.create")
@@ -313,14 +315,14 @@ def payment_new(request):
 
 @require_perm("sales.view")
 def payment(request, pk):
-    p = get_object_or_404(CustomerPayment, pk=pk, company=request.company)
+    p = get_object_or_404(access.scope(CustomerPayment.objects.filter(company=request.company)), pk=pk)
     return render(request, "sales/payment_detail.html", {"p": p, "allocs": p.allocations.select_related("invoice")})
 
 
 @require_perm("sales.view")
 def payment_print(request, pk):
     from core.amount_words import amount_in_words
-    p = get_object_or_404(CustomerPayment, pk=pk, company=request.company)
+    p = get_object_or_404(access.scope(CustomerPayment.objects.filter(company=request.company)), pk=pk)
     return render(request, "sales/payment_print.html", {
         "p": p, "allocs": p.allocations.select_related("invoice"),
         "words_en": amount_in_words(p.amount, p.currency_id, "en"), "words_ar": amount_in_words(p.amount, p.currency_id, "ar"),
@@ -330,7 +332,7 @@ def payment_print(request, pk):
 @require_POST
 @require_perm("sales.void")
 def payment_void(request, pk):
-    p = get_object_or_404(CustomerPayment, pk=pk, company=request.company)
+    p = get_object_or_404(access.scope(CustomerPayment.objects.filter(company=request.company)), pk=pk)
     try:
         services.void_payment(p, request.user)
         messages.success(request, _("Payment voided."))
@@ -363,7 +365,7 @@ def confirmations(request):
     letters = []
     if form.is_valid():
         as_of = form.cleaned_data["as_of"]
-        for c in Customer.objects.filter(company=request.company, is_active=True).order_by("name_en"):
+        for c in access.scope(Customer.objects.filter(company=request.company, is_active=True)).order_by("name_en"):
             bal = services.customer_balance(c, as_of=as_of)
             if bal or form.cleaned_data["include_zero"]:
                 letters.append({"contact": c, "balance": bal})
@@ -410,7 +412,7 @@ CREDIT = DocSpec(key="credit", voidable=True, ns="sales", perm="sales", model=Cr
 def _credit_defaults(request):
     out = _defaults(request, warehouse=True)
     iid = request.GET.get("invoice", "")
-    inv = Invoice.objects.filter(company=request.company, pk=iid, status="posted").first() if iid.isdigit() else None
+    inv = access.scope(Invoice.objects.filter(company=request.company, pk=iid, status="posted")).first() if iid.isdigit() else None
     if inv:
         out.update(invoice=inv, customer=inv.customer, currency=inv.currency, rate=inv.rate, warehouse=inv.warehouse,
                    prices_include_tax=inv.prices_include_tax)
@@ -483,7 +485,7 @@ def credit_action(request, pk):
 # ---------- Refunds ----------
 @require_perm("sales.view")
 def refunds(request):
-    qs = CustomerRefund.objects.filter(company=request.company).select_related("customer", "currency", "bank_account", "credit_note")
+    qs = access.scope(CustomerRefund.objects.filter(company=request.company)).select_related("customer", "currency", "bank_account", "credit_note")
     return render(request, "sales/refunds.html", {"page": Paginator(qs, 40).get_page(request.GET.get("page"))})
 
 
@@ -520,14 +522,14 @@ def refund_new(request):
 
 @require_perm("sales.view")
 def refund(request, pk):
-    r = get_object_or_404(CustomerRefund, pk=pk, company=request.company)
+    r = get_object_or_404(access.scope(CustomerRefund.objects.filter(company=request.company)), pk=pk)
     return render(request, "sales/refund_detail.html", {"r": r})
 
 
 @require_perm("sales.view")
 def refund_print(request, pk):
     from core.amount_words import amount_in_words
-    r = get_object_or_404(CustomerRefund, pk=pk, company=request.company)
+    r = get_object_or_404(access.scope(CustomerRefund.objects.filter(company=request.company)), pk=pk)
     return render(request, "sales/refund_print.html", {
         "r": r, "words_en": amount_in_words(r.amount, r.currency_id, "en"), "words_ar": amount_in_words(r.amount, r.currency_id, "ar")})
 
@@ -535,7 +537,7 @@ def refund_print(request, pk):
 @require_POST
 @require_perm("sales.void")
 def refund_void(request, pk):
-    r = get_object_or_404(CustomerRefund, pk=pk, company=request.company)
+    r = get_object_or_404(access.scope(CustomerRefund.objects.filter(company=request.company)), pk=pk)
     try:
         services.void_refund(r, request.user)
         messages.success(request, _("Refund voided."))

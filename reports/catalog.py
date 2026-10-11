@@ -75,9 +75,9 @@ SECTIONS = [
         ("employees", _("Employee list"), "team:employees", "team.view", _("Everyone on the team.")),
     ]),
     ("inventory", _("Inventory"), [
-        ("stock_valuation", _("Stock valuation summary"), "inventory:stock", "inventory.view",
+        ("stock_valuation", _("Stock valuation summary"), "inventory:stock", "inventory.costs",
          _("Stock on hand at FIFO cost, by warehouse.")),
-        ("stock_detail", _("Inventory valuation detail"), "reports:stock_detail", "inventory.view",
+        ("stock_detail", _("Inventory valuation detail"), "reports:stock_detail", "inventory.costs",
          _("Each FIFO cost layer: batch, expiry, quantity and value.")),
         ("expiry", _("Batches & expiry"), "inventory:expiry", "inventory.view", _("Consumables by expiry date.")),
     ]),
@@ -103,6 +103,8 @@ SECTIONS = [
          _("Every posting to one account, with a running balance.")),
         ("recent", _("Recent transactions"), "reports:recent", R, _("Everything posted in the last 30 days.")),
         ("audit", _("Audit log"), "core:audit", "audit.view", _("Who did what, and when.")),
+        ("access", _("Who can do what"), "users:access_report", "users.view",
+         _("Every user's roles, warehouses, approval limits and permissions, for review and sign-off.")),
     ]),
 ]
 

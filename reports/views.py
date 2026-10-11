@@ -343,7 +343,7 @@ def supplier_detail(request):
     return _table(request, _("Supplier balance detail"), _cols(*BAL_DETAIL_COLS), rows, foot, mode="asof", date_to=as_of)
 
 
-@require_perm("inventory.view")
+@require_perm("inventory.costs")
 def stock_detail(request):
     rows, foot = extra.inventory_valuation_detail(request.company)
     return _table(request, _("Inventory valuation detail"),

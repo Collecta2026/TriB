@@ -1,4 +1,6 @@
 from django import forms
+
+from core import access
 from django.utils.translation import gettext_lazy as _
 
 from banking.models import BankAccount
@@ -77,7 +79,7 @@ class StatementForm(forms.Form):
         super().__init__(*args, **kwargs)
         from contacts.models import Customer
         model = model or Customer
-        self.fields["customer"].queryset = model.objects.filter(company=company, is_active=True)
+        self.fields["customer"].queryset = access.scope(model.objects.filter(company=company, is_active=True))
         if label:
             self.fields["customer"].label = label
 

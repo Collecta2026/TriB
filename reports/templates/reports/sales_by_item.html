@@ -7,11 +7,11 @@
   {% include "reports/_period.html" with show_from=1 %}
 </div>
 <div class="table-wrap"><table class="tbl">
-  <thead><tr><th>{% translate "Product" %}</th><th class="num">{% translate "Qty" %}</th><th class="num">{% translate "Sales" %}</th><th class="num">{% translate "Cost" %}</th><th class="num">{% translate "Gross margin" %}</th></tr></thead>
+  <thead><tr><th>{% translate "Product" %}</th><th class="num">{% translate "Qty" %}</th><th class="num">{% translate "Sales" %}</th>{% if can.inventory.costs %}<th class="num">{% translate "Cost" %}</th><th class="num">{% translate "Gross margin" %}</th>{% endif %}</tr></thead>
   <tbody>{% for g in groups %}
-    <tr class="grp"><td>{{ g.category.name|default:_("Uncategorised") }}</td><td class="num">{{ g.qty|num:0 }}</td><td class="num">{{ g.revenue|num }}</td><td class="num">{{ g.cost|num }}</td><td class="num">{{ g.margin|num }}</td></tr>
-    {% for r in g.items %}<tr><td class="indent-1">{% if r.item %}<a href="{% url 'inventory:item' r.item.pk %}">{{ r.item.sku }}</a> {{ r.item.name }}{% else %}{{ r.label }}{% endif %}</td><td class="num">{{ r.qty|num:0 }}</td><td class="num">{{ r.revenue|num }}</td><td class="num">{{ r.cost|num }}</td><td class="num">{{ r.margin|num }}</td></tr>{% endfor %}
+    <tr class="grp"><td>{{ g.category.name|default:_("Uncategorised") }}</td><td class="num">{{ g.qty|num:0 }}</td><td class="num">{{ g.revenue|num }}</td>{% if can.inventory.costs %}<td class="num">{{ g.cost|num }}</td><td class="num">{{ g.margin|num }}</td>{% endif %}</tr>
+    {% for r in g.items %}<tr><td class="indent-1">{% if r.item %}<a href="{% url 'inventory:item' r.item.pk %}">{{ r.item.sku }}</a> {{ r.item.name }}{% else %}{{ r.label }}{% endif %}</td><td class="num">{{ r.qty|num:0 }}</td><td class="num">{{ r.revenue|num }}</td>{% if can.inventory.costs %}<td class="num">{{ r.cost|num }}</td><td class="num">{{ r.margin|num }}</td>{% endif %}</tr>{% endfor %}
   {% empty %}<tr><td colspan="5" class="lbl">{% translate "No posted sales in this period." %}</td></tr>{% endfor %}</tbody>
-  <tfoot><tr><td colspan="2">{% translate "Total" %}</td><td class="num">{{ total.revenue|num }}</td><td class="num">{{ total.cost|num }}</td><td class="num">{{ total.margin|num }}</td></tr></tfoot>
+  <tfoot><tr><td colspan="2">{% translate "Total" %}</td><td class="num">{{ total.revenue|num }}</td>{% if can.inventory.costs %}<td class="num">{{ total.cost|num }}</td><td class="num">{{ total.margin|num }}</td>{% endif %}</tr></tfoot>
 </table></div>
 {% endblock %}
