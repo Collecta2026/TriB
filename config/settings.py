@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "payroll",
     "reports",
     "dashboard",
+    "crm",
 ]
 DATA_UPLOAD_MAX_MEMORY_SIZE = 12 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 12 * 1024 * 1024

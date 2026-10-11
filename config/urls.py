@@ -13,6 +13,7 @@ urlpatterns = [
     path("", include("dashboard.urls")),
     path("", include("core.urls")),
     path("accounts/", include("users.urls")),
+    path("crm/", include("crm.urls")),
     path("ledger/", include("ledger.urls")),
     path("banking/", include("banking.urls")),
     path("vouchers/", include("vouchers.urls")),
