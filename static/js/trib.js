@@ -42,10 +42,17 @@
   const csrf = () => ($("[name=csrfmiddlewaretoken]") || {}).value || "";
   const closeHovs = (except) => $$(".hov.open").forEach((h) => { if (h !== except) h.classList.remove("open"); });
   $$(".hov").forEach((h) => {
-    let timer;
-    const open = () => { clearTimeout(timer); closeHovs(h); $$("[data-popover]").forEach((p) => { p.hidden = true; }); h.classList.add("open"); h.dispatchEvent(new Event("hov:open")); };
+    let timer, openedAt = 0;
+    const open = () => {
+      clearTimeout(timer);
+      if (h.classList.contains("open")) return;
+      closeHovs(h); $$("[data-popover]").forEach((p) => { p.hidden = true; });
+      h.classList.add("open"); openedAt = Date.now(); h.dispatchEvent(new Event("hov:open"));
+    };
     const close = () => { timer = setTimeout(() => h.classList.remove("open"), 220); };
-    if (canHover) {
+    // data-click panels (filters) open on click only and stay open while you fill them in.
+    const hover = canHover && !h.hasAttribute("data-click");
+    if (hover) {
       h.addEventListener("mouseenter", open);
       h.addEventListener("mouseleave", close);
     }
@@ -53,10 +60,11 @@
     trigger.addEventListener("click", (e) => {
       if (trigger.tagName === "A" && canHover) return; // a hover-opened icon link still goes to its page
       e.preventDefault();
-      if (h.classList.contains("open")) h.classList.remove("open"); else open();
+      // Hover (or the focus from this same click) has just opened it, so the click keeps it open; a later click closes it.
+      if (h.classList.contains("open") && !hover && Date.now() - openedAt > 400) h.classList.remove("open"); else open();
     });
     h.addEventListener("focusin", open);
-    h.addEventListener("focusout", (e) => { if (!h.contains(e.relatedTarget)) close(); });
+    h.addEventListener("focusout", (e) => { if (!h.contains(e.relatedTarget) && !h.hasAttribute("data-click")) close(); });
   });
   document.addEventListener("click", (e) => { if (!e.target.closest(".hov")) closeHovs(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeHovs(); });
@@ -276,6 +284,139 @@
       applyCols();
     }));
     applyCols();
+  }
+
+  // ---------- Lists: column choices (remembered on this computer), filter panel dates ----------
+  $$("[data-list-cols]").forEach((pop) => {
+    const key = pop.dataset.listCols;
+    const table = $(`[data-list-table="${key}"]`);
+    if (!table || !table.tHead) return;
+    const heads = Array.from(table.tHead.rows[0].cells);
+    let hidden = [];
+    try { hidden = JSON.parse(localStorage.getItem("trib.cols." + key) || "[]"); } catch (err) { hidden = []; }
+    const apply = () => {
+      heads.forEach((th, i) => {
+        const off = hidden.includes(i);
+        Array.from(table.rows).forEach((tr) => { if (tr.cells[i] && tr.cells.length === heads.length) tr.cells[i].hidden = off; });
+      });
+    };
+    heads.forEach((th, i) => {
+      const name = th.textContent.trim();
+      if (!name || i === 0) return;
+      const label = document.createElement("label");
+      label.className = "check";
+      label.innerHTML = `<input type="checkbox" ${hidden.includes(i) ? "" : "checked"}> ${name}`;
+      label.firstChild.addEventListener("change", (e) => {
+        hidden = e.target.checked ? hidden.filter((x) => x !== i) : hidden.concat(i);
+        try { localStorage.setItem("trib.cols." + key, JSON.stringify(hidden)); } catch (err) { /* ignore */ }
+        apply();
+      });
+      pop.appendChild(label);
+    });
+    apply();
+  });
+  $$("[data-fp-dates]").forEach((sel) => {
+    const form = sel.form;
+    $$("[data-fp-custom]", form).forEach((d) => d.addEventListener("change", () => { sel.value = "custom"; }));
+    sel.addEventListener("change", () => { if (sel.value !== "custom") $$("[data-fp-custom]", form).forEach((d) => { d.value = ""; }); });
+  });
+  // Select all on lists with tick boxes.
+  $$("[data-select-all]").forEach((all) => all.addEventListener("change", () => {
+    $$("tbody input[type=checkbox]", all.closest("table")).forEach((b) => { b.checked = all.checked; b.dispatchEvent(new Event("change", { bubbles: true })); });
+  }));
+
+  // ---------- Expenses: change the category on the row ----------
+  const expTable = $("table.exp-list");
+  if (expTable) {
+    expTable.addEventListener("change", (e) => {
+      const sel = e.target.closest(".cat-sel");
+      if (!sel) return;
+      const body = new FormData();
+      body.append("key", sel.dataset.key);
+      body.append("account", sel.value);
+      sel.disabled = true;
+      fetch(expTable.dataset.catUrl, { method: "POST", body, headers: { "X-CSRFToken": csrf() }, credentials: "same-origin" })
+        .then((r) => r.json()).then((d) => {
+          sel.disabled = false;
+          if (d.error) { window.alert(d.error); sel.value = sel.dataset.old; return; }
+          sel.dataset.old = sel.value;
+          sel.classList.add("saved");
+          setTimeout(() => sel.classList.remove("saved"), 1500);
+        }).catch(() => { sel.disabled = false; sel.value = sel.dataset.old; });
+    });
+  }
+
+  // ---------- Customer / supplier side list: search and sort ----------
+  const sideSearch = $("[data-side-search]");
+  if (sideSearch) {
+    const list = $(".hub-side-list");
+    sideSearch.addEventListener("input", () => {
+      const q = sideSearch.value.trim().toLowerCase();
+      $$("a", list).forEach((a) => { a.hidden = q && !a.dataset.name.includes(q); });
+    });
+    $("[data-side-sort]").addEventListener("change", (e) => {
+      const items = $$("a", list);
+      items.sort((a, b) => e.target.value === "balance" ? parseFloat(b.dataset.balance) - parseFloat(a.dataset.balance)
+        : a.textContent.localeCompare(b.textContent));
+      items.forEach((a) => list.appendChild(a));
+    });
+    const on = $("a.on", list);
+    if (on) on.scrollIntoView({ block: "center" });
+  }
+
+  // ---------- Customer Hub: pipeline board drag and drop; proposal / contract share link ----------
+  const board = $(".board");
+  if (board && !board.hasAttribute("data-readonly")) {
+    let dragged = null;
+    board.addEventListener("dragstart", (e) => { dragged = e.target.closest(".card"); if (dragged) dragged.classList.add("dragging"); });
+    board.addEventListener("dragend", () => { if (dragged) dragged.classList.remove("dragging"); dragged = null; });
+    board.addEventListener("dragover", (e) => { if (e.target.closest(".board-col")) e.preventDefault(); });
+    board.addEventListener("drop", (e) => {
+      const col = e.target.closest(".board-col");
+      if (!col || !dragged) return;
+      e.preventDefault();
+      $(".board-cards", col).appendChild(dragged);
+      const body = new FormData();
+      body.append("stage", col.dataset.stage);
+      fetch(board.dataset.stageUrl.replace("/0/", `/${dragged.dataset.id}/`), { method: "POST", body, headers: { "X-CSRFToken": csrf() }, credentials: "same-origin" });
+    });
+  }
+  const crmDlg = $("#crmShareDlg");
+  if (crmDlg) {
+    $$("[data-crm-share]").forEach((b) => b.addEventListener("click", () => {
+      fetch(b.dataset.crmShare, { method: "POST", body: new FormData(), headers: { "X-CSRFToken": csrf() }, credentials: "same-origin" })
+        .then((r) => r.json()).then((d) => {
+          $("[data-share-link]", crmDlg).value = d.url;
+          $("[data-wa]", crmDlg).href = d.whatsapp;
+          crmDlg.showModal();
+        });
+    }));
+    $("[data-dlg-close]", crmDlg).addEventListener("click", () => crmDlg.close());
+    $("[data-copy]", crmDlg).addEventListener("click", (e) => {
+      const input = $("[data-share-link]", crmDlg);
+      input.select();
+      (navigator.clipboard ? navigator.clipboard.writeText(input.value) : Promise.resolve()).then(() => { e.target.textContent = e.target.dataset.done; });
+    });
+  }
+
+  // Help centre search.
+  const helpSearch = $("#helpSearch");
+  if (helpSearch) {
+    helpSearch.addEventListener("input", () => {
+      const words = helpSearch.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+      let any = false;
+      $$("[data-help-sec]").forEach((sec) => {
+        let shown = 0;
+        $$("[data-help-text]", sec).forEach((a) => {
+          const hit = words.every((w) => a.dataset.helpText.includes(w));
+          a.hidden = !hit;
+          shown += hit;
+        });
+        sec.hidden = !shown;
+        any = any || shown > 0;
+      });
+      $("#helpNone").hidden = any || !words.length;
+    });
   }
 
   // Bookmark star: name the bookmark after the page title.

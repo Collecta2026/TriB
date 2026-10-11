@@ -269,7 +269,11 @@ def payments(request):
     qs = CustomerPayment.objects.filter(company=request.company).select_related("customer", "currency", "bank_account")
     qs, drill = drill_filter(request, qs, "customer")
     page = Paginator(qs, 40).get_page(request.GET.get("page"))
-    return render(request, "sales/payments.html", {"page": page, "drill": drill})
+    from contacts.models import Customer
+    from core.filters import DATES
+    return render(request, "sales/payments.html", {
+        "page": page, "drill": drill, "filter_dates": DATES, "list_key": "sales-payments", "filter_party_label": _("Customer"),
+        "filter_party": list(Customer.objects.filter(company=request.company, is_active=True).values_list("pk", "name_en"))})
 
 
 @require_perm("sales.create")
