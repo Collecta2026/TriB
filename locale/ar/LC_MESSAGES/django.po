@@ -6840,3 +6840,570 @@ msgid ""
 "with the running balance."
 msgstr ""
 "حسابك مع هذا المورد: كل فاتورة ودفعة وإشعار خلال فترة مع الرصيد المتحرك."
+
+msgid "%(n)s appointments today"
+msgstr "%(n)s مواعيد اليوم"
+
+msgid "%(n)s draft bills created. Review and post them."
+msgstr "تم إنشاء %(n)s مسودة فاتورة مورد. راجعها ورحّلها."
+
+msgid "%(n)s is now a customer."
+msgstr "أصبح %(n)s عميلًا."
+
+msgid "%(n)s of your tasks are due today or overdue"
+msgstr "%(n)s من مهامك مستحقة اليوم أو متأخرة"
+
+msgid "%(n)s row needs fixing; it will be skipped."
+msgid_plural "%(n)s rows need fixing; they will be skipped."
+msgstr[0] "%(n)s سطر يحتاج تصحيحًا وسيتم تخطيه."
+msgstr[1] "%(n)s سطر يحتاج تصحيحًا وسيتم تخطيه."
+msgstr[2] "%(n)s سطر يحتاج تصحيحًا وسيتم تخطيه."
+msgstr[3] "%(n)s سطر يحتاج تصحيحًا وسيتم تخطيه."
+msgstr[4] "%(n)s سطر يحتاج تصحيحًا وسيتم تخطيه."
+msgstr[5] "%(n)s سطر يحتاج تصحيحًا وسيتم تخطيه."
+
+msgid "%(s)s is a stock item; receive it with an item receipt instead"
+msgstr "%(s)s صنف مخزني؛ استلمه بإذن استلام"
+
+msgid "--Split--"
+msgstr "--متعدد--"
+
+msgid "Accepted by"
+msgstr "تمت الموافقة بواسطة"
+
+msgid "Add appointment"
+msgstr "إضافة موعد"
+
+msgid "Add product or service"
+msgstr "إضافة صنف أو خدمة"
+
+msgid "Add subtotal"
+msgstr "إضافة مجموع فرعي"
+
+msgid "All dates"
+msgstr "كل التواريخ"
+
+msgid "All tasks"
+msgstr "كل المهام"
+
+msgid "All topics"
+msgstr "كل الموضوعات"
+
+msgid "Any"
+msgstr "أي"
+
+msgid "Appointment"
+msgstr "موعد"
+
+msgid "Appointments"
+msgstr "المواعيد"
+
+msgid "Appointments, next 7 days"
+msgstr "المواعيد خلال 7 أيام"
+
+msgid "Assigned to"
+msgstr "المسؤول"
+
+msgid "Average %(a)s out of 5 from %(n)s reviews"
+msgstr "المتوسط %(a)s من 5 من %(n)s تقييمات"
+
+msgid "Bill payment info"
+msgstr "بيانات سداد الفواتير"
+
+msgid "Board"
+msgstr "اللوحة"
+
+msgid "Business or person"
+msgstr "النشاط أو الشخص"
+
+msgid "Calendar"
+msgstr "التقويم"
+
+msgid "Call"
+msgstr "اتصال"
+
+msgid "Category changed."
+msgstr "تم تغيير التصنيف."
+
+msgid ""
+"Changing the category of a posted transaction posts a reclassification entry"
+" dated today, from the old account to the new one. It is recorded in the "
+"audit log."
+msgstr ""
+"تغيير تصنيف معاملة مرحّلة يرحّل قيد إعادة تصنيف بتاريخ اليوم من الحساب "
+"القديم إلى الجديد، ويُسجَّل في سجل المراجعة."
+
+msgid "Choose a customer or a lead."
+msgstr "اختر عميلًا أو عميلًا محتملًا."
+
+msgid "Choose a posting account."
+msgstr "اختر حساب ترحيل."
+
+msgid "Choose an account."
+msgstr "اختر حسابًا."
+
+msgid "Closing in 30 days"
+msgstr "يُغلق خلال 30 يومًا"
+
+msgid "Cold call"
+msgstr "اتصال مباشر"
+
+msgid "Contacted"
+msgstr "تم التواصل"
+
+msgid "Contents"
+msgstr "المحتويات"
+
+msgid "Contract value"
+msgstr "قيمة العقد"
+
+msgid "Contracts"
+msgstr "العقود"
+
+msgid "Conversation"
+msgstr "محادثة"
+
+msgid "Convert to customer"
+msgstr "تحويل إلى عميل"
+
+msgid "Cover letter"
+msgstr "خطاب التقديم"
+
+msgid "Create %(n)s draft bill"
+msgid_plural "Create %(n)s draft bills"
+msgstr[0] "إنشاء %(n)s مسودة فاتورة مورد"
+msgstr[1] "إنشاء %(n)s مسودة فاتورة مورد"
+msgstr[2] "إنشاء %(n)s مسودة فاتورة مورد"
+msgstr[3] "إنشاء %(n)s مسودة فاتورة مورد"
+msgstr[4] "إنشاء %(n)s مسودة فاتورة مورد"
+msgstr[5] "إنشاء %(n)s مسودة فاتورة مورد"
+
+msgid "Create link"
+msgstr "إنشاء الرابط"
+
+msgid "Create sales order"
+msgstr "إنشاء أمر بيع"
+
+msgid "Customer / lead"
+msgstr "العميل / المحتمل"
+
+msgid "Customer Hub (CRM)"
+msgstr "مركز العملاء (CRM)"
+
+msgid "Customers & leads"
+msgstr "العملاء والعملاء المحتملون"
+
+msgid "Dates"
+msgstr "التواريخ"
+
+msgid ""
+"Dates as dd/mm/yyyy. Use a product SKU for service products, or an account "
+"code for expenses. Stock items are received with an item receipt."
+msgstr ""
+"التواريخ بصيغة يوم/شهر/سنة. استخدم كود الصنف للخدمات أو كود الحساب "
+"للمصروفات. تُستلم الأصناف المخزنية بإذن استلام."
+
+msgid "Delivery method"
+msgstr "طريقة التسليم"
+
+msgid "Done"
+msgstr "تم"
+
+msgid "Download template"
+msgstr "تنزيل النموذج"
+
+msgid "Drag a card to another stage to move it."
+msgstr "اسحب البطاقة إلى مرحلة أخرى لنقلها."
+
+msgid "Drag to move"
+msgstr "اسحب للنقل"
+
+msgid "Duration (minutes)"
+msgstr "المدة (دقائق)"
+
+msgid "Estimate"
+msgstr "عرض سعر"
+
+msgid "Estimates"
+msgstr "عروض الأسعار"
+
+msgid "Excel or CSV file"
+msgstr "ملف إكسل أو CSV"
+
+msgid "Exhibition or event"
+msgstr "معرض أو فعالية"
+
+msgid "Existing customer"
+msgstr "عميل حالي"
+
+msgid "Expected close"
+msgstr "الإغلاق المتوقع"
+
+msgid ""
+"Expenses, cheques, bills, bill payments and supplier credits in one list."
+msgstr ""
+"المصروفات والشيكات وفواتير الموردين وسداداتها وإشعارات الموردين في قائمة "
+"واحدة."
+
+msgid "Filter by name or details"
+msgstr "تصفية بالاسم أو البيانات"
+
+msgid "Follow up on"
+msgstr "المتابعة في"
+
+msgid "From your team"
+msgstr "من فريقك"
+
+msgid "Hello %(name)s, how did we do? Please rate us here: %(link)s"
+msgstr "مرحبًا %(name)s، كيف كانت تجربتك معنا؟ قيّمنا هنا: %(link)s"
+
+msgid "Hello %(name)s, please review our %(doc)s \"%(title)s\": %(link)s"
+msgstr "مرحبًا %(name)s، يرجى الاطلاع على %(doc)s «%(title)s»: %(link)s"
+
+msgid "Help for this page"
+msgstr "مساعدة لهذه الصفحة"
+
+msgid "How every screen works, step by step. Search, or pick a topic."
+msgstr "كيف تعمل كل شاشة خطوة بخطوة. ابحث أو اختر موضوعًا."
+
+msgid "I accept on behalf of my company"
+msgstr "أوافق نيابةً عن شركتي"
+
+msgid "Import bills"
+msgstr "استيراد فواتير الموردين"
+
+msgid "Imported"
+msgstr "مستورد"
+
+msgid "Including past"
+msgstr "متضمنًا السابقة"
+
+msgid "Lead"
+msgstr "عميل محتمل"
+
+msgid "Leads, pipeline, appointments and follow-ups in one place."
+msgstr "العملاء المحتملون والفرص والمواعيد والمتابعات في مكان واحد."
+
+msgid "List view"
+msgstr "عرض القائمة"
+
+msgid "Log a conversation"
+msgstr "تسجيل محادثة"
+
+msgid "Lost"
+msgstr "خاسرة"
+
+msgid "Made active."
+msgstr "تم التفعيل."
+
+msgid "Made inactive. It no longer appears in lists."
+msgstr "تم الإيقاف، ولن يظهر في القوائم."
+
+msgid "Make active"
+msgstr "تفعيل"
+
+msgid "Make inactive"
+msgstr "إيقاف"
+
+msgid "Mark declined"
+msgstr "تسجيل الرفض"
+
+msgid "Meeting"
+msgstr "اجتماع"
+
+msgid "Missing columns: %(c)s. Download the template to see the layout."
+msgstr "أعمدة ناقصة: %(c)s. نزّل النموذج لترى الترتيب."
+
+msgid "My open tasks"
+msgstr "مهامي المفتوحة"
+
+msgid "Negotiation"
+msgstr "تفاوض"
+
+msgid "New leads this month"
+msgstr "عملاء محتملون جدد هذا الشهر"
+
+msgid "New transaction"
+msgstr "معاملة جديدة"
+
+msgid "No bills could be read from the file."
+msgstr "لم تُقرأ أي فواتير من الملف."
+
+msgid "No conversations logged."
+msgstr "لا توجد محادثات مسجلة."
+
+msgid "No opportunities yet."
+msgstr "لا توجد فرص بعد."
+
+msgid "No reviews yet."
+msgstr "لا توجد تقييمات بعد."
+
+msgid "No tasks due."
+msgstr "لا توجد مهام مستحقة."
+
+msgid "No tasks."
+msgstr "لا توجد مهام."
+
+msgid "No topic matches. Try other words."
+msgstr "لا يوجد موضوع مطابق. جرّب كلمات أخرى."
+
+msgid "Not a fit"
+msgstr "غير مناسب"
+
+msgid "Nothing booked."
+msgstr "لا توجد حجوزات."
+
+msgid "Nothing expected to close."
+msgstr "لا يُتوقع إغلاق شيء."
+
+msgid ""
+"One row per bill line. Rows with the same supplier and supplier invoice "
+"number become one bill. Bills are created as drafts for you to check and "
+"post."
+msgstr ""
+"سطر لكل بند. السطور ذات المورد ورقم الفاتورة نفسيهما تصبح فاتورة واحدة. "
+"تُنشأ الفواتير كمسودات لتراجعها وترحّلها."
+
+msgid "Open customer"
+msgstr "فتح العميل"
+
+msgid "Open pipeline"
+msgstr "الفرص المفتوحة"
+
+msgid "Open tasks"
+msgstr "المهام المفتوحة"
+
+msgid "Opportunity"
+msgstr "فرصة"
+
+msgid "Phone call"
+msgstr "مكالمة هاتفية"
+
+msgid "Pipeline board"
+msgstr "لوحة المبيعات"
+
+msgid "Pipeline by stage"
+msgstr "الفرص حسب المرحلة"
+
+msgid "Pricing from estimate"
+msgstr "الأسعار من عرض السعر"
+
+msgid "Printable manual (PDF)"
+msgstr "الدليل للطباعة (PDF)"
+
+msgid "Probability %"
+msgstr "الاحتمال %"
+
+msgid "Proposals"
+msgstr "العروض الفنية والمالية"
+
+msgid "Qualified"
+msgstr "مؤهل"
+
+msgid "Rating"
+msgstr "التقييم"
+
+msgid "Reason lost"
+msgstr "سبب الخسارة"
+
+msgid "Reclassification"
+msgstr "إعادة تصنيف"
+
+msgid "Reclassification %(n)s"
+msgstr "إعادة تصنيف %(n)s"
+
+msgid "Reclassified from %(a)s"
+msgstr "أعيد تصنيفه من %(a)s"
+
+msgid "Reclassified to %(a)s"
+msgstr "أعيد تصنيفه إلى %(a)s"
+
+msgid "Referral"
+msgstr "ترشيح"
+
+msgid "Remind me before the end (days)"
+msgstr "التذكير قبل النهاية (أيام)"
+
+msgid "Remove filter"
+msgstr "إزالة التصفية"
+
+msgid "Request feedback"
+msgstr "طلب رأي"
+
+msgid "Requested"
+msgstr "تاريخ الطلب"
+
+msgid "Reset"
+msgstr "إعادة ضبط"
+
+msgid "Reviews"
+msgstr "التقييمات"
+
+msgid "Reviews received"
+msgstr "التقييمات المستلمة"
+
+msgid "Row %(n)s: %(e)s"
+msgstr "السطر %(n)s: %(e)s"
+
+msgid "Sales order created from the accepted proposal."
+msgstr "تم إنشاء أمر بيع من العرض المقبول."
+
+msgid "Scope and deliverables"
+msgstr "النطاق والمخرجات"
+
+msgid "Search the manual"
+msgstr "البحث في الدليل"
+
+msgid "Search the manual, e.g. returned cheque, subtotal, VAT"
+msgstr "ابحث في الدليل، مثل: شيك مرتجع، مجموع فرعي، ضريبة"
+
+msgid ""
+"Send this link to the customer. Their rating appears under Reviews as soon "
+"as they submit it."
+msgstr "أرسل هذا الرابط للعميل، ويظهر تقييمه في التقييمات بمجرد إرساله."
+
+msgid "Social media"
+msgstr "وسائل التواصل"
+
+msgid "Sort"
+msgstr "الترتيب"
+
+msgid "Sort by balance"
+msgstr "ترتيب بالرصيد"
+
+msgid "Sort by name"
+msgstr "ترتيب بالاسم"
+
+msgid "Stage"
+msgstr "المرحلة"
+
+msgid "Starts"
+msgstr "البداية"
+
+msgid "Stock lines keep their inventory account."
+msgstr "بنود المخزون تحتفظ بحساب المخزون."
+
+msgid "Supplier invoice no."
+msgstr "رقم فاتورة المورد"
+
+msgid "Tasks due"
+msgstr "المهام المستحقة"
+
+msgid "Terms and conditions"
+msgstr "الشروط والأحكام"
+
+msgid "The file could not be read: %(e)s"
+msgstr "تعذرت قراءة الملف: %(e)s"
+
+msgid "The file is empty."
+msgstr "الملف فارغ."
+
+msgid "This transaction's category can't be changed here."
+msgstr "لا يمكن تغيير تصنيف هذه المعاملة من هنا."
+
+msgid "This week"
+msgstr "هذا الأسبوع"
+
+msgid "Time activity"
+msgstr "نشاط وقت"
+
+msgid "Title"
+msgstr "العنوان"
+
+msgid "Total before VAT"
+msgstr "الإجمالي قبل الضريبة"
+
+msgid ""
+"TriB makes a private link where the customer rates you from 1 to 5 stars and"
+" leaves a comment."
+msgstr ""
+"يُنشئ تراي بي رابطًا خاصًا يقيّمك فيه العميل من 1 إلى 5 نجوم ويضيف تعليقًا."
+
+msgid "TriB user manual"
+msgstr "دليل استخدام تراي بي"
+
+msgid "Upcoming"
+msgstr "القادمة"
+
+msgid "Upload an Excel (.xlsx) or CSV file up to 5 MB."
+msgstr "ارفع ملف إكسل (.xlsx) أو CSV حتى 5 ميجابايت."
+
+msgid "Upload and check"
+msgstr "رفع ومراجعة"
+
+msgid "Upload another file"
+msgstr "رفع ملف آخر"
+
+msgid "View recurring templates"
+msgstr "عرض المعاملات المتكررة"
+
+msgid "Waiting"
+msgstr "في الانتظار"
+
+msgid "Week calendar"
+msgstr "تقويم الأسبوع"
+
+msgid "Weighted"
+msgstr "المرجح"
+
+msgid "What was said"
+msgstr "ما قيل"
+
+msgid "WhatsApp"
+msgstr "واتساب"
+
+msgid "Win rate this year"
+msgstr "نسبة النجاح هذا العام"
+
+msgid "Won"
+msgstr "ناجحة"
+
+msgid ""
+"Your customer can read it and accept it online by typing their name. They "
+"cannot change anything."
+msgstr ""
+"يمكن لعميلك قراءته والموافقة عليه إلكترونيًا بكتابة اسمه، دون إمكانية تعديل "
+"أي شيء."
+
+msgid "Your name"
+msgstr "اسمك"
+
+msgid "Your rating"
+msgstr "تقييمك"
+
+msgid "date missing or not dd/mm/yyyy"
+msgstr "التاريخ ناقص أو ليس بصيغة يوم/شهر/سنة"
+
+msgid "give a product SKU or an account code"
+msgstr "أدخل كود صنف أو كود حساب"
+
+msgid "no VAT rate of %(v)s%% is set up"
+msgstr "لا توجد نسبة ضريبة %(v)s%% مضبوطة"
+
+msgid "quantity must be more than zero"
+msgstr "الكمية يجب أن تكون أكبر من صفر"
+
+msgid "rate missing"
+msgstr "السعر ناقص"
+
+msgid "unknown account %(c)s"
+msgstr "حساب غير معروف %(c)s"
+
+msgid "unknown product %(s)s"
+msgstr "صنف غير معروف %(s)s"
+
+msgid "unknown supplier %(s)s"
+msgstr "مورد غير معروف %(s)s"
+
+msgctxt "subtotal line"
+msgid "Subtotal"
+msgstr "المجموع الفرعي"
+
+msgid "Not sent yet"
+msgstr "لم يُرسل بعد"
+
+msgid "Emailed"
+msgstr "أُرسل بالبريد الإلكتروني"
+
+msgid "Shared by link or WhatsApp"
+msgstr "تمت مشاركته برابط أو واتساب"

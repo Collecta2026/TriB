@@ -95,9 +95,10 @@ class GoodsReceiptLine(models.Model):
     serials = models.TextField(_("Serial numbers"), blank=True)
     batch_no = models.CharField(_("Batch"), max_length=60, blank=True)
     expiry_date = models.DateField(_("Expiry date"), null=True, blank=True)
+    position = models.PositiveIntegerField(default=0)  # order on the document (drag to reorder)
 
     class Meta:
-        ordering = ["id"]
+        ordering = ["position", "id"]
 
     @property
     def value(self):

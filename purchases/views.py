@@ -298,7 +298,11 @@ def payments(request):
     qs = SupplierPayment.objects.filter(company=request.company).select_related("supplier", "currency", "bank_account")
     qs, drill = drill_filter(request, qs, "supplier")
     page = Paginator(qs, 40).get_page(request.GET.get("page"))
-    return render(request, "purchases/payments.html", {"page": page, "drill": drill})
+    from contacts.models import Supplier
+    from core.filters import DATES
+    return render(request, "purchases/payments.html", {
+        "page": page, "drill": drill, "filter_dates": DATES, "list_key": "purchases-payments", "filter_party_label": _("Supplier"),
+        "filter_party": list(Supplier.objects.filter(company=request.company, is_active=True).values_list("pk", "name_en"))})
 
 
 @require_perm("purchases.create")
@@ -365,23 +369,77 @@ def payment_void(request, pk):
 # ---------- Expenses, statements, not-received ----------
 @require_perm("purchases.view")
 def expenses(request):
-    from vouchers.models import Voucher
-    company = request.company
-    rows = []
-    for v in Voucher.objects.filter(company=company, kind="payment").exclude(status="cancelled").select_related("currency")[:100]:
-        rows.append({"date": v.date, "type": _("Payment voucher"), "number": v.number or _("Draft"), "party": v.party_name,
-                     "amount": v.total, "currency": v.currency_id, "status": v.get_status_display(), "state": v.status,
-                     "url": reverse("vouchers:detail", args=[v.pk])})
-    for b in Bill.objects.filter(company=company).exclude(status="void").select_related("supplier")[:100]:
-        rows.append({"date": b.date, "type": _("Bill"), "number": b.number or _("Draft"), "party": b.supplier.name,
-                     "amount": b.total, "currency": b.currency_id, "status": _state(b), "state": b.payment_state,
-                     "url": reverse("purchases:bill", args=[b.pk])})
-    for p in SupplierPayment.objects.filter(company=company, status="posted").select_related("supplier")[:100]:
-        rows.append({"date": p.date, "type": _("Bill payment"), "number": p.number, "party": p.supplier.name,
-                     "amount": p.amount, "currency": p.currency_id, "status": p.get_status_display(), "state": p.status,
-                     "url": reverse("purchases:payment", args=[p.pk])})
-    rows.sort(key=lambda r: r["date"], reverse=True)
-    return render(request, "purchases/expenses.html", {"rows": rows[:150]})
+    from core.filters import DATES
+    from ledger.models import Account
+
+    from . import expenses as exp
+    rows, filters = exp.rows(request.company, request)
+    categories = Account.objects.filter(company=request.company, is_group=False, is_active=True,
+                                        type__in=("expense", "asset", "liability")).order_by("code")
+    return render(request, "purchases/expenses.html", {
+        "rows": rows, "filters": filters, "types": exp.TYPES, "categories": categories, "list_key": "expenses",
+        "filter_dates": DATES, "can_reclass": request.membership.has_perm("ledger.post"),
+        "filter_statuses": [("draft", _("Draft")), ("posted", _("Posted")), ("unpaid", _("Unpaid")), ("paid", _("Paid")),
+                            ("overdue", _("Overdue"))],
+        "totals": {"before_tax": sum(r["before_tax"] for r in rows), "tax": sum(r["tax"] for r in rows),
+                   "total": sum(r["total"] for r in rows)}})
+
+
+@require_POST
+@require_perm("ledger.post")
+def expense_category(request):
+    from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+    from django.http import JsonResponse
+
+    from ledger.models import Account
+    from ledger.services import PostingError
+
+    from . import expenses as exp
+    account = Account.objects.filter(company=request.company, pk=request.POST.get("account") or 0).first()
+    if account is None:
+        return JsonResponse({"error": _("Choose an account.")}, status=400)
+    try:
+        entry = exp.reclassify(request.company, request.POST.get("key", ""), account, request.user)
+    except (PostingError, ObjectDoesNotExist, MultipleObjectsReturned) as exc:  # e.g. a locked period
+        return JsonResponse({"error": str(exc)}, status=400)
+    return JsonResponse({"ok": True, "entry": entry.number if entry else None, "name": account.name})
+
+
+@require_perm("purchases.create")
+def import_bills(request):
+    """Import bills from Excel: upload → preview with problems → create drafts."""
+    from django.http import HttpResponse
+
+    from core.models import AuditLog
+
+    from . import import_bills as imp
+    if request.GET.get("template") == "1":
+        response = HttpResponse(imp.template_workbook(),
+                                content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        response["Content-Disposition"] = 'attachment; filename="trib-bills-template.xlsx"'
+        return response
+    preview = request.session.get("bills.import")
+    if request.method == "POST" and "confirm" in request.POST and preview:
+        made = imp.create(request.company, preview["bills"], request.user)
+        request.session.pop("bills.import", None)
+        AuditLog.record(request.company, request.user, "bills.imported", None, f"{len(made)} draft bills")
+        messages.success(request, _("%(n)s draft bills created. Review and post them.") % {"n": len(made)})
+        return redirect(f"{reverse('purchases:bills')}?status=draft")
+    if request.method == "POST" and request.FILES.get("file"):
+        upload = request.FILES["file"]
+        if upload.size > 5 * 1024 * 1024 or not upload.name.lower().endswith((".xlsx", ".csv")):
+            messages.error(request, _("Upload an Excel (.xlsx) or CSV file up to 5 MB."))
+            return redirect("purchases:import_bills")
+        try:
+            bills, problems = imp.parse(request.company, upload)
+        except Exception as exc:  # unreadable files come back as a message
+            bills, problems = [], [_("The file could not be read: %(e)s") % {"e": exc}]
+        request.session["bills.import"] = {"bills": bills, "problems": problems}
+        return redirect("purchases:import_bills")
+    if request.GET.get("reset") == "1":
+        request.session.pop("bills.import", None)
+        return redirect("purchases:import_bills")
+    return render(request, "purchases/import_bills.html", {"preview": preview, "columns": imp.COLUMNS})
 
 
 @require_perm("purchases.view")

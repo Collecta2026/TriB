@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Import bills" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'purchases:bills' %}">{% translate "Bills" %}</a></div><h1>{% translate "Import bills" %}</h1>
+  <div class="sub">{% translate "One row per bill line. Rows with the same supplier and supplier invoice number become one bill. Bills are created as drafts for you to check and post." %}</div></div>
+  <a class="btn" href="?template=1">{% include "partials/icon.html" with name="download" %}{% translate "Download template" %}</a></div>
+{% if not preview %}
+<div class="panel" style="max-width:760px"><form method="post" enctype="multipart/form-data" class="form">{% csrf_token %}
+  <div class="field"><label for="billFile">{% translate "Excel or CSV file" %}</label><input id="billFile" type="file" name="file" accept=".xlsx,.csv" required></div>
+  <p class="lbl">{% translate "Columns" %}: {{ columns|join:", " }}. {% translate "Dates as dd/mm/yyyy. Use a product SKU for service products, or an account code for expenses. Stock items are received with an item receipt." %}</p>
+  <div class="form-actions"><button class="btn primary" type="submit">{% translate "Upload and check" %}</button></div></form></div>
+{% else %}
+{% if preview.problems %}<div class="msg error"><b>{% blocktranslate count n=preview.problems|length %}{{ n }} row needs fixing; it will be skipped.{% plural %}{{ n }} rows need fixing; they will be skipped.{% endblocktranslate %}</b>
+  <ul>{% for p in preview.problems|slice:":30" %}<li>{{ p }}</li>{% endfor %}</ul></div>{% endif %}
+<div class="table-wrap"><table class="tbl"><thead><tr><th>{% translate "Supplier" %}</th><th>{% translate "Supplier invoice no." %}</th><th>{% translate "Date" %}</th><th>{% translate "Due date" %}</th><th class="num">{% translate "Lines" %}</th><th class="num">{% translate "Total" %}</th></tr></thead>
+  <tbody>{% for b in preview.bills %}<tr><td>{{ b.supplier }}</td><td>{{ b.invoice_no }}</td><td>{{ b.date }}</td><td>{{ b.due }}</td><td class="num">{{ b.lines|length }}</td><td class="num">{{ b.total|num }} {{ b.currency }}</td></tr>
+  {% empty %}<tr><td colspan="6" class="lbl">{% translate "No bills could be read from the file." %}</td></tr>{% endfor %}</tbody></table></div>
+<form method="post" class="form-actions">{% csrf_token %}
+  {% if preview.bills %}<button class="btn primary" name="confirm" value="1">{% blocktranslate count n=preview.bills|length %}Create {{ n }} draft bill{% plural %}Create {{ n }} draft bills{% endblocktranslate %}</button>{% endif %}
+  <a class="btn" href="?reset=1">{% translate "Upload another file" %}</a></form>
+{% endif %}
+{% endblock %}

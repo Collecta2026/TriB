@@ -35,6 +35,8 @@ urlpatterns = [
     path("payments/<int:pk>/remittance/", views.payment_print, name="payment_print"),
     path("payments/<int:pk>/void/", views.payment_void, name="payment_void"),
     path("expenses/", views.expenses, name="expenses"),
+    path("expenses/category/", views.expense_category, name="expense_category"),
+    path("bills/import/", views.import_bills, name="import_bills"),
     path("statements/", views.statements, name="statements"),
     path("not-received/", views.not_received, name="not_received"),
 ]

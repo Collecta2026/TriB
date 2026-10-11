@@ -1,13 +1,49 @@
 {% extends "base.html" %}
 {% load i18n trib %}
-{% block title %}{% translate "Expense transactions" %}{% endblock %}
+{% block title %}{% translate "Expenses" %}{% endblock %}
 {% block content %}
-<div class="page-head"><div><h1>{% translate "Expense transactions" %}</h1><div class="sub">{% translate "Bills, bill payments and payment vouchers in one list." %}</div></div>
-  <div class="toolbar">{% if can.vouchers.create %}<a class="btn" href="{% url 'vouchers:new' 'payment' %}">{% translate "Payment voucher" %}</a>{% endif %}
-    {% if can.purchases.create %}<a class="btn" href="{% url 'purchases:payment_new' %}">{% translate "Pay bills" %}</a><a class="btn primary" href="{% url 'purchases:bill_new' %}">+ {% translate "Bill" %}</a>{% endif %}</div></div>
-<div class="table-wrap"><table class="tbl">
-  <thead><tr><th>{% translate "Date" %}</th><th>{% translate "Type" %}</th><th>{% translate "Number" %}</th><th>{% translate "Payee" %}</th><th class="num">{% translate "Amount" %}</th><th>{% translate "Currency" %}</th><th>{% translate "Status" %}</th></tr></thead>
-  <tbody>{% for r in rows %}<tr><td>{{ r.date|date:"d/m/Y" }}</td><td>{{ r.type }}</td><td><a href="{{ r.url }}">{{ r.number }}</a></td><td>{{ r.party }}</td><td class="num">{{ r.amount|num }}</td><td>{{ r.currency }}</td><td><span class="pill {{ r.state|pill_class }}">{{ r.status }}</span></td></tr>
-  {% empty %}<tr><td colspan="7" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody>
+<div class="page-head"><div><h1>{% translate "Expenses" %}</h1><div class="sub">{% translate "Expenses, cheques, bills, bill payments and supplier credits in one list." %}</div></div>
+  <div class="toolbar"><a class="link" href="{% url 'core:feedback' %}">{% include "partials/icon.html" with name="chat" %}{% translate "Give feedback" %}</a>
+    {% if can.purchases.create %}<a class="btn" href="{% url 'purchases:payment_new' %}">{% translate "Pay bills" %}</a>{% endif %}
+    {% include "partials/new_txn_supplier.html" %}</div></div>
+<div class="list-bar">
+  <form method="get" class="toolbar">
+    <select name="type" onchange="this.form.submit()" style="width:auto"><option value="">{% translate "All transactions" %}</option>{% for k, l in types %}<option value="{{ k }}" {% if filters.type == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+    <select name="period" onchange="this.form.submit()" style="width:auto" aria-label="{% translate 'Dates' %}">
+      <option value="30" {% if filters.period == "30" %}selected{% endif %}>{% translate "Last 30 days" %}</option>
+      <option value="90" {% if filters.period == "90" %}selected{% endif %}>{% translate "Last 90 days" %}</option>
+      <option value="365" {% if filters.period == "365" %}selected{% endif %}>{% translate "Last 12 months" %}</option>
+      <option value="all" {% if filters.period == "all" %}selected{% endif %}>{% translate "All dates" %}</option></select>
+    <input type="search" name="payee" value="{{ filters.payee }}" placeholder="{% translate 'Payee' %}" style="width:auto">
+    {% if filters.category %}<input type="hidden" name="category" value="{{ filters.category }}">{% endif %}
+    {% if filters.status %}<input type="hidden" name="status" value="{{ filters.status }}">{% endif %}
+    <button class="btn" type="submit">{% translate "Search" %}</button>
+    {% if filters.payee or filters.category or filters.status or filters.type %}<a class="link" href="{% url 'purchases:expenses' %}">{% translate "Clear filter" %}</a>{% endif %}
+  </form>
+  <div class="hov fpanel"><button type="button" class="btn" aria-haspopup="true">{% include "partials/icon.html" with name="sliders" %}{% translate "Filter" %}</button>
+    <form method="get" class="hov-pop fpanel-pop"><input type="hidden" name="type" value="{{ filters.type }}"><input type="hidden" name="period" value="{{ filters.period }}">
+      <div class="fp-grid">
+        <label class="lbl">{% translate "Status" %}<select name="status"><option value="">{% translate "All statuses" %}</option>{% for k, l in filter_statuses %}<option value="{{ k }}" {% if filters.status == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+        <label class="lbl">{% translate "Payee" %}<input type="text" name="payee" value="{{ filters.payee }}"></label>
+        <label class="lbl fp-wide">{% translate "Category" %}<select name="category"><option value="">{% translate "All" %}</option>{% for a in categories %}<option value="{{ a.pk }}" {% if filters.category == a.pk|stringformat:'s' %}selected{% endif %}>{{ a }}</option>{% endfor %}</select></label>
+      </div>
+      <div class="fp-actions"><a class="btn" href="{% url 'purchases:expenses' %}">{% translate "Reset" %}</a><button class="btn primary" type="submit">{% translate "Apply" %}</button></div>
+    </form></div>
+  {% include "partials/list_tools.html" %}
+</div>
+<div class="table-wrap"><table class="tbl exp-list" data-list-table="{{ list_key }}" data-cat-url="{% url 'purchases:expense_category' %}" data-saved="{% translate 'Category changed.' %}">
+  <thead><tr><th class="sel-col"><input type="checkbox" data-select-all aria-label="{% translate 'Select all' %}"></th><th>{% translate "Date" %}</th><th>{% translate "Type" %}</th><th>{% translate "No." %}</th><th>{% translate "Payee" %}</th>
+    <th style="min-width:220px">{% translate "Category" %}</th><th class="num">{% translate "Total before VAT" %}</th><th class="num">{% translate "VAT" %}</th><th class="num">{% translate "Total" %}</th><th class="num">{% translate "Action" %}</th></tr></thead>
+  <tbody>{% for r in rows %}<tr>
+    <td class="sel-col"><input type="checkbox" aria-label="{{ r.type }} {{ r.number }}"></td>
+    <td>{{ r.date|date:"d/m/Y" }}</td><td>{{ r.type }}</td><td>{{ r.number }}</td><td>{{ r.payee }}</td>
+    <td>{% if r.edit_key and can_reclass %}<select class="cat-sel" data-key="{{ r.edit_key }}" data-old="{{ r.account.pk|default:'' }}" aria-label="{% translate 'Category' %}">
+        {% if not r.account %}<option value="">—</option>{% endif %}{% for a in categories %}<option value="{{ a.pk }}" {% if r.account and r.account.pk == a.pk %}selected{% endif %}>{{ a.name }}</option>{% endfor %}</select>
+      {% else %}<span class="{% if not r.account %}lbl{% endif %}">{{ r.category|default:"—" }}</span>{% endif %}</td>
+    <td class="num">{{ r.before_tax|num }}</td><td class="num">{{ r.tax|num }}</td><td class="num"><b>{{ r.total|num }}</b> <span class="lbl">{{ r.currency }}</span></td>
+    <td class="num"><a href="{{ r.url }}">{% translate "View/Edit" %}</a></td></tr>
+  {% empty %}<tr><td colspan="10" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody>
+  {% if rows %}<tfoot><tr><td colspan="6">{% translate "Total" %}</td><td class="num">{{ totals.before_tax|num }}</td><td class="num">{{ totals.tax|num }}</td><td class="num">{{ totals.total|num }}</td><td></td></tr></tfoot>{% endif %}
 </table></div>
+{% if can_reclass %}<p class="lbl">{% translate "Changing the category of a posted transaction posts a reclassification entry dated today, from the old account to the new one. It is recorded in the audit log." %}</p>{% endif %}
 {% endblock %}

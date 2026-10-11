@@ -158,6 +158,7 @@ class JournalEntry(models.Model):
         ("asset", _("Asset disposal")),
         ("bank", _("Bank transaction")),
         ("payroll", _("Payroll")),
+        ("reclass", _("Reclassification")),
     ]
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="entries")
     branch = models.ForeignKey(Branch, on_delete=models.PROTECT, null=True, blank=True)
