@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Batch statements" %}{% endblock %}
+{% block content %}
+<div class="toolbar no-print"><a class="btn" href="{% url 'sales:statements_batch' %}{{ back }}">‹ {% translate "Back" %}</a>
+  <button class="btn primary" type="button" onclick="window.print()">{% include "partials/icon.html" with name="print" %} {% translate "Print / save as PDF" %}</button>
+  <span class="lbl">{% blocktranslate count n=items|length %}{{ n }} statement{% plural %}{{ n }} statements{% endblocktranslate %}</span></div>
+{% for data in items %}<div class="print-page">{% include "sales/_statement_body.html" %}</div>
+{% empty %}<p class="lbl">{% translate "No customer has a balance on that date." %}</p>{% endfor %}
+{% endblock %}

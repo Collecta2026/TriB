@@ -1,0 +1,24 @@
+{% extends "docs/email_doc.html" %}{% load trib %}
+{% block doc %}{% for r in items %}{% with p=r.p %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #c9d2d0;border-radius:8px;margin-bottom:16px">
+  <tr><td style="padding:12px 14px;background:#0e6470;color:#ffffff;border-radius:8px 8px 0 0">
+    <span style="font-size:16px;font-weight:600">{% bi "Remittance advice" "إشعار سداد" %} · {{ p.number }}</span>
+    <span style="float:right;font-size:16px;font-weight:600">{{ p.currency_id }} {{ p.amount|num }}</span></td></tr>
+  <tr><td style="padding:10px 14px;font-size:13px;line-height:1.6">
+    {% bi "To" "إلى" %}: <b>{{ p.supplier.name_en }}</b><br>
+    {% bi "Payment date" "تاريخ السداد" %}: <b>{{ p.date|date:"d/m/Y" }}</b> · {% bi "Paid by" "طريقة السداد" %}: {{ p.get_method_display }}{% if p.bank_account %} · {{ p.bank_account.name_en }}{% endif %}{% if p.cheque_number %} · {% bi "Cheque" "شيك" %} #{{ p.cheque_number }}{% endif %}{% if p.reference %}<br>{% bi "Bank reference" "مرجع البنك" %}: {{ p.reference }}{% endif %}</td></tr>
+  <tr><td style="padding:0 14px 14px">
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:12.5px">
+      <tr style="background:#f3f6f6"><th align="left" style="border:1px solid #c9d2d0;padding:6px">{% bih "Your invoice" "فاتورتكم" %}</th><th align="left" style="border:1px solid #c9d2d0;padding:6px">{% bih "Invoice date" "تاريخ الفاتورة" %}</th>
+        <th align="right" style="border:1px solid #c9d2d0;padding:6px">{% bih "Invoice amount" "قيمة الفاتورة" %}</th><th align="right" style="border:1px solid #c9d2d0;padding:6px">{% bih "Credits and earlier payments" "إشعارات ومدفوعات سابقة" %}</th>
+        <th align="right" style="border:1px solid #c9d2d0;padding:6px">{% bih "Paid now" "المسدد الآن" %}</th><th align="right" style="border:1px solid #c9d2d0;padding:6px">{% bih "Still open" "المتبقي" %}</th></tr>
+      {% for x in r.rows %}<tr><td style="border:1px solid #c9d2d0;padding:6px">{{ x.your_ref|default:x.our_ref }}{% if x.your_ref %}<div style="color:#7d8b90;font-size:11px">{{ x.our_ref }}</div>{% endif %}</td>
+        <td style="border:1px solid #c9d2d0;padding:6px">{{ x.date|date:"d/m/Y" }}</td><td align="right" style="border:1px solid #c9d2d0;padding:6px">{{ x.amount|num }}</td>
+        <td align="right" style="border:1px solid #c9d2d0;padding:6px">{% if x.deducted %}−{{ x.deducted|num }}{% endif %}</td>
+        <td align="right" style="border:1px solid #c9d2d0;padding:6px"><b>{{ x.now|num }}</b></td><td align="right" style="border:1px solid #c9d2d0;padding:6px">{{ x.open|num }}</td></tr>{% endfor %}
+      {% if r.advance %}<tr><td colspan="4" style="border:1px solid #c9d2d0;padding:6px">{% bi "Paid in advance (not yet against an invoice)" "دفعة مقدمة (لم تُخصم من فاتورة بعد)" %}</td><td align="right" style="border:1px solid #c9d2d0;padding:6px"><b>{{ r.advance|num }}</b></td><td style="border:1px solid #c9d2d0"></td></tr>{% endif %}
+      <tr style="background:#f3f6f6"><th colspan="4" align="left" style="border:1px solid #c9d2d0;padding:6px">{% bi "Total paid" "إجمالي المسدد" %} ({{ p.currency_id }})</th><th align="right" style="border:1px solid #c9d2d0;padding:6px">{{ p.amount|num }}</th><th style="border:1px solid #c9d2d0"></th></tr>
+    </table>
+    {% if r.credits %}<p style="font-size:12.5px;margin:10px 0 4px"><b>{% bi "Credit notes used" "الإشعارات الدائنة المستخدمة" %}</b>: {% for c in r.credits %}{{ c.your_ref|default:c.our_ref }} ({{ c.against }}) {{ c.amount|num }}{% if not forloop.last %}; {% endif %}{% endfor %}</p>{% endif %}
+  </td></tr>
+</table>{% endwith %}{% endfor %}{% endblock %}

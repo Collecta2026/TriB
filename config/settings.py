@@ -171,4 +171,4 @@ LOGGING = {
 }
 
 # Product name shown in the UI.
-TRIB_PRODUCT = {"name_en": "TriB", "name_ar": "تراي بي", "tagline": _("Accounting & ERP · by Heliolink")}
+TRIB_PRODUCT = {"name_en": "TriB", "name_ar": "تراي بي", "tagline": _("Accounting & ERP · by AWS Pro")}

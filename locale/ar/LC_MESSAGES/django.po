@@ -59,8 +59,17 @@ msgstr "كشف حساب"
 msgid "Accounting"
 msgstr "المحاسبة"
 
-msgid "Accounting & ERP · by Heliolink"
-msgstr "المحاسبة وإدارة الأعمال · من هيليولينك"
+msgid "Accounting & ERP · by AWS Pro"
+msgstr "المحاسبة وإدارة الأعمال · من AWS Pro"
+
+msgid "Manual language"
+msgstr "لغة الدليل"
+
+msgid "Back to TriB"
+msgstr "العودة إلى TriB"
+
+msgid "Opens in a new tab"
+msgstr "يفتح في علامة تبويب جديدة"
 
 msgid "Accounts"
 msgstr "الحسابات"
@@ -7564,3 +7573,681 @@ msgstr "الحد"
 
 msgid "no limit"
 msgstr "بلا حد"
+
+msgid "%(n)s customer"
+msgid_plural "%(n)s customers"
+msgstr[0] "%(n)s عميل"
+msgstr[1] "%(n)s عميل"
+msgstr[2] "%(n)s عميل"
+msgstr[3] "%(n)s عميل"
+msgstr[4] "%(n)s عميل"
+msgstr[5] "%(n)s عميل"
+
+msgid "%(n)s payment"
+msgid_plural "%(n)s payments"
+msgstr[0] "%(n)s دفعة"
+msgstr[1] "%(n)s دفعة"
+msgstr[2] "%(n)s دفعة"
+msgstr[3] "%(n)s دفعة"
+msgstr[4] "%(n)s دفعة"
+msgstr[5] "%(n)s دفعة"
+
+msgid "%(n)s statements sent."
+msgstr "تم إرسال %(n)s كشف حساب."
+
+msgid "%(n)s statement"
+msgid_plural "%(n)s statements"
+msgstr[0] "%(n)s كشف حساب"
+msgstr[1] "%(n)s كشف حساب"
+msgstr[2] "%(n)s كشف حساب"
+msgstr[3] "%(n)s كشف حساب"
+msgstr[4] "%(n)s كشف حساب"
+msgstr[5] "%(n)s كشف حساب"
+
+msgid "91–120 days"
+msgstr "91–120 يومًا"
+
+msgid "Over 120 days"
+msgstr "أكثر من 120 يومًا"
+
+msgid "Balance forward only: the start of the period."
+msgstr "لكشف الرصيد المرحّل فقط: بداية الفترة."
+
+msgid "Balance forward: every transaction in the period"
+msgstr "رصيد مرحّل: كل الحركات خلال الفترة"
+
+msgid "Open items: unpaid invoices with their age"
+msgstr "البنود المفتوحة: الفواتير غير المسددة وأعمارها"
+
+msgid ""
+"Balances are in your base currency; each statement is in the customer's own "
+"currency."
+msgstr "الأرصدة بعملتك الأساسية؛ وكل كشف حساب بعملة العميل نفسه."
+
+msgid "Batch statements"
+msgstr "كشوف حساب مجمّعة"
+
+msgid "Choose at least one payment."
+msgstr "اختر دفعة واحدة على الأقل."
+
+msgid "Choose payments to one supplier at a time."
+msgstr "اختر مدفوعات مورد واحد في كل مرة."
+
+msgid "Choose the customer and dates first."
+msgstr "اختر العميل والتواريخ أولًا."
+
+msgid "Could not be sent: %(names)s"
+msgstr "تعذر الإرسال إلى: %(names)s"
+
+msgid "Credit note not yet used"
+msgstr "إشعار دائن لم يُستخدم بعد"
+
+msgid "Payments not yet applied to an invoice"
+msgstr "مدفوعات لم تُخصم من فاتورة بعد"
+
+msgid "Email %(n)s customer"
+msgid_plural "Email %(n)s customers"
+msgstr[0] "إرسال بالبريد إلى %(n)s عميل"
+msgstr[1] "إرسال بالبريد إلى %(n)s عميل"
+msgstr[2] "إرسال بالبريد إلى %(n)s عميل"
+msgstr[3] "إرسال بالبريد إلى %(n)s عميل"
+msgstr[4] "إرسال بالبريد إلى %(n)s عميل"
+msgstr[5] "إرسال بالبريد إلى %(n)s عميل"
+
+msgid "Email %(n)s statement now?"
+msgid_plural "Email %(n)s statements now?"
+msgstr[0] "إرسال %(n)s كشف حساب بالبريد الآن؟"
+msgstr[1] "إرسال %(n)s كشف حساب بالبريد الآن؟"
+msgstr[2] "إرسال %(n)s كشف حساب بالبريد الآن؟"
+msgstr[3] "إرسال %(n)s كشف حساب بالبريد الآن؟"
+msgstr[4] "إرسال %(n)s كشف حساب بالبريد الآن؟"
+msgstr[5] "إرسال %(n)s كشف حساب بالبريد الآن؟"
+
+msgid ""
+"Email isn't set up yet, so TriB can't send it for you. Print it or save it "
+"as PDF instead. Your administrator can add the email account in Render "
+"(EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)."
+msgstr ""
+"البريد الإلكتروني غير مُعد بعد، لذلك لا يستطيع TriB إرساله نيابة عنك. اطبعه "
+"أو احفظه PDF بدلًا من ذلك. يمكن للمسؤول إضافة حساب البريد في Render "
+"‏(EMAIL_HOST وEMAIL_HOST_USER وEMAIL_HOST_PASSWORD)."
+
+msgid ""
+"Email isn't set up yet, so TriB can't send statements. Print them instead."
+msgstr ""
+"البريد الإلكتروني غير مُعد بعد، لذلك لا يستطيع TriB إرسال كشوف الحساب. "
+"اطبعها بدلًا من ذلك."
+
+msgid "Email remittance advice (selected payments)"
+msgstr "إرسال إشعارات السداد بالبريد (المدفوعات المحددة)"
+
+msgid "Email to customer"
+msgstr "إرسال للعميل بالبريد"
+
+msgid "Email to supplier"
+msgstr "إرسال للمورد بالبريد"
+
+msgid "Every customer with a balance"
+msgstr "كل عميل عليه رصيد"
+
+msgid "Only customers with overdue invoices"
+msgstr "العملاء الذين لديهم فواتير متأخرة فقط"
+
+msgid "No email address"
+msgstr "لا يوجد بريد إلكتروني"
+
+msgid "No email address, so not sent: %(names)s"
+msgstr "لم يُرسل لعدم وجود بريد إلكتروني: %(names)s"
+
+msgid "No payments to show."
+msgstr "لا توجد مدفوعات لعرضها."
+
+msgid ""
+"Payment recorded. Print the remittance advice or email it to the supplier."
+msgstr "تم تسجيل الدفعة. اطبع إشعار السداد أو أرسله للمورد بالبريد."
+
+msgid "Print all"
+msgstr "طباعة الكل"
+
+msgid "Remittance advice %(number)s from %(company)s"
+msgstr "إشعار سداد %(number)s من %(company)s"
+
+msgid "Remittance advice for %(n)s payments from %(company)s"
+msgstr "إشعار سداد عن %(n)s دفعات من %(company)s"
+
+msgid "Select one or more payments first."
+msgstr "حدد دفعة أو أكثر أولًا."
+
+msgid "Sent to %(to)s."
+msgstr "تم الإرسال إلى %(to)s."
+
+msgid "Show customers"
+msgstr "عرض العملاء"
+
+msgid "Statement date"
+msgstr "تاريخ الكشف"
+
+msgid "Statement of account from %(company)s"
+msgstr "كشف حساب من %(company)s"
+
+msgid "Statement type"
+msgstr "نوع الكشف"
+
+msgid ""
+"Statements for all your customers at once: print them, or email each "
+"customer their own."
+msgstr ""
+"كشوف حساب لكل عملائك مرة واحدة: اطبعها، أو أرسل لكل عميل كشفه بالبريد."
+
+msgid ""
+"The email contains the remittance advice itself, so your supplier can read "
+"it without signing in."
+msgstr ""
+"يحتوي البريد على إشعار السداد نفسه، فيستطيع المورد قراءته دون تسجيل الدخول."
+
+msgid ""
+"The email contains the statement itself, so your customer can read it "
+"without signing in."
+msgstr ""
+"يحتوي البريد على كشف الحساب نفسه، فيستطيع العميل قراءته دون تسجيل الدخول."
+
+msgid ""
+"Dear %(name)s,\n"
+"\n"
+"We have paid %(amount)s %(cur)s on %(date)s. The details of the invoices this payment covers are below.\n"
+"\n"
+"Kind regards,\n"
+"%(company)s"
+msgstr ""
+"السادة %(name)s،\n"
+"\n"
+"قمنا بسداد %(amount)s %(cur)s بتاريخ %(date)s. تفاصيل الفواتير التي تغطيها هذه الدفعة أدناه.\n"
+"\n"
+"مع خالص التحية،\n"
+"%(company)s"
+
+msgid ""
+"Dear %(name)s,\n"
+"\n"
+"Please find below our remittance advice for payments %(numbers)s, %(amount)s in total. Each shows the invoices it covers.\n"
+"\n"
+"Kind regards,\n"
+"%(company)s"
+msgstr ""
+"السادة %(name)s،\n"
+"\n"
+"نرفق أدناه إشعارات السداد للمدفوعات %(numbers)s بإجمالي %(amount)s. يوضح كل إشعار الفواتير التي يغطيها.\n"
+"\n"
+"مع خالص التحية،\n"
+"%(company)s"
+
+msgid ""
+"Dear %(name)s,\n"
+"\n"
+"Please find below your statement of account to %(date)s. The balance is %(amount)s %(cur)s.\n"
+"\n"
+"Please let us know within 15 days if it does not agree with your records.\n"
+"\n"
+"Kind regards,\n"
+"%(company)s"
+msgstr ""
+"السادة %(name)s،\n"
+"\n"
+"نرفق أدناه كشف حسابكم حتى %(date)s. الرصيد %(amount)s %(cur)s.\n"
+"\n"
+"يرجى إخطارنا خلال 15 يومًا في حال عدم مطابقته لسجلاتكم.\n"
+"\n"
+"مع خالص التحية،\n"
+"%(company)s"
+
+msgid ""
+"Dear %(name)s,\n"
+"\n"
+"Please find %(doc)s %(number)s for %(amount)s %(cur)s. You can view and print it using the link below.\n"
+"\n"
+"Thank you for your business.\n"
+"%(company)s"
+msgstr ""
+"السيد/السيدة %(name)s،\n"
+"\n"
+"مرفق %(doc)s رقم %(number)s بمبلغ %(amount)s %(cur)s. يمكنك عرضه وطباعته من الرابط أدناه.\n"
+"\n"
+"شكرًا لتعاملكم معنا.\n"
+"%(company)s"
+
+msgid ""
+"%(sku)s: extra stock was counted but no batch is known. Enter it with a "
+"stock adjustment showing its batch and expiry date."
+msgstr ""
+"%(sku)s: تم جرد كمية زائدة دون معرفة التشغيلة. أدخلها بتسوية مخزون مع رقم "
+"التشغيلة وتاريخ الصلاحية."
+
+msgid ""
+"Not enough stock of %(sku)s in %(wh)s: %(have)s in date, %(need)s needed "
+"(%(exp)s more is expired and cannot be sold)."
+msgstr ""
+"لا يوجد مخزون كافٍ من %(sku)s في %(wh)s: المتاح الصالح %(have)s والمطلوب "
+"%(need)s (و%(exp)s أخرى منتهية الصلاحية ولا يمكن بيعها)."
+
+msgid "%(c)s products added and %(u)s updated."
+msgstr "تمت إضافة %(c)s صنف وتحديث %(u)s."
+
+msgid "%(n)s item is at or below its reorder level."
+msgid_plural "%(n)s items are at or below their reorder level."
+msgstr[0] "عدد الأصناف التي وصلت لحد إعادة الطلب أو أقل: %(n)s."
+msgstr[1] "عدد الأصناف التي وصلت لحد إعادة الطلب أو أقل: %(n)s."
+msgstr[2] "عدد الأصناف التي وصلت لحد إعادة الطلب أو أقل: %(n)s."
+msgstr[3] "عدد الأصناف التي وصلت لحد إعادة الطلب أو أقل: %(n)s."
+msgstr[4] "عدد الأصناف التي وصلت لحد إعادة الطلب أو أقل: %(n)s."
+msgstr[5] "عدد الأصناف التي وصلت لحد إعادة الطلب أو أقل: %(n)s."
+
+msgid "%(n)s item is out of stock."
+msgid_plural "%(n)s items are out of stock."
+msgstr[0] "عدد الأصناف النافدة: %(n)s."
+msgstr[1] "عدد الأصناف النافدة: %(n)s."
+msgstr[2] "عدد الأصناف النافدة: %(n)s."
+msgstr[3] "عدد الأصناف النافدة: %(n)s."
+msgstr[4] "عدد الأصناف النافدة: %(n)s."
+msgstr[5] "عدد الأصناف النافدة: %(n)s."
+
+msgid "%(n)s products updated."
+msgstr "تم تحديث %(n)s صنف."
+
+msgid "%(n)s selected"
+msgstr "المحدد: %(n)s"
+
+msgid "%(n)s stock item doesn't have an initial cost."
+msgid_plural "%(n)s stock items don't have an initial cost."
+msgstr[0] "عدد الأصناف المخزنية بلا تكلفة أولية: %(n)s."
+msgstr[1] "عدد الأصناف المخزنية بلا تكلفة أولية: %(n)s."
+msgstr[2] "عدد الأصناف المخزنية بلا تكلفة أولية: %(n)s."
+msgstr[3] "عدد الأصناف المخزنية بلا تكلفة أولية: %(n)s."
+msgstr[4] "عدد الأصناف المخزنية بلا تكلفة أولية: %(n)s."
+msgstr[5] "عدد الأصناف المخزنية بلا تكلفة أولية: %(n)s."
+
+msgid "%(sku)s is active again."
+msgstr "تم تفعيل %(sku)s مرة أخرى."
+
+msgid "%(sku)s is inactive. It no longer appears on new transactions."
+msgstr "تم إيقاف %(sku)s. لن يظهر في المعاملات الجديدة."
+
+msgid "A price can't go down by more than 100%."
+msgstr "لا يمكن خفض السعر بأكثر من 100%."
+
+msgid "Add now"
+msgstr "أضف الآن"
+
+msgid "Adjust"
+msgstr "التعديل"
+
+msgid "Adjust quantity"
+msgstr "تعديل الكمية"
+
+msgid "Adjustment"
+msgstr "التعديل"
+
+msgid "All customers"
+msgstr "كل العملاء"
+
+msgid "All products"
+msgstr "كل الأصناف"
+
+msgid "Always"
+msgstr "دائمًا"
+
+msgid "As of date"
+msgstr "حتى تاريخ"
+
+msgid "Assign category"
+msgstr "تعيين فئة"
+
+msgid "By a fixed amount"
+msgstr "بمبلغ ثابت"
+
+msgid "By a percentage"
+msgstr "بنسبة مئوية"
+
+msgid "Choose a JPG, PNG, WebP or GIF picture."
+msgstr "اختر صورة بصيغة JPG أو PNG أو WebP أو GIF."
+
+msgid "Choose a category."
+msgstr "اختر فئة."
+
+msgid "Copied to %(sku)s. Check it and save."
+msgstr "تم النسخ إلى %(sku)s. راجعه واحفظه."
+
+msgid "Current picture"
+msgstr "الصورة الحالية"
+
+msgid "Decrease"
+msgstr "تخفيض"
+
+msgid "Delete this price rule?"
+msgstr "حذف قاعدة السعر هذه؟"
+
+msgid "Duplicate"
+msgstr "نسخ"
+
+msgid "Edit mode"
+msgstr "وضع التعديل"
+
+msgid ""
+"Edit mode: change prices, costs, reorder levels and categories, then select "
+"Save all."
+msgstr ""
+"وضع التعديل: غيّر الأسعار والتكلفة وحد إعادة الطلب والفئات، ثم اختر حفظ "
+"الكل."
+
+msgid "Edit price rule"
+msgstr "تعديل قاعدة السعر"
+
+msgid "Edit prices and categories in the list"
+msgstr "تعديل الأسعار والفئات داخل القائمة"
+
+msgid "Ended"
+msgstr "منتهية"
+
+msgid "Ending in .99"
+msgstr "تنتهي بـ ‎.99"
+
+msgid "Enter a quantity above zero."
+msgstr "أدخل كمية أكبر من صفر."
+
+msgid "Enter one serial number for each unit (%(n)s)."
+msgstr "أدخل رقمًا مسلسلًا لكل وحدة (%(n)s)."
+
+msgid "Enter the batch."
+msgstr "أدخل رقم التشغيلة."
+
+msgid "Every stock item has a cost."
+msgstr "كل الأصناف المخزنية لها تكلفة."
+
+msgid "Example"
+msgstr "مثال"
+
+msgid "Excel (.xlsx) or CSV file"
+msgstr "ملف Excel ‏(‎.xlsx) أو CSV"
+
+msgid "Filled in on invoices, quotes and sales orders."
+msgstr "يُملأ في الفواتير وعروض الأسعار وأوامر البيع."
+
+msgid "Filled in on purchase orders and bills."
+msgstr "يُملأ في أوامر الشراء وفواتير الموردين."
+
+msgid "Filters"
+msgstr "عوامل التصفية"
+
+msgid "Full screen"
+msgstr "ملء الشاشة"
+
+msgid "Import products"
+msgstr "استيراد الأصناف"
+
+msgid "Import products (Excel)"
+msgstr "استيراد الأصناف (Excel)"
+
+msgid "In stock"
+msgstr "متوفر"
+
+msgid "Increase"
+msgstr "زيادة"
+
+msgid "Initial cost per unit"
+msgstr "التكلفة الأولية للوحدة"
+
+msgid "Initial quantity on hand"
+msgstr "الكمية الأولية المتاحة"
+
+msgid ""
+"JPG, PNG, WebP or GIF, up to 2 MB. Shown in the product list and on the "
+"product page."
+msgstr ""
+"JPG أو PNG أو WebP أو GIF حتى 2 ميجابايت. تظهر في قائمة الأصناف وصفحة الصنف."
+
+msgid "LOW"
+msgstr "منخفض"
+
+msgid "Leave edit mode"
+msgstr "الخروج من وضع التعديل"
+
+msgid "Leave empty for all customers."
+msgstr "اتركه فارغًا لكل العملاء."
+
+msgid "Leave products and categories empty for all products."
+msgstr "اترك الأصناف والفئات فارغة لتطبيق القاعدة على كل الأصناف."
+
+msgid "Low stock"
+msgstr "مخزون منخفض"
+
+msgid "Manage categories"
+msgstr "إدارة الفئات"
+
+msgid "More"
+msgstr "المزيد"
+
+msgid "New price rule"
+msgstr "قاعدة سعر جديدة"
+
+msgid "New product/service"
+msgstr "صنف/خدمة جديدة"
+
+msgid "No category"
+msgstr "بدون فئة"
+
+msgid "No initial cost"
+msgstr "بلا تكلفة أولية"
+
+msgid "No price rules yet."
+msgstr "لا توجد قواعد أسعار بعد."
+
+msgid "No products match these filters."
+msgstr "لا توجد أصناف تطابق عوامل التصفية."
+
+msgid ""
+"No products or services yet. Use New product/service to add one, or import "
+"them from Excel."
+msgstr ""
+"لا توجد أصناف أو خدمات بعد. استخدم صنف/خدمة جديدة لإضافة صنف، أو استوردها من"
+" Excel."
+
+msgid "No rounding"
+msgstr "بدون تقريب"
+
+msgid "No rows could be read from the file."
+msgstr "تعذر قراءة أي سطر من الملف."
+
+msgid "No transactions with this product in the period."
+msgstr "لا توجد معاملات لهذا الصنف في الفترة."
+
+msgid "Not saved (check the numbers): %(skus)s"
+msgstr "لم يُحفظ (راجع الأرقام): %(skus)s"
+
+msgid "OUT"
+msgstr "نافد"
+
+msgid ""
+"One row per product or service. A row with an SKU that already exists "
+"updates that product; other rows are added. Categories that don't exist yet "
+"are created."
+msgstr ""
+"سطر لكل صنف أو خدمة. السطر الذي يحمل كود صنف موجودًا يحدّث ذلك الصنف، وباقي "
+"الأسطر تُضاف. وتُنشأ الفئات غير الموجودة."
+
+msgid "Only stock items have a quantity to adjust."
+msgstr "الأصناف المخزنية فقط لها كمية يمكن تعديلها."
+
+msgid "Out of stock"
+msgstr "نافد"
+
+msgid "Picture"
+msgstr "الصورة"
+
+msgid "Price"
+msgstr "السعر"
+
+msgid "Price rule"
+msgstr "قاعدة السعر"
+
+msgid "Price rule deleted."
+msgstr "تم حذف قاعدة السعر."
+
+msgid "Price rule saved."
+msgstr "تم حفظ قاعدة السعر."
+
+msgid "Price rules"
+msgstr "قواعد الأسعار"
+
+msgid "Products"
+msgstr "الأصناف"
+
+msgid "Products to reorder"
+msgstr "أصناف تحتاج إعادة طلب"
+
+msgid "Products you buy and sell and keep count of."
+msgstr "أصناف تشتريها وتبيعها وتتابع كميتها."
+
+msgid "Products you buy and sell but don't keep count of."
+msgstr "أصناف تشتريها وتبيعها دون متابعة الكمية."
+
+msgid "Purchase description"
+msgstr "وصف الشراء"
+
+msgid "Qty on hand"
+msgstr "الكمية المتاحة"
+
+msgid "Quantity bought"
+msgstr "الكمية المشتراة"
+
+msgid "Quantity sold"
+msgstr "الكمية المباعة"
+
+msgid "QuickReport"
+msgstr "تقرير سريع"
+
+msgid ""
+"Raise or lower sales prices for some customers, products or dates. Invoices,"
+" quotes and sales orders use the rule when a product is added; you can still"
+" change the price on the line."
+msgstr ""
+"ارفع أو اخفض أسعار البيع لبعض العملاء أو الأصناف أو التواريخ. تستخدم "
+"الفواتير وعروض الأسعار وأوامر البيع القاعدة عند إضافة الصنف، ويمكنك تغيير "
+"السعر في السطر."
+
+msgid "Refresh"
+msgstr "تحديث"
+
+msgid "Remove the picture"
+msgstr "حذف الصورة"
+
+msgid "Rounding"
+msgstr "التقريب"
+
+msgid "Row"
+msgstr "السطر"
+
+msgid "Row %(n)s: %(col)s is not a number."
+msgstr "السطر %(n)s: %(col)s ليس رقمًا."
+
+msgid "Row %(n)s: SKU %(sku)s appears twice in the file."
+msgstr "السطر %(n)s: الكود %(sku)s مكرر في الملف."
+
+msgid "Row %(n)s: the name is missing."
+msgstr "السطر %(n)s: الاسم غير موجود."
+
+msgid "Row %(n)s: the type must be Stock, Non-stock or Service."
+msgstr "السطر %(n)s: النوع يجب أن يكون Stock أو Non-stock أو Service."
+
+msgid "Run reports"
+msgstr "تشغيل التقارير"
+
+msgid "Sales description"
+msgstr "وصف البيع"
+
+msgid "Save %(n)s product"
+msgid_plural "Save %(n)s products"
+msgstr[0] "حفظ %(n)s صنف"
+msgstr[1] "حفظ %(n)s صنف"
+msgstr[2] "حفظ %(n)s صنف"
+msgstr[3] "حفظ %(n)s صنف"
+msgstr[4] "حفظ %(n)s صنف"
+msgstr[5] "حفظ %(n)s صنف"
+
+msgid "Save all"
+msgstr "حفظ الكل"
+
+msgid "Search by name, SKU or barcode"
+msgstr "ابحث بالاسم أو الكود أو الباركود"
+
+msgid "Serial-tracked products: one serial number per line, one per unit."
+msgstr "للأصناف ذات الأرقام المسلسلة: رقم في كل سطر، رقم لكل وحدة."
+
+msgid "Some items need your attention"
+msgstr "بعض الأصناف تحتاج انتباهك"
+
+msgid "Start again"
+msgstr "ابدأ من جديد"
+
+msgid "Starting value"
+msgstr "القيمة الافتتاحية"
+
+msgid "Starting value saved for %(sku)s (%(n)s)."
+msgstr "تم حفظ القيمة الافتتاحية لـ %(sku)s ‏(%(n)s)."
+
+msgid "Stock adjustments and transfers"
+msgstr "تسويات المخزون والتحويلات"
+
+msgid "Stock items without an initial cost"
+msgstr "أصناف مخزنية بلا تكلفة أولية"
+
+msgid "Stock status"
+msgstr "حالة المخزون"
+
+msgid "The first row must hold the column names, including Name."
+msgstr "يجب أن يحتوي السطر الأول على أسماء الأعمدة ومنها Name."
+
+msgid "The picture is larger than 2 MB."
+msgstr "الصورة أكبر من 2 ميجابايت."
+
+msgid ""
+"The quantity you had on a date and what each unit cost. TriB posts it as "
+"opening stock (inventory against opening balance equity) and uses the cost "
+"for FIFO."
+msgstr ""
+"الكمية التي كانت لديك في تاريخ معين وتكلفة كل وحدة. يرحّلها TriB كمخزون "
+"افتتاحي (المخزون مقابل حقوق الملكية الافتتاحية) ويستخدم التكلفة في الوارد "
+"أولًا صادر أولًا."
+
+msgid "These rows will be skipped:"
+msgstr "سيتم تخطي هذه الأسطر:"
+
+msgid ""
+"This product already has stock history. Use a stock adjustment instead."
+msgstr "لهذا الصنف حركة مخزون سابقة. استخدم تسوية مخزون بدلًا من ذلك."
+
+msgid "Tick one or more products first."
+msgstr "حدد صنفًا أو أكثر أولًا."
+
+msgid "To the nearest 0.05"
+msgstr "لأقرب 0.05"
+
+msgid "To the nearest 0.50"
+msgstr "لأقرب 0.50"
+
+msgid "To the nearest whole number"
+msgstr "لأقرب عدد صحيح"
+
+msgid "Type is Stock, Non-stock or Service."
+msgstr "النوع: Stock (مخزني) أو Non-stock (غير مخزني) أو Service (خدمة)."
+
+msgid "Updated"
+msgstr "آخر تحديث"
+
+msgid ""
+"When more than one rule fits, the most specific wins: chosen customers "
+"before all customers, chosen products before a category before all products."
+msgstr ""
+"عند انطباق أكثر من قاعدة تُطبَّق الأكثر تحديدًا: عملاء محددون قبل كل "
+"العملاء، وأصناف محددة قبل الفئة قبل كل الأصناف."
+
+msgid "Work you charge for, such as delivery, installation or consulting."
+msgstr "عمل تحصّل مقابله، مثل التوصيل أو التركيب أو الاستشارات."

@@ -344,16 +344,89 @@ def payment_void(request, pk):
 # ---------- Statements & confirmations ----------
 @require_perm("sales.view")
 def statements(request):
-    today = timezone.localdate()
-    initial = {"date_from": today.replace(month=1, day=1), "date_to": today, "customer": request.GET.get("customer")}
-    form = StatementForm(request.GET if "date_to" in request.GET else None, company=request.company, initial=initial)
-    data = None
-    if form.is_valid():
-        d = form.cleaned_data
-        data = services.statement(d["customer"], d["date_from"], d["date_to"])
-        data.update(contact=d["customer"], date_from=d["date_from"], date_to=d["date_to"])
+    from . import statements as st
+    form, data = st.from_request(request)
     return render(request, "sales/statement.html", {"form": form, "data": data, "kind": "customer",
-                                                    "buckets": services.AGING_BUCKETS})
+                                                    "query": request.GET.urlencode()})
+
+
+@require_perm("sales.create")
+def statement_email(request):
+    """Email a customer their statement (the statement itself is in the email)."""
+    from django.urls import reverse
+
+    from core.mailer import review_and_send
+
+    from . import statements as st
+    _form, data = st.from_request(request)
+    if data is None:
+        messages.error(request, _("Choose the customer and dates first."))
+        return redirect("sales:statements")
+    company, customer = request.company, data["contact"]
+    subject = st.default_subject(company)
+    return review_and_send(
+        request, initial={"to": customer.email, "subject": subject, "message": st.default_message(company, data)},
+        build=lambda text: st.email_parts(company, data, text, subject),
+        title=f"{_('Statement')} · {customer.name}", back_url=f"{reverse('sales:statements')}?{request.GET.urlencode()}",
+        crumbs=[(_("Customer statements"), reverse("sales:statements")),
+                (customer.name, reverse("contacts:customer", args=[customer.pk]))],
+        audit_action="customer.statement_sent", audit_obj=customer, summary=_("Statement"),
+        note=_("The email contains the statement itself, so your customer can read it without signing in."))
+
+
+@require_perm("sales.view")
+def statements_batch(request):
+    """Statements for every customer with a balance (or only overdue ones): print them all, or email each customer."""
+    from django.conf import settings
+    from django.core.mail import EmailMultiAlternatives
+
+    from core.doc_actions import email_ready
+    from core.models import AuditLog, client_ip
+
+    from . import statements as st
+    today = timezone.localdate()
+    form = st.BatchForm(request.GET or None, initial={"date_from": today.replace(month=1, day=1), "date_to": today})
+    rows = st.batch_customers(request, form.cleaned_data) if form.is_valid() else []
+    if form.is_valid() and request.GET.get("print") == "1":
+        d = form.cleaned_data
+        items = [st.build(r["c"], d["date_from"], d["date_to"], d["style"], request.company) for r in rows]
+        return render(request, "sales/statements_print.html", {"items": items, "back": f"?{request.GET.urlencode().replace('&print=1', '')}"})
+    ready = email_ready()
+    if request.method == "POST" and form.is_valid():
+        if not request.membership.has_perm("sales.create") or not ready:
+            messages.error(request, _("Email isn't set up yet, so TriB can't send statements. Print them instead."))
+            return redirect(request.get_full_path())
+        d, company = form.cleaned_data, request.company
+        sent, skipped, failed = [], [], []
+        subject = st.default_subject(company)
+        for r in rows:
+            c = r["c"]
+            if not c.email:
+                skipped.append(c.name)
+                continue
+            data = st.build(c, d["date_from"], d["date_to"], d["style"], company)
+            html, text = st.email_parts(company, data, st.default_message(company, data), subject)
+            mail = EmailMultiAlternatives(subject, text, settings.DEFAULT_FROM_EMAIL, [c.email],
+                                          reply_to=[company.email] if company.email else None)
+            mail.attach_alternative(html, "text/html")
+            try:
+                mail.send()
+            except Exception:  # one bad address does not stop the others
+                failed.append(c.name)
+                continue
+            AuditLog.record(company, request.user, "customer.statement_sent", c, f"Statement → {c.email}",
+                            ip=client_ip(request))
+            sent.append(c.name)
+        if sent:
+            messages.success(request, _("%(n)s statements sent.") % {"n": len(sent)})
+        if skipped:
+            messages.warning(request, _("No email address, so not sent: %(names)s") % {"names": ", ".join(skipped)})
+        if failed:
+            messages.error(request, _("Could not be sent: %(names)s") % {"names": ", ".join(failed)})
+        return redirect(request.get_full_path())
+    return render(request, "sales/statements_batch.html", {
+        "form": form, "rows": rows, "ready": ready, "query": request.GET.urlencode(),
+        "with_email": sum(1 for r in rows if r["c"].email)})
 
 
 @require_perm("sales.view")

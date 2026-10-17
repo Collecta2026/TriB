@@ -16,6 +16,7 @@ from datetime import timedelta
 from decimal import Decimal
 
 from django.db import transaction
+from django.db.models import Sum
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
@@ -274,21 +275,22 @@ def quote_to_invoice(quote, user):
     return invoice
 
 
+# Ageing columns: days past the due date. (upper limit of the column, label)
 AGING_BUCKETS = [(0, gettext_lazy("Current")), (30, gettext_lazy("1–30 days")), (60, gettext_lazy("31–60 days")),
-                 (90, gettext_lazy("61–90 days")),
-                 (None, gettext_lazy("Over 90 days"))]
+                 (90, gettext_lazy("61–90 days")), (120, gettext_lazy("91–120 days")),
+                 (None, gettext_lazy("Over 120 days"))]
 
 
 def bucket_for(days_overdue):
-    if days_overdue <= 0:
-        return 0
-    if days_overdue <= 30:
-        return 1
-    if days_overdue <= 60:
-        return 2
-    if days_overdue <= 90:
-        return 3
-    return 4
+    """The ageing column for an amount this many days past its due date."""
+    for i, (limit, _label) in enumerate(AGING_BUCKETS):
+        if limit is None or days_overdue <= limit:
+            return i
+    return len(AGING_BUCKETS) - 1
+
+
+def no_buckets():
+    return [ZERO] * len(AGING_BUCKETS)
 
 
 def ar_aging(company, as_of=None):
@@ -299,27 +301,27 @@ def ar_aging(company, as_of=None):
         due = inv.balance_due
         if due <= 0:
             continue
-        row = rows.setdefault(inv.customer_id, {"contact": inv.customer, "buckets": [ZERO] * 5, "total": ZERO})
+        row = rows.setdefault(inv.customer_id, {"contact": inv.customer, "buckets": no_buckets(), "total": ZERO})
         base = r2(due * inv.rate)
         row["buckets"][bucket_for((as_of - inv.due_date).days)] += base
         row["total"] += base
     for pay in CustomerPayment.objects.filter(company=company, status="posted", date__lte=as_of).select_related("customer"):
         if pay.unallocated > 0:
-            row = rows.setdefault(pay.customer_id, {"contact": pay.customer, "buckets": [ZERO] * 5, "total": ZERO})
+            row = rows.setdefault(pay.customer_id, {"contact": pay.customer, "buckets": no_buckets(), "total": ZERO})
             base = r2(pay.unallocated * pay.rate)
             row["buckets"][0] -= base
             row["total"] -= base
     # Credit not yet used against an invoice or refunded reduces what the customer owes.
     for note in CreditNote.objects.filter(company=company, status="posted", date__lte=as_of).select_related("customer"):
         if note.available > 0:
-            row = rows.setdefault(note.customer_id, {"contact": note.customer, "buckets": [ZERO] * 5, "total": ZERO})
+            row = rows.setdefault(note.customer_id, {"contact": note.customer, "buckets": no_buckets(), "total": ZERO})
             base = r2(note.available * note.rate)
             row["buckets"][0] -= base
             row["total"] -= base
     # Refunds of overpayments (not tied to a credit note) cancel out the unallocated payment above.
     for ref in CustomerRefund.objects.filter(company=company, status="posted", credit_note__isnull=True,
                                              date__lte=as_of).select_related("customer"):
-        row = rows.setdefault(ref.customer_id, {"contact": ref.customer, "buckets": [ZERO] * 5, "total": ZERO})
+        row = rows.setdefault(ref.customer_id, {"contact": ref.customer, "buckets": no_buckets(), "total": ZERO})
         base = r2(ref.amount * ref.rate)
         row["buckets"][0] += base
         row["total"] += base
@@ -327,7 +329,7 @@ def ar_aging(company, as_of=None):
     from banking.models import Cheque
     for chq in Cheque.objects.filter(company=company, status="bounced", customer__isnull=False,
                                      bounced_on__lte=as_of).select_related("customer"):
-        row = rows.setdefault(chq.customer_id, {"contact": chq.customer, "buckets": [ZERO] * 5, "total": ZERO})
+        row = rows.setdefault(chq.customer_id, {"contact": chq.customer, "buckets": no_buckets(), "total": ZERO})
         base = chq.base_amount
         row["buckets"][bucket_for((as_of - chq.bounced_on).days)] += base
         row["total"] += base
@@ -360,11 +362,43 @@ def statement(customer, date_from, date_to):
         running += debit - credit
         rows.append({"date": date, "number": number, "kind": kind, "debit": debit, "credit": credit, "balance": running,
                      "due": due})
-    aging = [ZERO] * 5
-    for inv in Invoice.objects.filter(customer=customer, status="posted", date__lte=date_to):
-        if inv.balance_due > 0:
-            aging[bucket_for((date_to - inv.due_date).days)] += inv.balance_due
-    return {"opening": opening, "rows": rows, "closing": running, "aging": aging}
+    return {"opening": opening, "rows": rows, "closing": running, "aging": open_items(customer, date_to)["aging"]}
+
+
+def open_items(customer, as_of):
+    """Open-item statement: every unpaid invoice with its age, then payments and credits not yet used and returned
+    cheques, in the customer's currency. The ageing line adds them up by column (days past the due date)."""
+    rows = []
+    for inv in (Invoice.objects.filter(customer=customer, status="posted", date__lte=as_of)
+                .prefetch_related("lines__tax_rate").order_by("due_date", "id")):
+        open_ = inv.balance_due
+        if open_ > 0:
+            days = (as_of - inv.due_date).days
+            rows.append({"date": inv.date, "number": inv.number, "ref": inv.reference, "kind": _("Invoice"),
+                         "due": inv.due_date, "days": max(days, 0), "amount": inv.total, "settled": inv.total - open_,
+                         "open": open_, "bucket": bucket_for(days)})
+    from banking.models import Cheque
+    for chq in Cheque.objects.filter(customer=customer, status="bounced", bounced_on__lte=as_of).order_by("bounced_on"):
+        days = (as_of - chq.bounced_on).days
+        rows.append({"date": chq.bounced_on, "number": f"#{chq.number}", "ref": chq.bounce_reason,
+                     "kind": _("Returned cheque"), "due": chq.bounced_on, "days": max(days, 0), "amount": chq.amount,
+                     "settled": ZERO, "open": chq.amount, "bucket": bucket_for(days)})
+    on_account = sum((p.unallocated for p in CustomerPayment.objects.filter(customer=customer, status="posted",
+                                                                             date__lte=as_of)), ZERO)
+    on_account -= CustomerRefund.objects.filter(customer=customer, status="posted", credit_note__isnull=True,
+                                                date__lte=as_of).aggregate(s=Sum("amount"))["s"] or ZERO
+    if on_account > 0:
+        rows.append({"date": as_of, "number": "", "ref": "", "kind": _("Payments not yet applied to an invoice"),
+                     "due": None, "days": None, "amount": None, "settled": None, "open": -on_account, "bucket": 0})
+    for note in CreditNote.objects.filter(customer=customer, status="posted", date__lte=as_of).order_by("date", "id"):
+        if note.available > 0:
+            rows.append({"date": note.date, "number": note.number, "ref": note.reference,
+                         "kind": _("Credit note not yet used"), "due": None, "days": None, "amount": None,
+                         "settled": None, "open": -note.available, "bucket": 0})
+    aging = no_buckets()
+    for r in rows:
+        aging[r["bucket"]] += r["open"]
+    return {"rows": rows, "aging": aging, "total": sum(aging, ZERO), "as_of": as_of}
 
 # ---------- Credit notes ----------
 def _return_cost(note, line):

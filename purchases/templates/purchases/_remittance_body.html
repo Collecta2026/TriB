@@ -1,0 +1,27 @@
+{% load trib %}{% with p=r.p %}
+<div class="voucher-doc remit-doc">
+  <div class="vh"><div><b>{{ company.name_en }}</b><div>{{ company.address|linebreaksbr }}</div>{% if company.tax_id %}<div>{{ company.tax_id }}</div>{% endif %}</div>
+    <div class="vt"><h1>Remittance Advice</h1>{% if not pack or pack.bilingual_print %}<h1 class="ar">إشعار سداد</h1>{% endif %}<div><b>{{ p.number }}</b></div></div>
+    {% if not pack or pack.bilingual_print %}<div class="ar" style="text-align:start"><b>{{ company.name_ar }}</b></div>{% else %}<div></div>{% endif %}</div>
+  <div class="bi"><div>{% bi "To" "إلى" %}: <b>{{ p.supplier.name_en }}</b>{% if p.supplier.code %} ({{ p.supplier.code }}){% endif %}<div>{{ p.supplier.address|linebreaksbr }}</div></div>
+    <div style="text-align:end">{% bi "Payment date" "تاريخ السداد" %}: <b>{{ p.date|date:"d/m/Y" }}</b><br>
+      {% bi "Paid by" "طريقة السداد" %}: {{ p.get_method_display }}{% if p.bank_account %} · {{ p.bank_account.name_en }}{% endif %}
+      {% if p.cheque_number %}<br>{% bi "Cheque" "شيك" %} #{{ p.cheque_number }}{% if p.cheque_due_date %} ({{ p.cheque_due_date|date:"d/m/Y" }}){% endif %}{% endif %}
+      {% if p.reference %}<br>{% bi "Bank reference" "مرجع البنك" %}: {{ p.reference }}{% endif %}</div></div>
+  <p>{% bi "We have paid the following invoices." "نفيدكم بسداد الفواتير التالية." %}</p>
+  <table class="remit-table">
+    <thead><tr><th>{% bih "Your invoice" "فاتورتكم" %}</th><th>{% bih "Our ref." "مرجعنا" %}</th><th>{% bih "Invoice date" "تاريخ الفاتورة" %}</th>
+      <th class="num">{% bih "Invoice amount" "قيمة الفاتورة" %}</th><th class="num">{% bih "Credits" "إشعارات دائنة" %}</th>
+      <th class="num">{% bih "Paid before" "مسدد سابقًا" %}</th><th class="num">{% bih "Paid now" "المسدد الآن" %}</th><th class="num">{% bih "Still open" "المتبقي" %}</th></tr></thead>
+    <tbody>{% for x in r.rows %}<tr><td>{{ x.your_ref|default:"—" }}</td><td>{{ x.our_ref }}</td><td>{{ x.date|date:"d/m/Y" }}</td>
+        <td class="num">{{ x.amount|num }}</td><td class="num">{% if x.credited %}−{{ x.credited|num }}{% endif %}</td>
+        <td class="num">{% if x.before %}−{{ x.before|num }}{% endif %}</td><td class="num"><b>{{ x.now|num }}</b></td><td class="num">{{ x.open|num }}</td></tr>{% endfor %}
+      {% if r.advance %}<tr><td colspan="6">{% bi "Paid in advance (not yet against an invoice)" "دفعة مقدمة (لم تُخصم من فاتورة بعد)" %}</td><td class="num"><b>{{ r.advance|num }}</b></td><td></td></tr>{% endif %}</tbody>
+    <tfoot><tr><th colspan="6">{% bi "Total paid" "إجمالي المسدد" %} ({{ p.currency_id }})</th><th class="num">{{ p.amount|num }}</th><th></th></tr></tfoot>
+  </table>
+  {% if r.credits %}<p><b>{% bi "Credit notes used" "الإشعارات الدائنة المستخدمة" %}</b></p>
+  <table><thead><tr><th>{% bih "Your credit note" "إشعاركم الدائن" %}</th><th>{% bih "Our ref." "مرجعنا" %}</th><th>{% bih "Date" "التاريخ" %}</th><th>{% bih "Against invoice" "على الفاتورة" %}</th><th class="num">{% bih "Amount" "المبلغ" %}</th></tr></thead>
+    <tbody>{% for c in r.credits %}<tr><td>{{ c.your_ref|default:"—" }}</td><td>{{ c.our_ref }}</td><td>{{ c.date|date:"d/m/Y" }}</td><td>{{ c.against }}</td><td class="num">{{ c.amount|num }}</td></tr>{% endfor %}</tbody></table>{% endif %}
+  {% if not pack or pack.amount_in_words %}<div class="words">{{ r.words_en }}</div>{% if not pack or pack.bilingual_print %}<div class="words ar">{{ r.words_ar }}</div>{% endif %}{% endif %}
+  <div class="sigs"><div class="sig">{% bi "Prepared by" "إعداد" %}<br><b>{{ p.created_by }}</b></div><div class="sig">{% bi "Finance" "الإدارة المالية" %}</div><div class="sig">{% bi "Stamp" "الختم" %}</div></div>
+</div>{% endwith %}

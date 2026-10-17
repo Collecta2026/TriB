@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Starting value" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'inventory:items' %}">{% translate "Products & services" %}</a></div>
+  <h1>{% translate "Starting value" %}</h1>
+  <div class="sub">{% translate "The quantity you had on a date and what each unit cost. TriB posts it as opening stock (inventory against opening balance equity) and uses the cost for FIFO." %}</div></div></div>
+<div class="cols">
+  <div class="panel"><form method="post" class="form" data-starting-value data-tracking='{{ tracking }}'>{% csrf_token %}
+    {% include "partials/form_fields.html" %}
+    <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button><a class="btn" href="{% url 'inventory:items' %}">{% translate "Cancel" %}</a></div>
+  </form></div>
+  <div class="panel"><h2>{% translate "Stock items without an initial cost" %}</h2>
+    <table class="tbl"><tbody>{% for i in missing %}<tr><td>{{ i.sku }}</td><td>{{ i.name }}</td><td><a class="link" href="?item={{ i.pk }}">{% translate "Add now" %}</a></td></tr>
+      {% empty %}<tr><td class="lbl">{% translate "Every stock item has a cost." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% endblock %}

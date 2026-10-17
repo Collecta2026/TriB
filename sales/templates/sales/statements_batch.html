@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Batch statements" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'sales:statements' %}">{% translate "Customer statements" %}</a></div>
+  <h1>{% translate "Batch statements" %}</h1><div class="sub">{% translate "Statements for all your customers at once: print them, or email each customer their own." %}</div></div></div>
+<form method="get" class="panel form">{% include "partials/form_fields.html" %}<div class="form-actions"><button class="btn primary" type="submit">{% translate "Show customers" %}</button></div></form>
+{% if form.is_bound and form.is_valid %}
+<div class="panel">
+  <div class="toolbar"><b>{% blocktranslate count n=rows|length %}{{ n }} customer{% plural %}{{ n }} customers{% endblocktranslate %}</b>
+    {% if rows %}<a class="btn" href="?{{ query }}&print=1">{% include "partials/icon.html" with name="print" %} {% translate "Print all" %}</a>
+      {% if can.sales.create %}<form method="post" action="?{{ query }}">{% csrf_token %}<button class="btn primary" type="submit" {% if not ready or not with_email %}disabled{% endif %}
+        onclick="return confirm(this.dataset.confirm)" data-confirm="{% blocktranslate count n=with_email %}Email {{ n }} statement now?{% plural %}Email {{ n }} statements now?{% endblocktranslate %}">{% include "partials/icon.html" with name="mail" %} {% blocktranslate count n=with_email %}Email {{ n }} customer{% plural %}Email {{ n }} customers{% endblocktranslate %}</button></form>{% endif %}{% endif %}</div>
+  {% if not ready %}<p class="msg warning">{% translate "Email isn't set up yet, so TriB can't send statements. Print them instead." %}</p>{% endif %}
+  <div class="table-wrap"><table class="tbl">
+    <thead><tr><th>{% translate "Customer" %}</th><th>{% translate "Email" %}</th><th class="num">{% translate "Balance" %}</th><th class="num">{% translate "Overdue" %}</th><th></th></tr></thead>
+    <tbody>{% for r in rows %}<tr><td><a href="{% url 'contacts:customer' r.c.pk %}">{{ r.c.name }}</a></td>
+      <td>{% if r.c.email %}{{ r.c.email }}{% else %}<span class="pill warn">{% translate "No email address" %}</span>{% endif %}</td>
+      <td class="num">{{ r.total|num }}</td><td class="num">{% if r.overdue %}<span class="pill crit">{{ r.overdue|num }}</span>{% endif %}</td>
+      <td><a class="link" href="{% url 'sales:statements' %}?customer={{ r.c.pk }}&date_from={{ form.cleaned_data.date_from|date:'Y-m-d' }}&date_to={{ form.cleaned_data.date_to|date:'Y-m-d' }}&style={{ form.cleaned_data.style }}">{% translate "Statement" %}</a></td></tr>
+    {% empty %}<tr><td colspan="5" class="lbl">{% translate "No customer has a balance on that date." %}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="lbl">{% translate "Balances are in your base currency; each statement is in the customer's own currency." %}</p>
+</div>{% endif %}
+{% endblock %}

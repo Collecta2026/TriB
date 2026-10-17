@@ -3,7 +3,7 @@
 {% block title %}{% translate "Help" %}{% endblock %}
 {% block content %}
 <div class="page-head"><div><h1>{% translate "TriB user manual" %}</h1><div class="sub">{% translate "How every screen works, step by step. Search, or pick a topic." %}</div></div>
-  <div class="toolbar"><a class="btn" href="{% url 'core:manual' %}">{% include "partials/icon.html" with name="print" %}{% translate "Printable manual (PDF)" %}</a>
+  <div class="toolbar"><a class="btn" href="{% url 'core:manual' %}" target="_blank" title="{% translate 'Opens in a new tab' %}">{% include "partials/icon.html" with name="print" %}{% translate "Printable manual (PDF)" %}</a>
     <a class="btn" href="{% url 'core:feedback' %}">{% include "partials/icon.html" with name="chat" %}{% translate "Give feedback" %}</a></div></div>
 <div class="rep-search help-search">{% include "partials/icon.html" with name="search" %}
   <input type="search" id="helpSearch" placeholder="{% translate 'Search the manual, e.g. returned cheque, subtotal, VAT' %}" aria-label="{% translate 'Search the manual' %}" autocomplete="off"></div>

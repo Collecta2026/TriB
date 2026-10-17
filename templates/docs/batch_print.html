@@ -4,7 +4,8 @@
 {% block content %}
 <div class="toolbar no-print"><a class="btn" href="javascript:history.back()">‹ {% translate "Back" %}</a>
   <button class="btn primary" type="button" data-print>{% include "partials/icon.html" with name="print" %} {% translate "Print" %}</button>
-  <span class="lbl">{% blocktranslate count n=docs|length %}{{ n }} document{% plural %}{{ n }} documents{% endblocktranslate %}</span></div>
-{% for d in docs %}<div class="print-page">{% with spec=d.spec doc=d.doc lines=d.lines party=d.party words_en=d.words_en words_ar=d.words_ar delivery=False %}{% include "docs/_print_body.html" %}{% endwith %}</div>
-{% empty %}<p class="lbl">{% translate "Nothing selected can be printed. Only documents with a number can be printed." %}</p>{% endfor %}
+  <span class="lbl">{% blocktranslate count n=count %}{{ n }} document{% plural %}{{ n }} documents{% endblocktranslate %}</span></div>
+{% for d in docs %}<div class="print-page">{% with spec=d.spec doc=d.doc lines=d.lines party=d.party words_en=d.words_en words_ar=d.words_ar delivery=False %}{% include "docs/_print_body.html" %}{% endwith %}</div>{% endfor %}
+{% for r in remits %}<div class="print-page">{% include "purchases/_remittance_body.html" %}</div>{% endfor %}
+{% if not count %}<p class="lbl">{% translate "Nothing selected can be printed. Only documents with a number can be printed." %}</p>{% endif %}
 {% endblock %}

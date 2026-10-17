@@ -5,8 +5,16 @@
 <div class="page-head"><div><div class="crumbs"><a href="{% url 'inventory:items' %}">{% translate "Products & services" %}</a></div>
   <h1>{{ item.sku }} · {{ item.name }}{% if not item.is_active %} <span class="pill">{% translate "Inactive" %}</span>{% endif %}</h1>
   <div class="sub">{{ item.get_type_display }}{% if item.category %} · {{ item.category.name }}{% endif %}{% if item.tracking != "none" %} · {{ item.get_tracking_display }}{% endif %}</div></div>
-  <div class="toolbar"><a class="btn" href="{% url 'inventory:labels' %}?item={{ item.pk }}&copies=1">{% translate "Print label" %}</a>
+  <div class="toolbar"><a class="btn" href="{% url 'inventory:item_report' item.pk %}">{% translate "Run report" %}</a>
+    {% if stock_on %}<a class="btn" href="{% url 'inventory:labels' %}?item={{ item.pk }}&copies=1">{% translate "Print label" %}</a>{% endif %}
     {% if can.inventory.edit %}<a class="btn" href="{% url 'inventory:item_edit' item.pk %}">{% translate "Edit" %}</a>{% endif %}
+    <div class="hov"><button type="button" class="btn" aria-haspopup="true">{% translate "More" %} ▾</button>
+      <div class="hov-pop menu-pop"><form method="post" action="{% url 'inventory:item_action' item.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'inventory:item' item.pk %}">
+        {% if can.inventory.create %}<button name="action" value="duplicate">{% translate "Duplicate" %}</button>{% endif %}
+        {% if can.inventory.edit %}{% if item.is_active %}<button name="action" value="inactive">{% translate "Make inactive" %}</button>{% else %}<button name="action" value="active">{% translate "Make active" %}</button>{% endif %}{% endif %}</form>
+        {% if item.is_stocked and can.inventory.create and stock_on %}{% if not moves %}<a href="{% url 'inventory:starting_value' %}?item={{ item.pk }}">{% translate "Starting value" %}</a>{% endif %}
+          <a href="{% url 'inventory:adjustment_new' %}?items={{ item.pk }}">{% translate "Adjust quantity" %}</a>{% endif %}
+      </div></div>
     {% if can.purchases.create %}<a class="btn primary" href="{% url 'purchases:order_new' %}">{% translate "Order more" %}</a>{% endif %}</div>
 </div>
 <div class="cols">
@@ -16,9 +24,11 @@
     <tr><td class="lbl">{% translate "Sales price" %}</td><td>{{ item.sales_price|money:company.base_currency }}{% if item.sales_tax %} · {{ item.sales_tax }}{% endif %}</td></tr>
     {% if can.inventory.costs %}<tr><td class="lbl">{% translate "Purchase cost" %}</td><td>{{ item.purchase_cost|money:company.base_currency }}</td></tr>{% endif %}
     {% if item.is_stocked %}<tr><td class="lbl">{% translate "Reorder level" %}</td><td>{{ item.reorder_level|num:3 }}</td></tr>{% endif %}
-    {% if item.description %}<tr><td class="lbl">{% translate "Description" %}</td><td>{{ item.description|linebreaksbr }}</td></tr>{% endif %}
+    {% if item.description %}<tr><td class="lbl">{% translate "Sales description" %}</td><td>{{ item.description|linebreaksbr }}</td></tr>{% endif %}
+    {% if item.purchase_description %}<tr><td class="lbl">{% translate "Purchase description" %}</td><td>{{ item.purchase_description|linebreaksbr }}</td></tr>{% endif %}
   </tbody></table></div>
-  <div class="panel"><h2>{% translate "Barcode" %}</h2><div style="text-align:center">{% barcode item.scan_code 2 60 %}</div>
+  <div class="panel">{% if item.has_image %}<img class="item-pic" src="{% url 'inventory:item_image' item.pk %}" alt="{{ item.name }}" style="margin-bottom:12px">{% endif %}
+    <h2>{% translate "Barcode" %}</h2><div style="text-align:center">{% barcode item.scan_code 2 60 %}</div>
     {% if item.is_stocked %}<div class="kpis" style="margin-top:12px"><div class="kpi"><span class="lbl">{% translate "On hand" %}</span><span class="n">{{ on_hand|num:3 }} {{ item.unit }}</span></div>
       {% if can.inventory.costs %}<div class="kpi"><span class="lbl">{% translate "Value (FIFO)" %}</span><span class="n">{{ value|num }}</span></div>{% endif %}</div>
     {% for w in by_wh %}<div class="lbl">{{ w.warehouse__code }} · {{ w.warehouse__name_en }}: <b>{{ w.q|num:3 }}</b></div>{% endfor %}{% endif %}

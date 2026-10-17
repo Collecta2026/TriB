@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "QuickReport" %} · {{ item.sku }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'inventory:items' %}">{% translate "Products & services" %}</a> · <a href="{% url 'inventory:item' item.pk %}">{{ item.sku }}</a></div>
+  <h1>{% translate "QuickReport" %}: {{ item.name }}</h1>
+  <div class="sub">{{ company.name }} · {{ date_from|date:"d/m/Y" }} – {{ date_to|date:"d/m/Y" }} · {{ company.base_currency_id }}</div></div>
+  <div class="toolbar no-print"><button class="btn" type="button" onclick="window.print()">{% include "partials/icon.html" with name="print" %} {% translate "Print" %}</button></div></div>
+<form method="get" class="toolbar no-print"><label class="lbl">{% translate "From" %} <input type="date" name="from" value="{{ date_from|date:'Y-m-d' }}" style="width:auto"></label>
+  <label class="lbl">{% translate "To" %} <input type="date" name="to" value="{{ date_to|date:'Y-m-d' }}" style="width:auto"></label><button class="btn" type="submit">{% translate "Run report" %}</button></form>
+<div class="kpis">
+  <div class="kpi"><span class="lbl">{% translate "Quantity sold" %}</span><span class="n">{{ qty_sold|floatformat:"-3" }} {{ item.unit }}</span></div>
+  <div class="kpi"><span class="lbl">{% translate "Sales" %}</span><span class="n">{{ sales|num }}</span></div>
+  {% if can.inventory.costs %}<div class="kpi"><span class="lbl">{% translate "Quantity bought" %}</span><span class="n">{{ qty_bought|floatformat:"-3" }} {{ item.unit }}</span></div>
+  <div class="kpi"><span class="lbl">{% translate "Purchases" %}</span><span class="n">{{ purchases|num }}</span></div>{% endif %}
+</div>
+<div class="panel"><div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Date" %}</th><th>{% translate "Type" %}</th><th>{% translate "No." %}</th><th>{% translate "Customer / supplier" %}</th><th class="num">{% translate "Qty" %}</th><th class="num">{% translate "Rate" %}</th><th class="num">{% translate "Amount" %}</th></tr></thead>
+  <tbody>{% for r in rows %}<tr><td>{{ r.date|date:"d/m/Y" }}</td><td>{{ r.type }}</td><td><a href="{{ r.url }}">{{ r.number }}</a></td><td>{{ r.party }}</td>
+    <td class="num">{{ r.qty|floatformat:"-3" }}</td><td class="num">{{ r.rate|num }}</td><td class="num">{{ r.amount|num }}</td></tr>
+  {% empty %}<tr><td colspan="7" class="lbl">{% translate "No transactions with this product in the period." %}</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% if moves %}<div class="panel"><h2>{% translate "Stock adjustments and transfers" %}</h2><div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Date" %}</th><th>{% translate "Type" %}</th><th>{% translate "Reference" %}</th><th>{% translate "Warehouse" %}</th><th class="num">{% translate "Qty" %}</th>{% if can.inventory.costs %}<th class="num">{% translate "Value" %}</th>{% endif %}</tr></thead>
+  <tbody>{% for m in moves %}<tr><td>{{ m.date|date:"d/m/Y" }}</td><td>{{ m.get_kind_display }}</td><td>{{ m.ref }}</td><td>{{ m.warehouse.code }}</td><td class="num">{{ m.qty|floatformat:"-3" }}</td>{% if can.inventory.costs %}<td class="num">{{ m.value|num }}</td>{% endif %}</tr>{% endfor %}</tbody>
+</table></div></div>{% endif %}
+{% endblock %}

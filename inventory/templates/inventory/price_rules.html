@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Price rules" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'inventory:items' %}">{% translate "Products & services" %}</a></div>
+  <h1>{% translate "Price rules" %}</h1>
+  <div class="sub">{% translate "Raise or lower sales prices for some customers, products or dates. Invoices, quotes and sales orders use the rule when a product is added; you can still change the price on the line." %}</div></div>
+  {% if can_edit and not form %}<div class="toolbar"><a class="btn primary" href="?new=1">+ {% translate "New price rule" %}</a></div>{% endif %}</div>
+{% if form %}<div class="panel"><h2>{% if obj %}{% translate "Edit price rule" %}{% else %}{% translate "New price rule" %}{% endif %}</h2>
+  <form method="post" class="form">{% csrf_token %}{% if obj %}<input type="hidden" name="pk" value="{{ obj.pk }}">{% endif %}
+    {% include "partials/form_fields.html" %}
+    <p class="lbl">{% translate "When more than one rule fits, the most specific wins: chosen customers before all customers, chosen products before a category before all products." %}</p>
+    <div class="form-actions"><button class="btn primary" type="submit">{% translate "Save" %}</button><a class="btn" href="{% url 'inventory:price_rules' %}">{% translate "Cancel" %}</a>
+      {% if obj %}<button class="btn danger" type="submit" name="delete" value="1" onclick="return confirm(this.dataset.confirm)" data-confirm="{% translate 'Delete this price rule?' %}">{% translate "Delete" %}</button>{% endif %}</div>
+  </form></div>{% endif %}
+<div class="panel"><div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Rule name" %}</th><th>{% translate "Adjustment" %}</th><th>{% translate "Customers" %}</th><th>{% translate "Products" %}</th><th>{% translate "Dates" %}</th><th>{% translate "Example" %}</th><th></th></tr></thead>
+  <tbody>{% for x in rules %}{% with r=x.r %}<tr{% if not r.is_active %} class="muted-row"{% endif %}>
+    <td><b>{{ r.name }}</b>{% if not r.is_active %} <span class="pill">{% translate "Inactive" %}</span>{% elif r.end_date and r.end_date < today %} <span class="pill">{% translate "Ended" %}</span>{% endif %}</td>
+    <td>{{ r.get_direction_display }} {% if r.method == "percent" %}{{ r.amount|floatformat:"-2" }}%{% else %}{{ r.amount|num }}{% endif %}{% if r.rounding != "none" %}<div class="lbl">{{ r.get_rounding_display }}</div>{% endif %}</td>
+    <td>{% for c in r.customers.all %}{{ c.name }}{% if not forloop.last %}, {% endif %}{% empty %}{% translate "All customers" %}{% endfor %}</td>
+    <td>{% for c in r.categories.all %}<span class="pill">{{ c.name }}</span> {% endfor %}{% for i in r.items.all %}{{ i.sku }}{% if not forloop.last %}, {% endif %}{% endfor %}{% if not r.categories.all and not r.items.all %}{% translate "All products" %}{% endif %}</td>
+    <td>{% if r.start_date or r.end_date %}{{ r.start_date|date:"d/m/Y"|default:"…" }} – {{ r.end_date|date:"d/m/Y"|default:"…" }}{% else %}{% translate "Always" %}{% endif %}</td>
+    <td class="lbl">{% if x.example %}{{ x.example.0.sku }}: {{ x.example.0.sales_price|num }} → <b>{{ x.example.1|num }}</b>{% endif %}</td>
+    <td>{% if can_edit %}<a class="link" href="?edit={{ r.pk }}">{% translate "Edit" %}</a>{% endif %}</td></tr>{% endwith %}
+  {% empty %}<tr><td colspan="7" class="lbl">{% translate "No price rules yet." %}</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

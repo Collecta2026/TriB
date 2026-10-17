@@ -2,22 +2,131 @@
 {% load i18n trib %}
 {% block title %}{% translate "Products & services" %}{% endblock %}
 {% block content %}
-<div class="page-head"><div><h1>{% translate "Products & services" %}</h1><div class="sub">{% translate "Every product has its own SKU. Leave the SKU empty and TriB numbers it from the category prefix." %}</div></div>
-  <div class="toolbar"><a class="btn" href="{% url 'inventory:categories' %}">{% translate "Categories" %}</a><a class="btn" href="{% url 'inventory:labels' %}">{% translate "Barcode labels" %}</a>
-    {% if can.inventory.create %}<a class="btn primary" href="{% url 'inventory:item_new' %}">+ {% translate "Product or service" %}</a>{% endif %}</div></div>
-<form method="get" class="toolbar">
-  <input type="search" name="q" value="{{ q }}" placeholder="{% translate 'SKU, name or barcode' %}" style="width:auto;min-width:240px">
-  <select name="type" style="width:auto"><option value="">{% translate "All types" %}</option>{% for v, l in types %}<option value="{{ v }}" {% if request.GET.type == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
-  <select name="category" style="width:auto"><option value="">{% translate "All categories" %}</option>{% for c in categories %}<option value="{{ c.pk }}" {% if request.GET.category == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
-  <label class="check"><input type="checkbox" name="inactive" value="1" {% if request.GET.inactive %}checked{% endif %}> {% translate "Include inactive" %}</label>
-  <button class="btn" type="submit">{% translate "Filter" %}</button></form>
-<div class="table-wrap"><table class="tbl">
-  <thead><tr><th>{% translate "SKU" %}</th><th>{% translate "Name" %}</th><th>{% translate "Type" %}</th><th>{% translate "Category" %}</th><th>{% translate "Tracking" %}</th><th class="num">{% translate "Sales price" %}</th>{% if can.inventory.costs %}<th class="num">{% translate "Purchase cost" %}</th>{% endif %}<th class="num">{% translate "On hand" %}</th></tr></thead>
-  <tbody>{% for r in rows %}<tr><td><a href="{% url 'inventory:item' r.i.pk %}">{{ r.i.sku }}</a></td><td>{{ r.i.name }}{% if not r.i.is_active %} <span class="pill">{% translate "Inactive" %}</span>{% endif %}</td>
-    <td>{{ r.i.get_type_display }}</td><td>{{ r.i.category.name|default:"" }}</td><td>{% if r.i.tracking != "none" %}{{ r.i.get_tracking_display }}{% endif %}</td>
-    <td class="num">{{ r.i.sales_price|num }}</td>{% if can.inventory.costs %}<td class="num">{{ r.i.purchase_cost|num }}</td>{% endif %}
-    <td class="num">{% if r.i.is_stocked %}{% if r.i.reorder_level and r.qty <= r.i.reorder_level %}<span class="pill warn">{{ r.qty|num:3 }}</span>{% else %}{{ r.qty|num:3 }}{% endif %} {{ r.i.unit }}{% endif %}</td></tr>
-  {% empty %}<tr><td colspan="8" class="lbl">{% translate "Nothing here yet." %}</td></tr>{% endfor %}</tbody>
+<div id="itemsPage">
+<div class="page-head"><div><h1>{% translate "Products & services" %}</h1></div>
+  <div class="toolbar">
+    <a class="link" href="{% url 'core:feedback' %}">{% include "partials/icon.html" with name="chat" %} {% translate "Give feedback" %}</a>
+    <div class="hov"><button type="button" class="btn" aria-haspopup="true">{% translate "More" %} ▾</button>
+      <div class="hov-pop menu-pop">
+        <a href="{% url 'inventory:categories' %}">{% translate "Manage categories" %}</a>
+        <a href="{% url 'inventory:price_rules' %}">{% translate "Price rules" %}</a>
+        <div class="menu-sub"><span class="lbl">{% translate "Run reports" %}</span>
+          {% if stock %}<a href="{% url 'inventory:stock' %}">{% translate "Stock valuation summary" %}</a>
+          {% if sees_costs %}<a href="{% url 'reports:stock_detail' %}">{% translate "Inventory valuation detail" %}</a>{% endif %}
+          <a href="?status=low">{% translate "Products to reorder" %}</a>
+          <a href="{% url 'inventory:expiry' %}">{% translate "Batches & expiry" %}</a>{% endif %}
+          {% if can.reports.view %}<a href="{% url 'reports:sales_by_item' %}">{% translate "Sales by product" %}</a>{% endif %}</div>
+        {% if stock and can.inventory.create %}<a href="{% url 'inventory:starting_value' %}">{% translate "Starting value" %}</a>{% endif %}
+        {% if stock %}<a href="{% url 'inventory:labels' %}">{% translate "Barcode labels" %}</a>{% endif %}
+        {% if can.inventory.create %}<a href="{% url 'inventory:import_items' %}">{% translate "Import products (Excel)" %}</a>{% endif %}
+      </div></div>
+    {% if can.inventory.create %}<div class="hov"><button type="button" class="btn primary" aria-haspopup="true">{% translate "New product/service" %} ▾</button>
+      <div class="hov-pop menu-pop new-pop">
+        {% if stock %}<a href="{% url 'inventory:item_new' %}?type=inventory"><b>{% translate "Stock item" %}</b><span class="lbl">{% translate "Products you buy and sell and keep count of." %}</span></a>{% endif %}
+        <a href="{% url 'inventory:item_new' %}?type=non_inventory"><b>{% translate "Non-stock item" %}</b><span class="lbl">{% translate "Products you buy and sell but don't keep count of." %}</span></a>
+        <a href="{% url 'inventory:item_new' %}?type=service"><b>{% translate "Service" %}</b><span class="lbl">{% translate "Work you charge for, such as delivery, installation or consulting." %}</span></a>
+      </div></div>{% endif %}
+  </div></div>
+
+{% if attention and attention.nocost or attention and attention.out or attention and attention.low %}
+<div class="attn" data-attn="{{ attention.nocost }}-{{ attention.out }}-{{ attention.low }}" role="status">
+  <span class="attn-ic" aria-hidden="true">!</span>
+  <div><b>{% translate "Some items need your attention" %}</b>
+    {% if attention.nocost %}<div>{% blocktranslate count n=attention.nocost %}{{ n }} stock item doesn't have an initial cost.{% plural %}{{ n }} stock items don't have an initial cost.{% endblocktranslate %} <a href="?status=nocost">{% translate "Add now" %}</a></div>{% endif %}
+    {% if attention.out %}<div>{% blocktranslate count n=attention.out %}{{ n }} item is out of stock.{% plural %}{{ n }} items are out of stock.{% endblocktranslate %} <a href="?status=out">{% translate "See all" %}</a></div>{% endif %}
+    {% if attention.low %}<div>{% blocktranslate count n=attention.low %}{{ n }} item is at or below its reorder level.{% plural %}{{ n }} items are at or below their reorder level.{% endblocktranslate %} <a href="?status=low">{% translate "See all" %}</a></div>{% endif %}
+  </div>
+  <button type="button" class="iconbtn" data-attn-close aria-label="{% translate 'Close' %}">{% include "partials/icon.html" with name="close" %}</button>
+</div>{% endif %}
+
+<div class="items-bar no-print">
+  <form method="get" class="items-filters" id="itemsFilter">
+    {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+    <label class="fld"><span class="lbl">{% translate "Search" %}</span><span class="search-in">{% include "partials/icon.html" with name="search" %}<input type="search" name="q" value="{{ q }}" placeholder="{% translate 'Search by name, SKU or barcode' %}"></span></label>
+    <label class="fld"><span class="lbl">{% translate "Type" %}</span><select name="type" onchange="this.form.submit()"><option value="">{% translate "All" %}</option>{% for v, l in types %}{% if stock or v != "inventory" %}<option value="{{ v }}" {% if request.GET.type == v %}selected{% endif %}>{{ l }}</option>{% endif %}{% endfor %}</select></label>
+    {% if stock %}<label class="fld"><span class="lbl">{% translate "Stock status" %}</span><select name="status" onchange="this.form.submit()">{% for v, l in statuses %}<option value="{{ v }}" {% if status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>{% endif %}
+    <div class="hov fld-btn"><button type="button" class="btn ghost" aria-haspopup="true">{% include "partials/icon.html" with name="sliders" %} {% translate "Filters" %}{% if filters_on %} <span class="pill">{{ filters_on }}</span>{% endif %}</button>
+      <div class="hov-pop filter-pop">
+        <label class="fld"><span class="lbl">{% translate "Category" %}</span><select name="category"><option value="">{% translate "All categories" %}</option><option value="none" {% if request.GET.category == "none" %}selected{% endif %}>{% translate "Uncategorised" %}</option>{% for c in categories %}<option value="{{ c.pk }}" {% if request.GET.category == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></label>
+        <label class="fld"><span class="lbl">{% translate "Status" %}</span><select name="active">{% for v, l in actives %}<option value="{{ v }}" {% if active == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+        {% if stock %}<label class="fld"><span class="lbl">{% translate "Tracking" %}</span><select name="tracking"><option value="">{% translate "Any" %}</option>{% for v, l in trackings %}<option value="{{ v }}" {% if request.GET.tracking == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>{% endif %}
+        <div class="form-actions"><button class="btn primary" type="submit">{% translate "Apply" %}</button><a class="btn" href="{% url 'inventory:items' %}">{% translate "Reset" %}</a></div>
+      </div></div>
+  </form>
+  <div class="items-tools">
+    <span class="lbl">{% translate "Updated" %} {{ now|time:"H:i" }}</span>
+    <div class="tool-row">
+      {% if can.inventory.edit %}<a class="iconbtn{% if edit %} on{% endif %}" href="?{{ keep }}{% if not edit %}&edit=1{% endif %}" title="{% if edit %}{% translate 'Leave edit mode' %}{% else %}{% translate 'Edit prices and categories in the list' %}{% endif %}" aria-label="{% translate 'Edit mode' %}">{% include "partials/icon.html" with name="pencil" %}</a>{% endif %}
+      <button type="button" class="iconbtn" data-fullscreen title="{% translate 'Full screen' %}" aria-label="{% translate 'Full screen' %}">{% include "partials/icon.html" with name="resize" %}</button>
+      <a class="iconbtn" href="?{{ keep }}" title="{% translate 'Refresh' %}" aria-label="{% translate 'Refresh' %}">{% include "partials/icon.html" with name="refresh" %}</a>
+      {% include "partials/list_tools.html" %}
+    </div>
+  </div>
+</div>
+{% include "partials/filter_note.html" %}
+
+<form method="post" id="batchForm" action="{% url 'inventory:items_batch' %}" class="batch-bar no-print" hidden data-batch-bar>{% csrf_token %}
+  <input type="hidden" name="next" value="{{ here }}">
+  <b data-batch-count data-label="{% translate '%(n)s selected' %}"></b>
+  {% if can.inventory.edit %}<button class="btn" name="action" value="inactive">{% translate "Make inactive" %}</button>
+  <button class="btn" name="action" value="active">{% translate "Make active" %}</button>
+  <span class="batch-cat"><select name="category" aria-label="{% translate 'Category' %}"><option value="">{% translate "No category" %}</option>{% for c in categories %}<option value="{{ c.pk }}">{{ c.name }}</option>{% endfor %}</select>
+    <button class="btn" name="action" value="category">{% translate "Assign category" %}</button></span>{% endif %}
+  {% if stock and can.inventory.create %}<button class="btn" name="action" value="adjust">{% translate "Adjust quantity" %}</button>{% endif %}
+  {% if stock %}<button class="btn" name="action" value="labels">{% translate "Print labels" %}</button>{% endif %}
+</form>
+<form method="post" id="rowAction" hidden>{% csrf_token %}<input type="hidden" name="next" value="{{ here }}"></form>
+
+{% if edit %}<form method="post" action="{% url 'inventory:items_bulk_save' %}" id="bulkForm">{% csrf_token %}<input type="hidden" name="next" value="?{{ keep }}">
+<div class="msg info no-print">{% translate "Edit mode: change prices, costs, reorder levels and categories, then select Save all." %} <button class="btn primary" type="submit">{% translate "Save all" %}</button> <a class="btn" href="?{{ keep }}">{% translate "Cancel" %}</a></div>{% endif %}
+<div class="table-wrap"><table class="tbl items-tbl" data-list-table="{{ list_key }}">
+  <thead><tr>
+    <th class="sel-col no-print"><input type="checkbox" data-items-all aria-label="{% translate 'Select all' %}"></th>
+    <th class="pic-col"></th>
+    <th><a href="{{ cols.name.url }}">{% translate "Name" %} {{ cols.name.arrow }}</a></th>
+    <th><a href="{{ cols.desc.url }}">{% translate "Sales description" %} {{ cols.desc.arrow }}</a></th>
+    {% if stock %}<th class="num"><a href="{{ cols.qty.url }}">{% translate "Qty on hand" %} {{ cols.qty.arrow }}</a></th>{% endif %}
+    <th><a href="{{ cols.category.url }}">{% translate "Category" %} {{ cols.category.arrow }}</a></th>
+    <th><a href="{{ cols.sku.url }}">{% translate "SKU" %} {{ cols.sku.arrow }}</a></th>
+    <th><a href="{{ cols.type.url }}">{% translate "Type" %} {{ cols.type.arrow }}</a></th>
+    <th class="num"><a href="{{ cols.price.url }}">{% translate "Price" %} {{ cols.price.arrow }}</a></th>
+    {% if sees_costs %}<th class="num"><a href="{{ cols.cost.url }}">{% translate "Cost" %} {{ cols.cost.arrow }}</a></th>{% endif %}
+    {% if stock %}<th class="num" data-col-off>{% translate "Reorder level" %}</th>{% endif %}
+    <th data-col-off>{% translate "Unit" %}</th>
+    <th data-col-off>{% translate "Barcode" %}</th>
+    {% if stock %}<th data-col-off>{% translate "Tracking" %}</th>{% endif %}
+    <th data-col-off>{% translate "Purchase description" %}</th>
+    <th class="act-col no-print">{% translate "Actions" %}</th>
+  </tr></thead>
+  <tbody>{% for i in rows %}<tr{% if not i.is_active %} class="muted-row"{% endif %}>
+    <td class="sel-col no-print"><input type="checkbox" name="ids" value="{{ i.pk }}" form="batchForm" data-items-sel aria-label="{{ i.name }}"></td>
+    <td class="pic-col">{% if i.has_image %}<img class="thumb" src="{% url 'inventory:item_image' i.pk %}" alt="" loading="lazy">{% else %}<span class="thumb ph">{% include "partials/icon.html" with name="image" %}</span>{% endif %}</td>
+    <td><a href="{% url 'inventory:item' i.pk %}">{{ i.name }}</a>{% if not i.is_active %} <span class="pill">{% translate "Inactive" %}</span>{% endif %}{% if edit %}<input type="hidden" name="ids" value="{{ i.pk }}">{% endif %}</td>
+    <td class="desc" title="{{ i.description }}">{{ i.description|truncatechars:40 }}</td>
+    {% if stock %}<td class="num">{% if i.is_stocked %}{{ i.on_hand|floatformat:"-3" }}{% if i.on_hand <= 0 %} <span class="pill crit">{% translate "OUT" %}</span>{% elif i.reorder_level and i.on_hand <= i.reorder_level %} <span class="pill warn">{% translate "LOW" %}</span>{% endif %}{% endif %}</td>{% endif %}
+    <td>{% if edit %}<select name="category_{{ i.pk }}" aria-label="{% translate 'Category' %}"><option value="">—</option>{% for c in categories %}<option value="{{ c.pk }}" {% if c.pk == i.category_id %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>{% else %}{{ i.category.name|default:_("Uncategorised") }}{% endif %}</td>
+    <td>{{ i.sku }}</td>
+    <td>{{ i.get_type_display }}</td>
+    <td class="num">{% if edit %}<input class="num-in" type="number" step="any" min="0" name="price_{{ i.pk }}" value="{{ i.sales_price|plain }}" aria-label="{% translate 'Price' %}">{% else %}{{ i.sales_price|num }}{% endif %}</td>
+    {% if sees_costs %}<td class="num">{% if edit %}<input class="num-in" type="number" step="any" min="0" name="cost_{{ i.pk }}" value="{{ i.purchase_cost|plain }}" aria-label="{% translate 'Cost' %}">{% else %}{{ i.purchase_cost|num }}{% endif %}</td>{% endif %}
+    {% if stock %}<td class="num">{% if i.is_stocked %}{% if edit %}<input class="num-in" type="number" step="any" min="0" name="reorder_{{ i.pk }}" value="{{ i.reorder_level|plain:0 }}" aria-label="{% translate 'Reorder level' %}">{% else %}{{ i.reorder_level|floatformat:"-3" }}{% endif %}{% endif %}</td>{% endif %}
+    <td>{{ i.unit }}</td>
+    <td>{{ i.barcode }}</td>
+    {% if stock %}<td>{% if i.tracking != "none" %}{{ i.get_tracking_display }}{% endif %}</td>{% endif %}
+    <td class="desc" title="{{ i.purchase_description }}">{{ i.purchase_description|truncatechars:40 }}</td>
+    <td class="act-col no-print"><span class="split-act">{% if can.inventory.edit %}<a href="{% url 'inventory:item_edit' i.pk %}">{% translate "Edit" %}</a>{% else %}<a href="{% url 'inventory:item' i.pk %}">{% translate "View" %}</a>{% endif %}
+      <span class="hov"><button type="button" class="act-more" aria-haspopup="true" aria-label="{% translate 'More actions' %}">▾</button>
+        <span class="hov-pop menu-pop">
+          <a href="{% url 'inventory:item_report' i.pk %}">{% translate "Run report" %}</a>
+          {% if can.inventory.create %}<button type="submit" form="rowAction" formaction="{% url 'inventory:item_action' i.pk %}" name="action" value="duplicate">{% translate "Duplicate" %}</button>{% endif %}
+          {% if can.inventory.edit %}{% if i.is_active %}<button type="submit" form="rowAction" formaction="{% url 'inventory:item_action' i.pk %}" name="action" value="inactive">{% translate "Make inactive" %}</button>{% else %}<button type="submit" form="rowAction" formaction="{% url 'inventory:item_action' i.pk %}" name="action" value="active">{% translate "Make active" %}</button>{% endif %}{% endif %}
+          {% if stock and i.is_stocked and can.inventory.create %}{% if not i.has_history %}<a href="{% url 'inventory:starting_value' %}?item={{ i.pk }}">{% translate "Starting value" %}</a>{% endif %}
+            <a href="{% url 'inventory:adjustment_new' %}?items={{ i.pk }}">{% translate "Adjust quantity" %}</a>{% endif %}
+          {% if stock %}<a href="{% url 'inventory:labels' %}?item={{ i.pk }}&copies=1">{% translate "Print label" %}</a>{% endif %}
+        </span></span></span></td>
+  </tr>{% empty %}<tr><td colspan="16" class="lbl">{% if q or status or request.GET.type or filters_on %}{% translate "No products match these filters." %}{% else %}{% translate "No products or services yet. Use New product/service to add one, or import them from Excel." %}{% endif %}</td></tr>{% endfor %}</tbody>
 </table></div>
+{% if edit %}<div class="form-actions"><button class="btn primary" type="submit">{% translate "Save all" %}</button></div></form>{% endif %}
 {% include "partials/pager.html" %}
+</div>
 {% endblock %}

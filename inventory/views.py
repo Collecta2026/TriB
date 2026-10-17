@@ -36,6 +36,11 @@ def _warehouse_filter(request):
     return _warehouses(request).filter(pk=wid).first() if wid.isdigit() else None
 
 
+def _stock_on(company):
+    from .product_views import stock_on
+    return stock_on(company)
+
+
 def _get(request, model, pk):
     return get_object_or_404(access.scope(model.objects.filter(company=request.company)), pk=pk)
 
@@ -69,37 +74,16 @@ def overview(request):
     })
 
 
-# ---------- Products & services ----------
-@require_perm("inventory.view")
-def items(request):
-    qs = Item.objects.filter(company=request.company).select_related("category")
-    q = request.GET.get("q", "").strip()
-    if q:
-        qs = qs.filter(Q(sku__icontains=q) | Q(name_en__icontains=q) | Q(name_ar__icontains=q) | Q(barcode=q))
-    kind = request.GET.get("type", "")
-    if kind:
-        qs = qs.filter(type=kind)
-    cat = request.GET.get("category", "")
-    if cat.isdigit():
-        qs = qs.filter(category_id=cat)
-    if request.GET.get("inactive") != "1":
-        qs = qs.filter(is_active=True)
-    page = Paginator(qs, 50).get_page(request.GET.get("page"))
-    qty = dict(StockLayer.objects.filter(item__in=list(page), qty_remaining__gt=0).values("item_id")
-               .annotate(q=Sum("qty_remaining")).values_list("item_id", "q"))
-    rows = [{"i": i, "qty": qty.get(i.id, ZERO)} for i in page]
-    return render(request, "inventory/items.html", {"rows": rows, "page": page, "q": q, "types": Item.TYPES,
-                                                    "categories": Category.objects.filter(company=request.company)})
-
-
+# ---------- Products & services (the list is in product_views.py) ----------
 def _item_form(request, item):
-    form = ItemForm(request.POST or None, instance=item, company=request.company)
+    form = ItemForm(request.POST or None, request.FILES or None, instance=item, company=request.company)
     if request.method == "POST" and form.is_valid():
         item = form.save(commit=False)
         item.company = request.company
         if not item.sku:
             item.sku = services.next_sku(request.company, item.category)
         item.save()
+        form.save_picture(item)
         AuditLog.record(request.company, request.user, "item.saved", item, item.sku, ip=client_ip(request))
         messages.success(request, _("Saved."))
         return redirect("inventory:item", pk=item.pk)
@@ -111,7 +95,10 @@ def item_new(request):
     from ledger.models import TaxRate
     company = request.company
     default_tax = TaxRate.objects.filter(company=company, is_default=True, is_active=True).first()
-    return _item_form(request, Item(company=company, sales_tax=default_tax, purchase_tax=default_tax))
+    item = Item(company=company, sales_tax=default_tax, purchase_tax=default_tax)
+    if request.GET.get("type") in dict(Item.TYPES):  # New product/service ▾ Stock item / Non-stock item / Service
+        item.type = request.GET["type"]
+    return _item_form(request, item)
 
 
 @require_perm("inventory.edit")
@@ -129,7 +116,7 @@ def item(request, pk):
     value = sum((l.qty_remaining * l.unit_cost for l in layers), ZERO)
     return render(request, "inventory/item_detail.html", {
         "item": item, "layers": layers, "by_wh": by_wh, "on_hand": sum((l.qty_remaining for l in layers), ZERO),
-        "value": services.money(value), "today": timezone.localdate(),
+        "value": services.money(value), "today": timezone.localdate(), "stock_on": _stock_on(request.company),
         "moves": access.scope(item.moves.all()).select_related("warehouse").order_by("-date", "-id")[:30]})
 
 
@@ -207,11 +194,16 @@ def _doc_list(request, kind):
 
 
 @transaction.atomic
-def _doc_form(request, kind, doc):
+def _doc_form(request, kind, doc, line_initial=None):
     cfg = STOCK_DOCS[kind]
     form = cfg["form"](request.POST or None, instance=doc, company=request.company)
-    formset = (cfg["lines"][0] if doc.pk else cfg["lines"][1])(request.POST or None, instance=doc,
-                                                                company=request.company, prefix="lines")
+    formset_class = cfg["lines"][0] if doc.pk else cfg["lines"][1]
+    extra = {}
+    if line_initial and request.method != "POST":
+        # Products chosen on the Products & services list (Adjust quantity) start as lines.
+        formset_class = type(formset_class.__name__, (formset_class,), {"extra": len(line_initial)})
+        extra = {"initial": line_initial}
+    formset = formset_class(request.POST or None, instance=doc, company=request.company, prefix="lines", **extra)
     if request.method == "POST" and form.is_valid() and formset.is_valid():
         doc = form.save(commit=False)
         doc.company = request.company
@@ -244,13 +236,19 @@ def _doc_new(request, kind):
     cfg = STOCK_DOCS[kind]
     first = _warehouses(request, active=True).first()
     doc = cfg["model"](company=request.company, created_by=request.user, date=timezone.localdate())
+    line_initial = None
     if kind == "adjustment":
         doc.warehouse = first
         if request.GET.get("reason") in dict(StockAdjustment.REASONS):
             doc.reason = request.GET["reason"]
+        ids = [i for i in (request.GET.get("items") or "").split(",") if i.isdigit()][:50]
+        if ids:
+            chosen = {i.pk: i for i in Item.objects.filter(company=request.company, type="inventory", pk__in=ids)}
+            line_initial = [{"item": chosen[int(i)].pk, "unit_cost": chosen[int(i)].purchase_cost}
+                            for i in ids if int(i) in chosen]
     else:
         doc.from_warehouse = first
-    return _doc_form(request, kind, doc)
+    return _doc_form(request, kind, doc, line_initial)
 
 
 def _doc_edit(request, kind, pk):

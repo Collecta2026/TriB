@@ -434,26 +434,26 @@ def supplier_balance(supplier, as_of=None):
 
 
 def ap_aging(company, as_of=None):
-    from sales.services import bucket_for
+    from sales.services import bucket_for, no_buckets
     as_of = as_of or timezone.localdate()
     rows = {}
     for bill in Bill.objects.filter(company=company, status="posted", date__lte=as_of).select_related("supplier"):
         due = bill.balance_due
         if due <= 0:
             continue
-        row = rows.setdefault(bill.supplier_id, {"contact": bill.supplier, "buckets": [ZERO] * 5, "total": ZERO})
+        row = rows.setdefault(bill.supplier_id, {"contact": bill.supplier, "buckets": no_buckets(), "total": ZERO})
         base = r2(due * bill.rate)
         row["buckets"][bucket_for((as_of - bill.due_date).days)] += base
         row["total"] += base
     for pay in SupplierPayment.objects.filter(company=company, status="posted", date__lte=as_of).select_related("supplier"):
         if pay.unallocated > 0:
-            row = rows.setdefault(pay.supplier_id, {"contact": pay.supplier, "buckets": [ZERO] * 5, "total": ZERO})
+            row = rows.setdefault(pay.supplier_id, {"contact": pay.supplier, "buckets": no_buckets(), "total": ZERO})
             base = r2(pay.unallocated * pay.rate)
             row["buckets"][0] -= base
             row["total"] -= base
     for credit in SupplierCredit.objects.filter(company=company, status="posted", date__lte=as_of).select_related("supplier"):
         if credit.available > 0:
-            row = rows.setdefault(credit.supplier_id, {"contact": credit.supplier, "buckets": [ZERO] * 5, "total": ZERO})
+            row = rows.setdefault(credit.supplier_id, {"contact": credit.supplier, "buckets": no_buckets(), "total": ZERO})
             base = r2(credit.available * credit.rate)
             row["buckets"][0] -= base
             row["total"] -= base
@@ -461,7 +461,7 @@ def ap_aging(company, as_of=None):
 
 
 def statement(supplier, date_from, date_to):
-    from sales.services import bucket_for
+    from sales.services import bucket_for, no_buckets
     opening = supplier_balance(supplier, as_of=date_from - timedelta(days=1))
     events = []
     for bill in Bill.objects.filter(supplier=supplier, status="posted", date__gte=date_from, date__lte=date_to):
@@ -476,7 +476,7 @@ def statement(supplier, date_from, date_to):
         running += debit - credit
         rows.append({"date": date, "number": number, "ref": ref, "kind": kind, "debit": debit, "credit": credit,
                      "balance": running, "due": due})
-    aging = [ZERO] * 5
+    aging = no_buckets()
     for bill in Bill.objects.filter(supplier=supplier, status="posted", date__lte=date_to):
         if bill.balance_due > 0:
             aging[bucket_for((date_to - bill.due_date).days)] += bill.balance_due

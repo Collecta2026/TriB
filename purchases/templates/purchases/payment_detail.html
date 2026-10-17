@@ -6,6 +6,7 @@
   <h1>{{ p.number }} <span class="pill {{ p.status|pill_class }}">{{ p.get_status_display }}</span></h1>
   <div class="sub">{{ p.date|date:"d/m/Y" }} · <a href="{% url 'contacts:supplier' p.supplier_id %}">{{ p.supplier.name }}</a>{% if p.journal_entry_id %} · <a href="{% url 'ledger:journal' p.journal_entry_id %}">{{ p.journal_entry.number }}</a>{% endif %}</div></div>
   <div class="toolbar"><a class="btn primary" href="{% url 'purchases:payment_print' p.pk %}">{% include "partials/icon.html" with name="print" %} {% translate "Remittance advice" %}</a>
+    {% if p.status == "posted" and can.purchases.create %}<a class="btn" href="{% url 'purchases:remittance_email' %}?ids={{ p.pk }}">{% translate "Email to supplier" %}</a>{% endif %}
     {% if p.status == "posted" and can.purchases.void %}<form method="post" action="{% url 'purchases:payment_void' p.pk %}">{% csrf_token %}<button class="btn danger" type="submit">{% translate "Void" %}</button></form>{% endif %}</div>
 </div>
 <div class="cols">

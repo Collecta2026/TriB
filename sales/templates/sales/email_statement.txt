@@ -1,0 +1,8 @@
+{% load trib %}{% autoescape off %}{{ message }}
+
+{% bi "Statement of account" "كشف حساب" %} · {{ data.contact.name_en }} · {{ data.date_to|date:"d/m/Y" }}
+{% bi "Balance due" "الرصيد المستحق" %}: {{ data.contact.currency_id }} {{ data.balance|num }}
+{% for en, ar, v in data.aging_cols %}{{ en }}: {{ v|num }}
+{% endfor %}
+{{ company.name_en }}
+{% endautoescape %}

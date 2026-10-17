@@ -1,15 +1,23 @@
 from django.urls import path
 
-from . import views
+from . import product_views, views
 
 app_name = "inventory"
 
 urlpatterns = [
     path("", views.overview, name="overview"),
-    path("items/", views.items, name="items"),
+    path("items/", product_views.items, name="items"),
     path("items/new/", views.item_new, name="item_new"),
+    path("items/batch/", product_views.items_batch, name="items_batch"),
+    path("items/bulk-save/", product_views.items_bulk_save, name="items_bulk_save"),
+    path("items/import/", product_views.import_items, name="import_items"),
+    path("items/starting-value/", product_views.starting_value, name="starting_value"),
     path("items/<int:pk>/", views.item, name="item"),
     path("items/<int:pk>/edit/", views.item_edit, name="item_edit"),
+    path("items/<int:pk>/picture/", product_views.item_image, name="item_image"),
+    path("items/<int:pk>/action/", product_views.item_action, name="item_action"),
+    path("items/<int:pk>/report/", product_views.item_report, name="item_report"),
+    path("price-rules/", product_views.price_rules, name="price_rules"),
     path("categories/", views.categories, name="categories"),
     path("warehouses/", views.warehouses, name="warehouses"),
     path("stock/", views.stock, name="stock"),

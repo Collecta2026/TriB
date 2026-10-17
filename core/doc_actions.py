@@ -286,11 +286,15 @@ def doc_send(request, ns, key, pk):
 @login_required
 def batch_print(request):
     """Customer / supplier page → Batch actions → Print selected: several documents, one per page."""
-    docs = []
+    docs, payments = [], []
     for item in (request.GET.get("items", "") or "").split(",")[:50]:
         try:
             ns, key, pk = item.split(":")
         except ValueError:
+            continue
+        if (ns, key) == ("purchases", "payment"):  # supplier payments print as remittance advices
+            if pk.isdigit() and request.membership.has_perm("purchases.view"):
+                payments.append(pk)
             continue
         spec = REGISTRY.get((ns, key))
         if spec is None or not pk.isdigit():
@@ -299,4 +303,8 @@ def batch_print(request):
         doc = spec.model.objects.filter(pk=pk, company=request.company).first()
         if doc is not None and doc.number:
             docs.append(print_context(spec, doc, company=request.company))
-    return render(request, "docs/batch_print.html", {"docs": docs})
+    remits = []
+    if payments:
+        from purchases.remittance import payments_from, remittance
+        remits = [remittance(p) for p in payments_from(request.company, payments)]
+    return render(request, "docs/batch_print.html", {"docs": docs, "remits": remits, "count": len(docs) + len(remits)})

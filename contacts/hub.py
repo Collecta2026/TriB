@@ -120,7 +120,8 @@ def supplier_rows(s, can):
         rows.append(_row("payment", _("Payment"), p, p.number, p.amount, p.currency_id,
                          _status("void" if p.status == "void" else "closed"), reverse("purchases:payment", args=[p.pk]),
                          [(_("View"), reverse("purchases:payment", args=[p.pk])),
-                          (_("Remittance advice"), reverse("purchases:payment_print", args=[p.pk]))], p.reference))
+                          (_("Remittance advice"), reverse("purchases:payment_print", args=[p.pk]))], p.reference,
+                         f"purchases:payment:{p.pk}" if p.status == "posted" else ""))
     for n in SupplierCredit.objects.filter(supplier=s).prefetch_related("lines__tax_rate"):
         state = n.status if n.status != "posted" else ("closed" if n.available <= 0 else "open")
         rows.append(_row("supplier_credit", _("Supplier credit"), n, n.number, -n.total, n.currency_id, _status(state),

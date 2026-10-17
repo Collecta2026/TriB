@@ -363,8 +363,8 @@ def payment_new(request):
         except services.PurchaseError as exc:
             messages.error(request, str(exc))
         else:
-            messages.success(request, _("Payment %(n)s recorded.") % {"n": payment.number})
-            return redirect("purchases:payment", pk=payment.pk)
+            # Straight on to the remittance advice, ready to print or email to the supplier.
+            return redirect(reverse("purchases:payment_print", args=[payment.pk]) + "?paid=1")
     return render(request, "purchases/payment_form.html", {"form": form, "supplier": supplier, "open_bills": open_bills})
 
 
@@ -376,11 +376,75 @@ def payment(request, pk):
 
 @require_perm("purchases.view")
 def payment_print(request, pk):
-    from core.amount_words import amount_in_words
     p = get_object_or_404(SupplierPayment, pk=pk, company=request.company)
+    return _remittance_page(request, [p], back_url=reverse("purchases:payment", args=[p.pk]),
+                            just_paid=request.GET.get("paid") == "1")
+
+
+@require_perm("purchases.view")
+def remittance_print(request):
+    """Several remittance advices, one per page (supplier page → select payments → Print selected)."""
+    from .remittance import payments_from
+    payments = payments_from(request.company, request.GET.get("ids", ""))
+    back = (reverse("contacts:supplier", args=[payments[0].supplier_id]) if payments
+            else reverse("purchases:payments"))
+    return _remittance_page(request, payments, back_url=back)
+
+
+def _remittance_page(request, payments, back_url, just_paid=False):
+    from .remittance import remittance
     return render(request, "purchases/remittance.html", {
-        "p": p, "allocs": p.allocations.select_related("bill"),
-        "words_en": amount_in_words(p.amount, p.currency_id, "en"), "words_ar": amount_in_words(p.amount, p.currency_id, "ar")})
+        "items": [remittance(p) for p in payments], "ids": ",".join(str(p.pk) for p in payments),
+        "back_url": back_url, "just_paid": just_paid})
+
+
+@require_perm("purchases.create")
+def remittance_email(request):
+    """Email one or more remittance advices (all to the same supplier) in one email."""
+    from django.template.loader import render_to_string
+    from django.utils.formats import date_format
+
+    from core.mailer import bilingual, review_and_send
+
+    from .remittance import payments_from, remittance
+    payments = payments_from(request.company, request.GET.get("ids", ""))
+    if not payments:
+        messages.error(request, _("Choose at least one payment."))
+        return redirect("purchases:payments")
+    supplier = payments[0].supplier
+    if any(p.supplier_id != supplier.pk for p in payments):
+        messages.error(request, _("Choose payments to one supplier at a time."))
+        return redirect("purchases:payments")
+    company = request.company
+    items = [remittance(p) for p in payments]
+    numbers = ", ".join(p.number for p in payments)
+    total = sum((p.amount for p in payments), Decimal("0"))
+    if len(payments) == 1:
+        p = payments[0]
+        subject = _("Remittance advice %(number)s from %(company)s") % {"number": p.number, "company": company.name}
+        message = _("Dear %(name)s,\n\nWe have paid %(amount)s %(cur)s on %(date)s. The details of the invoices this "
+                    "payment covers are below.\n\nKind regards,\n%(company)s") % {
+            "name": supplier.name, "amount": f"{p.amount:,.2f}", "cur": p.currency_id,
+            "date": date_format(p.date, "d/m/Y"), "company": company.name}
+    else:
+        subject = _("Remittance advice for %(n)s payments from %(company)s") % {"n": len(payments), "company": company.name}
+        message = _("Dear %(name)s,\n\nPlease find below our remittance advice for payments %(numbers)s, %(amount)s "
+                    "in total. Each shows the invoices it covers.\n\nKind regards,\n%(company)s") % {
+            "name": supplier.name, "numbers": numbers, "amount": f"{total:,.2f}", "company": company.name}
+
+    def build(text):
+        ctx = {"items": items, "company": company, "message": text, "subject": subject, "bi": bilingual(company)}
+        return (render_to_string("purchases/email_remittance.html", ctx),
+                render_to_string("purchases/email_remittance.txt", ctx))
+
+    back = (reverse("purchases:payment", args=[payments[0].pk]) if len(payments) == 1
+            else reverse("contacts:supplier", args=[supplier.pk]))
+    return review_and_send(
+        request, initial={"to": supplier.email, "subject": subject, "message": message}, build=build,
+        title=f"{_('Remittance advice')} · {supplier.name} · {numbers}", back_url=back,
+        crumbs=[(_("Bill payments"), reverse("purchases:payments")), (supplier.name, reverse("contacts:supplier", args=[supplier.pk]))],
+        audit_action="payment.remittance_sent", audit_obj=payments[0], summary=numbers,
+        note=_("The email contains the remittance advice itself, so your supplier can read it without signing in."))
 
 
 @require_POST
@@ -481,7 +545,9 @@ def statements(request):
     if form.is_valid():
         d = form.cleaned_data
         data = services.statement(d["customer"], d["date_from"], d["date_to"])
-        data.update(contact=d["customer"], date_from=d["date_from"], date_to=d["date_to"])
+        data.update(contact=d["customer"], date_from=d["date_from"], date_to=d["date_to"], style="balance")
+        from sales.statements import finish
+        finish(data, request.company)
     return render(request, "sales/statement.html", {"form": form, "data": data, "kind": "supplier", "buckets": AGING_BUCKETS})
 
 

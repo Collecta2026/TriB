@@ -1,0 +1,8 @@
+{% load trib %}{% autoescape off %}{{ message }}
+{% for r in items %}
+{% bi "Remittance advice" "إشعار سداد" %} {{ r.p.number }} · {{ r.p.date|date:"d/m/Y" }} · {{ r.p.currency_id }} {{ r.p.amount|num }}
+{% for x in r.rows %}- {{ x.your_ref|default:x.our_ref }} ({{ x.date|date:"d/m/Y" }}): {{ x.now|num }}{% if x.open %} · {% bi "still open" "المتبقي" %} {{ x.open|num }}{% endif %}
+{% endfor %}{% if r.advance %}- {% bi "Paid in advance" "دفعة مقدمة" %}: {{ r.advance|num }}
+{% endif %}{% endfor %}
+{{ company.name_en }}
+{% endautoescape %}

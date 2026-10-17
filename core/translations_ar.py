@@ -21,7 +21,10 @@ AR = {
     "Account number": "رقم الحساب",
     "Account statement": "كشف حساب",
     "Accounting": "المحاسبة",
-    "Accounting & ERP · by Heliolink": "المحاسبة وإدارة الأعمال · من هيليولينك",
+    "Accounting & ERP · by AWS Pro": "المحاسبة وإدارة الأعمال · من AWS Pro",
+    "Manual language": "لغة الدليل",
+    "Back to TriB": "العودة إلى TriB",
+    "Opens in a new tab": "يفتح في علامة تبويب جديدة",
     "Accounts": "الحسابات",
     "Action": "الإجراء",
     "Active": "نشط",
@@ -524,3 +527,9 @@ AR.update(AR2G)
 from .translations_ar_r2h import AR2H  # noqa: E402
 
 AR.update(AR2H)
+from .translations_ar_r2j import AR2J  # noqa: E402
+
+AR.update(AR2J)
+from .translations_ar_r2k import AR2K  # noqa: E402
+
+AR.update(AR2K)

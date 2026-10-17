@@ -149,14 +149,15 @@ def test_warehouse_restriction(client, company, owner, make_user, g):
 def test_costs_hidden_without_permission(client, company, owner, make_user, g):
     seller = make_user("seller@scigate.test", "Sales officer")
     client.force_login(seller)
-    items = client.get(reverse("inventory:items")).content.decode()
-    assert "Purchase cost" not in items and "60,000" not in items
+    page = client.get(reverse("inventory:items"))
+    items = page.content.decode()
+    assert page.context["sees_costs"] is False and "cost_" not in items and "60,000" not in items
     assert client.get(reverse("reports:stock_detail")).status_code == 403
     home = client.get(reverse("dashboard:home")).content.decode()
     assert "Profit &amp; loss" not in home and "Bank accounts" not in home
     keeper = make_user("store@scigate.test", "Storekeeper")
     client.force_login(keeper)
-    assert "Purchase cost" in client.get(reverse("inventory:items")).content.decode()
+    assert client.get(reverse("inventory:items")).context["sees_costs"] is True
 
 
 # ---------- 5. Who can do what ----------

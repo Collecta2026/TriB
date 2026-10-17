@@ -83,7 +83,9 @@ def picker_data(company, source, party=""):
     items = {}
     for i in Item.objects.filter(company=company, is_active=True).select_related("sales_tax", "purchase_tax"):
         items[i.id] = {
-            "sku": i.sku, "name": i.name, "desc": i.name, "barcode": i.barcode,
+            "sku": i.sku, "name": i.name, "barcode": i.barcode,
+            # Sales lines take the sales description, purchase lines the purchase description (else the name).
+            "desc": ((i.description if source == "sales" else i.purchase_description) or i.name)[:300],
             "search": f"{i.sku} {i.barcode} {i.name_en} {i.name_ar}".lower(),
             "price": str(i.sales_price if source == "sales" else i.purchase_cost),
             "tax": (i.sales_tax_id if source == "sales" else i.purchase_tax_id) or "",
@@ -102,7 +104,14 @@ def picker_data(company, source, party=""):
         from contacts.models import Supplier
         for s in Supplier.objects.filter(company=company, is_active=True):
             parties[s.id] = {"days": s.payment_terms_days, "edit": reverse("contacts:supplier_edit", args=[s.id])}
-    return json.dumps({"items": items, "taxes": taxes, "defaultTax": default_tax or "", "parties": parties})
+    from django.utils.translation import gettext
+
+    rules = []
+    if source == "sales":
+        from inventory.pricing import rule_data
+        rules = rule_data(company)
+    return json.dumps({"items": items, "taxes": taxes, "defaultTax": default_tax or "", "parties": parties,
+                       "rules": rules, "ruleLabel": gettext("Price rule")})
 
 
 def clean_subtotals(raw):

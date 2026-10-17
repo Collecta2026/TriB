@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Review and send" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs">{% for label, url in crumbs %}{% if not forloop.first %} · {% endif %}<a href="{{ url }}">{{ label }}</a>{% endfor %}</div>
+  <h1>{% translate "Review and send" %}</h1><div class="sub">{{ title }}</div></div></div>
+{% if not ready %}<div class="msg warning">{% translate "Email isn't set up yet, so TriB can't send it for you. Print it or save it as PDF instead. Your administrator can add the email account in Render (EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)." %}</div>{% endif %}
+<div class="send-grid">
+  <form method="post" class="panel form">{% csrf_token %}
+    {% if form.non_field_errors %}<div class="msg error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+    {% for f in form %}{% include "partials/field.html" %}{% endfor %}
+    <div class="form-actions"><button class="btn primary" type="submit" {% if not ready %}disabled{% endif %}>{% translate "Send" %}</button>
+      <a class="btn" href="{{ back_url }}">{% translate "Cancel" %}</a></div>
+    <p class="lbl">{{ note }}</p>
+  </form>
+  <div class="panel send-preview"><iframe srcdoc="{{ preview }}" title="{% translate 'Preview' %}" sandbox></iframe></div>
+</div>
+{% endblock %}

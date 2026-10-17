@@ -106,7 +106,7 @@ def ar_aging(request):
     rows = aging(request.company, as_of)
     return render(request, "reports/aging.html", {
         "rows": rows, "to": as_of, "kind": "customer", "buckets": AGING_BUCKETS,
-        "totals": [sum(r["buckets"][i] for r in rows) for i in range(5)], "total": sum(r["total"] for r in rows)})
+        "totals": [sum(r["buckets"][i] for r in rows) for i in range(len(AGING_BUCKETS))], "total": sum(r["total"] for r in rows)})
 
 
 @require_perm("reports.view")
@@ -117,7 +117,7 @@ def ap_aging(request):
     rows = aging(request.company, as_of)
     return render(request, "reports/aging.html", {
         "rows": rows, "to": as_of, "kind": "supplier", "buckets": AGING_BUCKETS,
-        "totals": [sum(r["buckets"][i] for r in rows) for i in range(5)], "total": sum(r["total"] for r in rows)})
+        "totals": [sum(r["buckets"][i] for r in rows) for i in range(len(AGING_BUCKETS))], "total": sum(r["total"] for r in rows)})
 
 
 @require_perm("reports.view")

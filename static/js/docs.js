@@ -65,6 +65,26 @@
   }
   const termsFor = (days) => Object.keys(TERM_DAYS).find((k) => TERM_DAYS[k] === days) || "custom";
 
+  // Price rules (inventory/pricing.py): the most specific rule for this customer, product and date sets the price.
+  function rulePrice(itemId, base) {
+    const rules = picker.rules || [];
+    const cust = (head("customer") || {}).value;
+    const day = (head("date") || {}).value || "";
+    const id = Number(itemId), cid = cust ? Number(cust) : null;
+    const r = rules.find((x) => (x.customers === null || (cid !== null && x.customers.includes(cid)))
+      && (x.items === null || x.items.includes(id))
+      && (!day || ((!x.start || day >= x.start) && (!x.end || day <= x.end))));
+    if (!r) return { price: base, rule: "" };
+    const price = num(base), amount = num(r.amount);
+    const change = r.method === "percent" ? price * amount / 100 : amount;
+    let p = Math.max(r.dir === "up" ? price + change : price - change, 0);
+    if (r.rounding === "whole") p = Math.round(p);
+    else if (r.rounding === "half") p = Math.round(p * 2) / 2;
+    else if (r.rounding === "nickel") p = Math.round(p * 20) / 20;
+    else if (r.rounding === "end99") p = Math.max(Math.round(p) - 0.01, 0);
+    return { price: p.toFixed(2), rule: r.name };
+  }
+
   // Customer / supplier chosen: email, bill to, ship to and terms come from its card.
   const partySel = head("customer") || head("supplier");
   const editLink = form.querySelector("[data-party-edit]");
@@ -88,7 +108,10 @@
       const row = sel.closest("tr");
       const item = picker.items[sel.value];
       autofill(field(row, "description"), item.desc, empty);
-      autofill(field(row, "unit_price") || field(row, "unit_cost"), item.price, (el) => !el.value || num(el.value) === 0);
+      const priceEl = field(row, "unit_price") || field(row, "unit_cost");
+      const ruled = rulePrice(sel.value, item.price);
+      autofill(priceEl, ruled.price, (el) => !el.value || num(el.value) === 0);
+      if (priceEl) priceEl.title = ruled.rule ? `${picker.ruleLabel || "Price rule"}: ${ruled.rule}` : "";
       const taxSel = field(row, "tax_rate");
       autofill(taxSel, item.tax || picker.defaultTax || "", empty);
       const qty = field(row, "qty");

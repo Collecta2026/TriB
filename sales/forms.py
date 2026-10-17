@@ -74,14 +74,22 @@ class StatementForm(forms.Form):
     customer = forms.ModelChoiceField(queryset=None, label=_("Customer"))
     date_from = forms.DateField(label=_("From"), widget=DATE)
     date_to = forms.DateField(label=_("To"), widget=DATE)
+    STYLES = [("balance", _("Balance forward: every transaction in the period")),
+              ("open", _("Open items: unpaid invoices with their age"))]
+    style = forms.ChoiceField(label=_("Statement type"), choices=STYLES, initial="balance", required=False)
 
     def __init__(self, *args, company, model=None, label=None, **kwargs):
         super().__init__(*args, **kwargs)
         from contacts.models import Customer
+        if model is not None:
+            self.fields.pop("style")  # supplier statements: balance forward only
         model = model or Customer
         self.fields["customer"].queryset = access.scope(model.objects.filter(company=company, is_active=True))
         if label:
             self.fields["customer"].label = label
+
+    def clean_style(self):
+        return self.cleaned_data.get("style") or "balance"
 
 
 class ConfirmationForm(forms.Form):

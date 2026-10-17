@@ -50,7 +50,13 @@ class Item(Bilingual):
     category = models.ForeignKey(Category, on_delete=models.PROTECT, null=True, blank=True, verbose_name=_("Category"))
     tracking = models.CharField(_("Tracking"), max_length=6, choices=TRACKING, default="none")
     unit = models.CharField(_("Unit"), max_length=20, default="pcs")
-    description = models.TextField(_("Description"), blank=True)
+    description = models.TextField(_("Sales description"), blank=True,
+                                   help_text=_("Filled in on invoices, quotes and sales orders."))
+    purchase_description = models.TextField(_("Purchase description"), blank=True,
+                                            help_text=_("Filled in on purchase orders and bills."))
+    # The product picture, kept in the database (like attachments) so it survives redeploys.
+    image = models.BinaryField(null=True, blank=True, editable=False)
+    image_type = models.CharField(max_length=40, blank=True, editable=False)
     sales_price = models.DecimalField(_("Sales price"), default=0, **COST)
     purchase_cost = models.DecimalField(_("Purchase cost"), default=0, **COST)
     sales_tax = models.ForeignKey(TaxRate, on_delete=models.PROTECT, null=True, blank=True, related_name="+",
@@ -81,6 +87,10 @@ class Item(Bilingual):
     @property
     def scan_code(self):
         return self.barcode or self.sku
+
+    @property
+    def has_image(self):
+        return bool(self.image_type)
 
     def on_hand(self, warehouse=None):
         qs = self.layers.all()
@@ -209,3 +219,38 @@ class StockCountLine(models.Model):
     @property
     def difference(self):
         return (self.counted_qty or 0) - self.expected_qty if self.counted_qty is not None else None
+
+
+class PriceRule(models.Model):
+    """A price rule (QuickBooks' Price rules): raise or lower the sales price, by a percentage or a fixed amount, for
+    some or all customers and some or all products, between two dates. Invoices, quotes and sales orders apply it when
+    a product is added to a line; the price can still be changed on the line."""
+
+    DIRECTIONS = [("down", _("Decrease")), ("up", _("Increase"))]
+    METHODS = [("percent", _("By a percentage")), ("fixed", _("By a fixed amount"))]
+    ROUNDING = [("none", _("No rounding")), ("whole", _("To the nearest whole number")),
+                ("half", _("To the nearest 0.50")), ("nickel", _("To the nearest 0.05")),
+                ("end99", _("Ending in .99"))]
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="price_rules")
+    name = models.CharField(_("Rule name"), max_length=80)
+    customers = models.ManyToManyField("contacts.Customer", blank=True, related_name="price_rules",
+                                       verbose_name=_("Customers"), help_text=_("Leave empty for all customers."))
+    categories = models.ManyToManyField(Category, blank=True, related_name="price_rules", verbose_name=_("Categories"))
+    items = models.ManyToManyField(Item, blank=True, related_name="price_rules", verbose_name=_("Products"),
+                                   help_text=_("Leave products and categories empty for all products."))
+    direction = models.CharField(_("Price"), max_length=4, choices=DIRECTIONS, default="down")
+    method = models.CharField(_("Adjust"), max_length=7, choices=METHODS, default="percent")
+    amount = models.DecimalField(_("Amount"), max_digits=12, decimal_places=4, default=0)
+    rounding = models.CharField(_("Rounding"), max_length=6, choices=ROUNDING, default="none")
+    start_date = models.DateField(_("Start date"), null=True, blank=True)
+    end_date = models.DateField(_("End date"), null=True, blank=True)
+    is_active = models.BooleanField(_("Active"), default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+

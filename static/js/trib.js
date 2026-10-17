@@ -256,6 +256,13 @@
         window.location.href = hub.dataset.batchUrl + "?items=" + encodeURIComponent(rows.map((r) => r.dataset.sel).join(","));
         return;
       }
+      if (b.dataset.batch === "remittance-email") {
+        // One email to the supplier with a remittance advice for each selected payment.
+        const ids = rows.map((r) => r.dataset.sel).filter((s) => s.startsWith("purchases:payment:")).map((s) => s.split(":")[2]);
+        if (!ids.length) { window.alert(b.dataset.none); return; }
+        window.location.href = b.dataset.url + "?ids=" + ids.join(",");
+        return;
+      }
       const lines = [["Date", "Type", "No.", "Memo", "Amount", "Status"]];
       rows.forEach((r) => {
         const cells = r.closest("tr").querySelectorAll("td");
@@ -287,13 +294,55 @@
   }
 
   // ---------- Lists: column choices (remembered on this computer), filter panel dates ----------
+  // Products & services: tick boxes open the batch bar, the attention banner can be closed, full screen.
+  const itemsPage = $("#itemsPage");
+  if (itemsPage) {
+    const bar = $("[data-batch-bar]"), count = $("[data-batch-count]");
+    const boxes = () => $$("[data-items-sel]");
+    const sync = () => {
+      const n = boxes().filter((b) => b.checked).length;
+      if (bar) bar.hidden = n === 0;
+      if (count) count.textContent = (count.dataset.label || "%(n)s").replace("%(n)s", n);
+    };
+    const all = $("[data-items-all]");
+    if (all) all.addEventListener("change", () => { boxes().forEach((b) => { b.checked = all.checked; }); sync(); });
+    itemsPage.addEventListener("change", (e) => { if (e.target.matches("[data-items-sel]")) sync(); });
+    const attn = $("[data-attn]");
+    if (attn) {
+      let closed = "";
+      try { closed = sessionStorage.getItem("trib.attn.items") || ""; } catch (err) { closed = ""; }
+      if (closed === attn.dataset.attn) attn.hidden = true;
+      const x = $("[data-attn-close]", attn);
+      if (x) x.addEventListener("click", () => {
+        attn.hidden = true;
+        try { sessionStorage.setItem("trib.attn.items", attn.dataset.attn); } catch (err) { /* ignore */ }
+      });
+    }
+    const full = $("[data-fullscreen]");
+    if (full) full.addEventListener("click", () => document.body.classList.toggle("list-full"));
+    sync();
+  }
+  // Starting value: batch / expiry / serial fields only for products that track them.
+  $$("[data-starting-value]").forEach((form) => {
+    let map = {};
+    try { map = JSON.parse(form.dataset.tracking || "{}"); } catch (err) { map = {}; }
+    const sel = form.querySelector('select[name="item"]');
+    const show = (name, on) => { const f = form.querySelector(`[name="${name}"]`); const box = f && f.closest(".field"); if (box) box.hidden = !on; };
+    const sync = () => {
+      const t = map[sel.value] || "none";
+      show("batch_no", t === "batch"); show("expiry_date", t === "batch"); show("serials", t === "serial");
+    };
+    if (sel) { sel.addEventListener("change", sync); sync(); }
+  });
   $$("[data-list-cols]").forEach((pop) => {
     const key = pop.dataset.listCols;
     const table = $(`[data-list-table="${key}"]`);
     if (!table || !table.tHead) return;
     const heads = Array.from(table.tHead.rows[0].cells);
-    let hidden = [];
-    try { hidden = JSON.parse(localStorage.getItem("trib.cols." + key) || "[]"); } catch (err) { hidden = []; }
+    let hidden = null;
+    try { hidden = JSON.parse(localStorage.getItem("trib.cols." + key) || "null"); } catch (err) { hidden = null; }
+    // First visit: columns marked data-col-off start hidden (Customise turns them on).
+    if (!Array.isArray(hidden)) hidden = heads.map((th, i) => (th.hasAttribute("data-col-off") ? i : -1)).filter((i) => i >= 0);
     const apply = () => {
       heads.forEach((th, i) => {
         const off = hidden.includes(i);

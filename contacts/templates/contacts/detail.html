@@ -74,6 +74,7 @@
     <input type="hidden" name="tab" value="transactions">
     <div class="hov batch"><button type="button" class="btn" data-batch-btn disabled aria-haspopup="true">{% translate "Batch actions" %} ▾</button>
       <div class="hov-pop"><button type="button" data-batch="print">{% include "partials/icon.html" with name="print" %}{% translate "Print selected" %}</button>
+        {% if kind == "supplier" and can.purchases.create %}<button type="button" data-batch="remittance-email" data-url="{% url 'purchases:remittance_email' %}" data-none="{% translate 'Select one or more payments first.' %}">{% include "partials/icon.html" with name="mail" %}{% translate "Email remittance advice (selected payments)" %}</button>{% endif %}
         <button type="button" data-batch="export">{% include "partials/icon.html" with name="download" %}{% translate "Export selected (CSV)" %}</button></div></div>
     <label class="lbl">{% translate "Type" %}<select name="type" onchange="this.form.submit()"><option value="">{% translate "All transactions" %}</option>{% for k, l in types %}<option value="{{ k }}" {% if filters.type == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
     <label class="lbl">{% translate "Status" %}<select name="status" onchange="this.form.submit()"><option value="">{% translate "All" %}</option>{% for k, l in statuses %}<option value="{{ k }}" {% if filters.status == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>

@@ -8,12 +8,12 @@
   {% include "reports/_period.html" %}
 </div>
 <div class="table-wrap"><table class="tbl">
-  <thead><tr><th>{% if kind == "customer" %}{% translate "Customer" %}{% else %}{% translate "Supplier" %}{% endif %}</th>{% for _d, label in buckets %}<th class="num">{{ label }}</th>{% endfor %}<th class="num">{% translate "Total" %}</th><th></th></tr></thead>
+  <thead><tr><th>{% if kind == "customer" %}{% translate "Customer" %}{% else %}{% translate "Supplier" %}{% endif %}</th>{% for _d, label in buckets %}<th class="num">{{ label }}</th>{% endfor %}<th class="num">{% translate "Total" %}</th><th class="no-print"></th></tr></thead>
   <tbody>{% for r in rows %}<tr><td><a href="{% if kind == 'customer' %}{% url 'contacts:customer' r.contact.pk %}{% else %}{% url 'contacts:supplier' r.contact.pk %}{% endif %}">{{ r.contact.name }}</a></td>
     {% for b in r.buckets %}<td class="num">{% if b %}{% if forloop.counter0 >= 3 %}<span class="pill crit">{{ b|num }}</span>{% else %}{{ b|num }}{% endif %}{% endif %}</td>{% endfor %}
     <td class="num"><b>{{ r.total|num }}</b></td>
-    <td><a class="link" href="{% if kind == 'customer' %}{% url 'sales:statements' %}?customer={{ r.contact.pk }}{% else %}{% url 'purchases:statements' %}?supplier={{ r.contact.pk }}{% endif %}">{% translate "Statement" %}</a></td></tr>
-  {% empty %}<tr><td colspan="8" class="lbl">{% translate "Nothing outstanding." %}</td></tr>{% endfor %}</tbody>
-  <tfoot><tr><td>{% translate "Total" %}</td>{% for t in totals %}<td class="num">{{ t|num }}</td>{% endfor %}<td class="num">{{ total|num }}</td><td></td></tr></tfoot>
+    <td class="no-print"><a class="link" href="{% if kind == 'customer' %}{% url 'sales:statements' %}?customer={{ r.contact.pk }}{% else %}{% url 'purchases:statements' %}?supplier={{ r.contact.pk }}{% endif %}">{% translate "Statement" %}</a></td></tr>
+  {% empty %}<tr><td colspan="9" class="lbl">{% translate "Nothing outstanding." %}</td></tr>{% endfor %}</tbody>
+  <tfoot><tr><td>{% translate "Total" %}</td>{% for t in totals %}<td class="num">{{ t|num }}</td>{% endfor %}<td class="num">{{ total|num }}</td><td class="no-print"></td></tr></tfoot>
 </table></div>
 {% endblock %}

@@ -79,12 +79,18 @@ def help_topic(request, key):
 
 @require_perm("dashboard.view")
 def manual(request):
-    """The whole manual on one page, to print or save as PDF."""
-    from django.utils import timezone
+    """The whole manual on one page, to print or save as PDF, in English or Arabic: ?lang=en / ?lang=ar switches the
+    manual only (the reader's own language setting is left as it is); without it, the reader's language."""
+    from django.utils import timezone, translation
 
     from . import help as manual_content
 
-    return render(request, "core/manual.html", {"sections": manual_content.sections(), "today": timezone.localdate()})
+    lang = request.GET.get("lang")
+    if lang not in ("en", "ar"):
+        lang = "ar" if (translation.get_language() or "").startswith("ar") else "en"
+    with translation.override(lang):
+        return render(request, "core/manual.html", {"sections": manual_content.sections(arabic=lang == "ar"),
+                                                    "today": timezone.localdate(), "manual_lang": lang})
 
 
 # ---------- Your company ----------

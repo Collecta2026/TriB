@@ -197,7 +197,10 @@ Print a receipt from the payment page.
 - Unused credit can be applied to another invoice, or paid back with a **refund** (Create → Refund receipt).
 """),
     ("statements", "sales", "Statements and balance confirmations", ["/sales/statements/", "/sales/confirmations/"], """
-- **Statements** list every invoice, payment, credit, refund and returned cheque in a period, with the running balance, ready to print or send.
+- **Statements** come in two types. **Balance forward** lists every invoice, payment, credit, refund and returned cheque in a period with the running balance. **Open items** lists only what is unpaid, with each invoice's due date and days overdue.
+- Every statement ends with the amount due by age: Current, 1–30, 31–60, 61–90, 91–120 and Over 120 days past the due date.
+- The **Statement** button on the customer page opens the statement straight away. **Print / save as PDF** prints it on one A4 page; **Email to customer** sends it with the statement itself in the email.
+- **Batch statements** does every customer with a balance (or only overdue ones) at once: **Print all**, one per page, or email each customer their own. Customers without an email address are listed so you can print theirs.
 - **Balance confirmations** produce letters asking customers to confirm their balance on a date, which is useful for audits.
 """),
 
@@ -238,7 +241,8 @@ Rows with the same supplier and invoice number become one bill. Stock items are 
     ("pay-bills", "purchases", "Paying bills and remittance advice", ["/purchases/payments/"], """
 1. Choose **Pay bills**, pick the supplier and how you pay: cash, bank transfer or cheque.
 2. Tick the bills to settle and the amounts. A cheque goes to **Cheques issued** until it clears.
-3. Print the **remittance advice** to send to the supplier.
+3. After you save, TriB opens the **remittance advice**: each invoice paid with its amount, credits and earlier payments, what this payment pays and what is still open. **Print** it, or **Email to supplier** (the advice is inside the email).
+4. On the supplier page, tick several payments and use **Batch actions → Print selected** or **Email remittance advice** to send them together.
 """),
     ("supplier-credits", "purchases", "Supplier credits", ["/purchases/credits/"], """
 A supplier credit records money a supplier owes you back, for example for returned goods. Returned stock leaves the warehouse. Apply the credit to a bill to reduce what you owe.
@@ -316,8 +320,18 @@ VAT rates (standard 14%, zero-rated, exempt, out of scope) are set under **VAT r
 """),
 
     # ---------------- Inventory ----------------
-    ("products", "inventory", "Products and services", ["/inventory/items/", "/inventory/categories/"], """
-Each product has a SKU, a barcode, English and Arabic names, a category, sales and purchase prices, VAT rates and a reorder level. Choose its tracking: none, **batch and expiry** (consumables), or **serial numbers** (machines). Services are not stocked.
+    ("products", "inventory", "Products and services", ["/inventory/items/", "/inventory/categories/", "/inventory/price-rules/"], """
+Each product has a SKU, a barcode, English and Arabic names, a category, a picture, sales and purchase descriptions, sales and purchase prices, VAT rates and a reorder level. Choose its tracking: none, **batch and expiry** (consumables), or **serial numbers** (machines). Services and non-stock items are not counted.
+
+- **New product/service ▾** starts a stock item, a non-stock item or a service.
+- The banner lists stock items with no initial cost, out of stock, or at or below their reorder level; **Add now** and **See all** open them.
+- Search, **Type**, **Stock status** (in stock, low, out) and **Filters** (category, active or inactive, tracking) narrow the list. Click a column heading to sort.
+- The **pencil** turns on edit mode: change prices, costs, reorder levels and categories in the list, then **Save all**. **Customise** (the gear) chooses the columns.
+- Each row's **Edit ▾** offers Run report (every sale and purchase of the product), Duplicate, Make inactive, Starting value, Adjust quantity and Print label.
+- Tick several rows for **batch actions**: make inactive or active, assign a category, adjust quantity, print labels.
+- **More ▾** has categories, **Price rules**, reports, **Starting value**, barcode labels and **Import products** from Excel.
+
+Tip: **Price rules** raise or lower prices for chosen customers, categories or products between two dates. They are applied when a product is added to an invoice, quote or sales order, and you can still change the price on the line.
 """),
     ("stock", "inventory", "Stock, FIFO cost and warehouses", ["/inventory/", "/inventory/stock/", "/inventory/warehouses/"], """
 Stock is kept per warehouse and valued at **FIFO** (first in, first out) cost. Every receipt creates a cost layer, and sales use the oldest layers first. **Inventory** shows quantity and value per warehouse. The **Inventory valuation detail** report lists every layer.

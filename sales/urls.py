@@ -41,5 +41,7 @@ urlpatterns = [
     path("refunds/<int:pk>/print/", views.refund_print, name="refund_print"),
     path("refunds/<int:pk>/void/", views.refund_void, name="refund_void"),
     path("statements/", views.statements, name="statements"),
+    path("statements/email/", views.statement_email, name="statement_email"),
+    path("statements/batch/", views.statements_batch, name="statements_batch"),
     path("confirmations/", views.confirmations, name="confirmations"),
 ]

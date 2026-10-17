@@ -3,13 +3,15 @@
 <html lang="{{ LANG }}" dir="{% if RTL %}rtl{% else %}ltr{% endif %}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% translate "TriB user manual" %}</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="{% static 'css/trib.css' %}?v=f1"></head>
+<link rel="stylesheet" href="{% static 'css/trib.css' %}?v=m1"></head>
 <body class="manual-body">
 <div class="manual">
-  <div class="toolbar no-print"><a class="btn" href="{% url 'core:help' %}">‹ {% translate "Help" %}</a>
+  <div class="toolbar no-print"><a class="btn" href="{% url 'core:help' %}" onclick="window.close();var u=this.href;setTimeout(function(){location.href=u},250);return false">‹ {% translate "Back to TriB" %}</a>
+    <div class="lang-toggle" role="group" aria-label="{% translate 'Manual language' %}">
+      <a class="btn{% if manual_lang == 'en' %} primary{% endif %}" href="?lang=en" onclick="location.replace(this.href);return false" lang="en" hreflang="en"{% if manual_lang == 'en' %} aria-current="true"{% endif %}>English</a><a class="btn{% if manual_lang == 'ar' %} primary{% endif %}" href="?lang=ar" onclick="location.replace(this.href);return false" lang="ar" hreflang="ar"{% if manual_lang == 'ar' %} aria-current="true"{% endif %}>العربية</a></div>
     <button class="btn primary" type="button" onclick="window.print()">{% translate "Print / save as PDF" %}</button></div>
   <header class="manual-cover"><img src="{% static 'img/logo.svg' %}" width="64" height="64" alt="">
-    <h1>{% translate "TriB user manual" %}</h1><p>{% translate "Accounting & ERP · by Heliolink" %}</p><p class="lbl">{{ today|date:"d/m/Y" }}</p></header>
+    <h1>{% translate "TriB user manual" %}</h1><p>{{ product.tagline }}</p><p class="lbl">{{ today|date:"d/m/Y" }}</p></header>
   <nav class="manual-toc"><h2>{% translate "Contents" %}</h2><ol>{% for s in sections %}<li><b>{{ s.title }}</b><ol>{% for t in s.topics %}<li><a href="#{{ t.key }}">{{ t.title }}</a></li>{% endfor %}</ol></li>{% endfor %}</ol></nav>
   {% for s in sections %}<section class="manual-sec"><h2>{{ forloop.counter }}. {{ s.title }}</h2>
     {% for t in s.topics %}<article id="{{ t.key }}" class="manual-topic"><h3>{{ t.title }}</h3>{{ t.html }}</article>{% endfor %}</section>{% endfor %}

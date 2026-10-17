@@ -1,0 +1,32 @@
+{% extends "docs/email_doc.html" %}{% load i18n trib %}
+{% block doc %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #c9d2d0;border-radius:8px">
+  <tr><td style="padding:12px 14px;background:#0e6470;color:#ffffff;border-radius:8px 8px 0 0">
+    <span style="font-size:16px;font-weight:600">{% bi "Statement of account" "كشف حساب" %}</span>
+    <span style="float:right;font-size:16px;font-weight:600">{% bi "Balance due" "الرصيد المستحق" %}: {{ data.contact.currency_id }} {{ data.balance|num }}</span></td></tr>
+  <tr><td style="padding:10px 14px;font-size:13px;line-height:1.6"><b>{{ data.contact.name_en }}</b> ({{ data.contact.code }})<br>
+    {% if data.style == "open" %}{% bi "As of" "حتى تاريخ" %} {{ data.date_to|date:"d/m/Y" }}{% else %}{{ data.date_from|date:"d/m/Y" }} – {{ data.date_to|date:"d/m/Y" }}{% endif %}</td></tr>
+  <tr><td style="padding:0 14px 6px">
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:12px">
+    {% if data.style == "open" %}
+      <tr style="background:#f3f6f6"><th align="left" style="border:1px solid #c9d2d0;padding:5px">{% bih "Document" "المستند" %}</th><th align="left" style="border:1px solid #c9d2d0;padding:5px">{% bih "Date" "التاريخ" %}</th><th align="left" style="border:1px solid #c9d2d0;padding:5px">{% bih "Due date" "الاستحقاق" %}</th><th align="right" style="border:1px solid #c9d2d0;padding:5px">{% bih "Days overdue" "أيام التأخير" %}</th><th align="right" style="border:1px solid #c9d2d0;padding:5px">{% bih "Amount" "المبلغ" %}</th><th align="right" style="border:1px solid #c9d2d0;padding:5px">{% bih "Open" "المستحق" %}</th></tr>
+      {% for r in data.rows %}<tr><td style="border:1px solid #c9d2d0;padding:5px">{{ r.number|default:r.kind }}{% if r.number %}<div style="color:#7d8b90;font-size:11px">{{ r.kind }}</div>{% endif %}</td><td style="border:1px solid #c9d2d0;padding:5px">{{ r.date|date:"d/m/Y" }}</td>
+        <td style="border:1px solid #c9d2d0;padding:5px">{% if r.due %}{{ r.due|date:"d/m/Y" }}{% endif %}</td><td align="right" style="border:1px solid #c9d2d0;padding:5px">{% if r.days %}{{ r.days }}{% endif %}</td>
+        <td align="right" style="border:1px solid #c9d2d0;padding:5px">{% if r.amount is not None %}{{ r.amount|num }}{% endif %}</td><td align="right" style="border:1px solid #c9d2d0;padding:5px"><b>{{ r.open|num }}</b></td></tr>
+      {% empty %}<tr><td colspan="6" style="border:1px solid #c9d2d0;padding:5px">{% bi "Nothing is outstanding." "لا توجد مبالغ مستحقة." %}</td></tr>{% endfor %}
+      <tr style="background:#f3f6f6"><th colspan="5" align="left" style="border:1px solid #c9d2d0;padding:5px">{% bi "Balance due" "الرصيد المستحق" %} ({{ data.contact.currency_id }})</th><th align="right" style="border:1px solid #c9d2d0;padding:5px">{{ data.total|num }}</th></tr>
+    {% else %}
+      <tr style="background:#f3f6f6"><th align="left" style="border:1px solid #c9d2d0;padding:5px">{% bih "Date" "التاريخ" %}</th><th align="left" style="border:1px solid #c9d2d0;padding:5px">{% bih "Document" "المستند" %}</th><th align="right" style="border:1px solid #c9d2d0;padding:5px">{% bih "Debit" "مدين" %}</th><th align="right" style="border:1px solid #c9d2d0;padding:5px">{% bih "Credit" "دائن" %}</th><th align="right" style="border:1px solid #c9d2d0;padding:5px">{% bih "Balance" "الرصيد" %}</th></tr>
+      <tr><td style="border:1px solid #c9d2d0;padding:5px">{{ data.date_from|date:"d/m/Y" }}</td><td style="border:1px solid #c9d2d0;padding:5px">{% bi "Opening balance" "رصيد أول المدة" %}</td><td style="border:1px solid #c9d2d0"></td><td style="border:1px solid #c9d2d0"></td><td align="right" style="border:1px solid #c9d2d0;padding:5px">{{ data.opening|num }}</td></tr>
+      {% for r in data.rows %}<tr><td style="border:1px solid #c9d2d0;padding:5px">{{ r.date|date:"d/m/Y" }}</td><td style="border:1px solid #c9d2d0;padding:5px">{{ r.number }}<div style="color:#7d8b90;font-size:11px">{{ r.kind }}{% if r.due %} · {% translate "due" %} {{ r.due|date:"d/m/Y" }}{% endif %}</div></td>
+        <td align="right" style="border:1px solid #c9d2d0;padding:5px">{% if r.debit %}{{ r.debit|num }}{% endif %}</td><td align="right" style="border:1px solid #c9d2d0;padding:5px">{% if r.credit %}{{ r.credit|num }}{% endif %}</td><td align="right" style="border:1px solid #c9d2d0;padding:5px">{{ r.balance|num }}</td></tr>{% endfor %}
+      <tr style="background:#f3f6f6"><th colspan="4" align="left" style="border:1px solid #c9d2d0;padding:5px">{% bi "Closing balance" "رصيد آخر المدة" %} ({{ data.contact.currency_id }})</th><th align="right" style="border:1px solid #c9d2d0;padding:5px">{{ data.closing|num }}</th></tr>
+    {% endif %}
+    </table></td></tr>
+  <tr><td style="padding:8px 14px 14px">
+    <div style="font-size:12px;margin-bottom:4px"><b>{% bi "Amount due by age" "المستحق حسب العمر" %}</b> · {% bi "days past the due date" "أيام بعد تاريخ الاستحقاق" %}</div>
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:11.5px">
+      <tr style="background:#f3f6f6">{% for en, ar, v in data.aging_cols %}<th align="right" style="border:1px solid #c9d2d0;padding:5px"><span dir="ltr">{{ en }}</span>{% if ar %}<br><span dir="rtl">{{ ar }}</span>{% endif %}</th>{% endfor %}<th align="right" style="border:1px solid #c9d2d0;padding:5px">{% bih "Total" "الإجمالي" %}</th></tr>
+      <tr>{% for en, ar, v in data.aging_cols %}<td align="right" style="border:1px solid #c9d2d0;padding:5px{% if forloop.counter0 >= 3 and v > 0 %};color:#b3261e;font-weight:600{% endif %}">{{ v|num }}</td>{% endfor %}<td align="right" style="border:1px solid #c9d2d0;padding:5px"><b>{{ data.aging_total|num }}</b></td></tr>
+    </table></td></tr>
+</table>{% endblock %}

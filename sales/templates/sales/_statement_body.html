@@ -1,0 +1,37 @@
+{% load i18n trib %}
+<div class="voucher-doc stmt-doc">
+  <div class="vh">
+    <div><b>{{ company.name_en }}</b><div>{{ company.address|linebreaksbr }}</div>{% if company.tax_id %}<div>{{ company.tax_id }}</div>{% endif %}</div>
+    <div class="vt"><h1>Statement of Account</h1>{% if not pack or pack.bilingual_print %}<h1 class="ar">كشف حساب</h1>{% endif %}
+      <div>{% if data.style == "open" %}{% bi "As of" "حتى تاريخ" %} {{ data.date_to|date:"d/m/Y" }}{% else %}{{ data.date_from|date:"d/m/Y" }} – {{ data.date_to|date:"d/m/Y" }}{% endif %}</div></div>
+    {% if not pack or pack.bilingual_print %}<div class="ar" style="text-align:start"><b>{{ company.name_ar }}</b></div>{% else %}<div></div>{% endif %}
+  </div>
+  <div class="bi"><div><b>{{ data.contact.name_en }}</b> ({{ data.contact.code }})<div>{{ data.contact.address|linebreaksbr }}</div></div>
+    <div style="text-align:end">{% if not pack or pack.bilingual_print %}<div class="ar"><b>{{ data.contact.name_ar|default:data.contact.name_en }}</b></div>{% endif %}
+      {% bi "Currency" "العملة" %}: {{ data.contact.currency_id }}<br>{% bi "Balance due" "الرصيد المستحق" %}: <b>{{ data.balance|num }}</b></div></div>
+  {% if data.style == "open" %}
+  <table class="stmt-table">
+    <thead><tr><th>{% bih "Date" "التاريخ" %}</th><th>{% bih "Document" "المستند" %}</th><th>{% bih "Details" "البيان" %}</th><th>{% bih "Due date" "الاستحقاق" %}</th>
+      <th class="num">{% bih "Days overdue" "أيام التأخير" %}</th><th class="num">{% bih "Amount" "المبلغ" %}</th><th class="num">{% bih "Paid / credited" "مسدد / مخصوم" %}</th><th class="num">{% bih "Open" "المستحق" %}</th></tr></thead>
+    <tbody>{% for r in data.rows %}<tr><td>{{ r.date|date:"d/m/Y" }}</td><td>{{ r.number }}</td><td>{{ r.kind }}{% if r.ref %} · {{ r.ref }}{% endif %}</td>
+        <td>{% if r.due %}{{ r.due|date:"d/m/Y" }}{% endif %}</td><td class="num">{% if r.days %}{{ r.days }}{% endif %}</td>
+        <td class="num">{% if r.amount is not None %}{{ r.amount|num }}{% endif %}</td><td class="num">{% if r.settled %}{{ r.settled|num }}{% endif %}</td><td class="num">{{ r.open|num }}</td></tr>
+      {% empty %}<tr><td colspan="8">{% bi "Nothing is outstanding." "لا توجد مبالغ مستحقة." %}</td></tr>{% endfor %}</tbody>
+    <tfoot><tr><th colspan="7">{% bi "Balance due" "الرصيد المستحق" %} ({{ data.contact.currency_id }})</th><th class="num">{{ data.total|num }}</th></tr></tfoot>
+  </table>
+  {% else %}
+  <table class="stmt-table">
+    <thead><tr><th>{% bih "Date" "التاريخ" %}</th><th>{% bih "Document" "المستند" %}</th><th>{% bih "Details" "البيان" %}</th><th class="num">{% bih "Debit" "مدين" %}</th><th class="num">{% bih "Credit" "دائن" %}</th><th class="num">{% bih "Balance" "الرصيد" %}</th></tr></thead>
+    <tbody>
+      <tr><td>{{ data.date_from|date:"d/m/Y" }}</td><td></td><td>{% bi "Opening balance" "رصيد أول المدة" %}</td><td></td><td></td><td class="num">{{ data.opening|num }}</td></tr>
+      {% for r in data.rows %}<tr><td>{{ r.date|date:"d/m/Y" }}</td><td>{{ r.number }}{% if r.ref %} ({{ r.ref }}){% endif %}</td><td>{{ r.kind }}{% if r.due %} · {% translate "due" %} {{ r.due|date:"d/m/Y" }}{% endif %}</td>
+        <td class="num">{% if r.debit %}{{ r.debit|num }}{% endif %}</td><td class="num">{% if r.credit %}{{ r.credit|num }}{% endif %}</td><td class="num">{{ r.balance|num }}</td></tr>{% endfor %}
+    </tbody>
+    <tfoot><tr><th colspan="5">{% bi "Closing balance" "رصيد آخر المدة" %} ({{ data.contact.currency_id }})</th><th class="num">{{ data.closing|num }}</th></tr></tfoot>
+  </table>
+  {% endif %}
+  <p class="aging-title"><b>{% bi "Amount due by age" "المستحق حسب العمر" %}</b> · {% bi "days past the due date" "أيام بعد تاريخ الاستحقاق" %}</p>
+  <table class="aging-table"><thead><tr>{% for en, ar, v in data.aging_cols %}<th class="num"><span dir="ltr">{{ en }}</span>{% if ar %}<br><span class="ar" dir="rtl">{{ ar }}</span>{% endif %}</th>{% endfor %}<th class="num">{% bih "Total" "الإجمالي" %}</th></tr></thead>
+    <tbody><tr>{% for en, ar, v in data.aging_cols %}<td class="num{% if forloop.counter0 >= 3 and v > 0 %} late{% endif %}">{{ v|num }}</td>{% endfor %}<td class="num"><b>{{ data.aging_total|num }}</b></td></tr></tbody></table>
+  <p style="font-size:12px">{% bi "Please let us know within 15 days if this statement does not agree with your records." "يرجى إخطارنا خلال 15 يومًا في حال عدم مطابقة هذا الكشف لسجلاتكم." %}</p>
+</div>

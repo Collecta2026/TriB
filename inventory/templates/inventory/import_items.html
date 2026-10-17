@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load i18n trib %}
+{% block title %}{% translate "Import products" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'inventory:items' %}">{% translate "Products & services" %}</a></div>
+  <h1>{% translate "Import products" %}</h1>
+  <div class="sub">{% translate "One row per product or service. A row with an SKU that already exists updates that product; other rows are added. Categories that don't exist yet are created." %}</div></div>
+  <div class="toolbar"><a class="btn" href="?template=1">{% include "partials/icon.html" with name="download" %} {% translate "Download template" %}</a></div></div>
+{% if not preview %}
+<div class="panel"><form method="post" enctype="multipart/form-data" class="form">{% csrf_token %}
+  <div class="field"><label for="f">{% translate "Excel (.xlsx) or CSV file" %}</label><input id="f" type="file" name="file" accept=".xlsx,.csv" required></div>
+  <p class="lbl">{% translate "Columns" %}: {{ columns|join:", " }}. {% translate "Type is Stock, Non-stock or Service." %}</p>
+  <div class="form-actions"><button class="btn primary" type="submit">{% translate "Upload and check" %}</button></div></form></div>
+{% else %}
+{% if preview.problems %}<div class="msg warning"><b>{% translate "These rows will be skipped:" %}</b><ul>{% for p in preview.problems %}<li>{{ p }}</li>{% endfor %}</ul></div>{% endif %}
+<div class="panel"><div class="table-wrap"><table class="tbl">
+  <thead><tr><th>{% translate "Row" %}</th><th></th><th>{% translate "SKU" %}</th><th>{% translate "Name" %}</th><th>{% translate "Type" %}</th><th>{% translate "Category" %}</th><th class="num">{% translate "Price" %}</th><th class="num">{% translate "Cost" %}</th></tr></thead>
+  <tbody>{% for r in preview.rows %}<tr><td>{{ r.row }}</td><td>{% if r.update %}<span class="pill">{% translate "Update" %}</span>{% else %}<span class="pill good">{% translate "New" %}</span>{% endif %}</td>
+    <td>{{ r.sku|default:"—" }}</td><td>{{ r.name }}</td><td>{{ r.type }}</td><td>{{ r.category }}</td><td class="num">{{ r.price|default:"" }}</td><td class="num">{{ r.cost|default:"" }}</td></tr>
+  {% empty %}<tr><td colspan="8" class="lbl">{% translate "No rows could be read from the file." %}</td></tr>{% endfor %}</tbody></table></div>
+  <form method="post" class="form-actions">{% csrf_token %}{% if preview.rows %}<button class="btn primary" name="confirm" value="1">{% blocktranslate count n=preview.rows|length %}Save {{ n }} product{% plural %}Save {{ n }} products{% endblocktranslate %}</button>{% endif %}
+    <a class="btn" href="?reset=1">{% translate "Start again" %}</a></form></div>
+{% endif %}
+{% endblock %}

@@ -180,9 +180,9 @@ def receivables_block(company, today, customers=None):
     rows = ar_aging(company, today)
     if customers is not None:
         rows = [r for r in rows if r["contact"].pk in customers]
-    buckets = [sum((r["buckets"][i] for r in rows), ZERO) for i in range(5)]
+    buckets = [sum((r["buckets"][i] for r in rows), ZERO) for i in range(len(AGING_BUCKETS))]
     total = sum(buckets, ZERO)
-    colors = ["var(--good)", "var(--c2)", "var(--warn)", "var(--c4)", "var(--crit)"]
+    colors = ["var(--good)", "var(--c2)", "var(--warn)", "var(--c3)", "var(--c4)", "var(--crit)"]
     return {"total": total, "customers": len(rows), "top": rows[:4],
             "buckets": [{"label": label, "amount": amt, "color": colors[i],
                          "pct": float(amt / total * 100) if total > 0 and amt > 0 else 0}

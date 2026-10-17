@@ -1,4 +1,5 @@
 """Every string marked for translation has an Arabic version."""
+import ast
 import re
 from pathlib import Path
 
@@ -30,4 +31,24 @@ def collect():
 
 def test_every_string_has_arabic():
     missing = sorted(s for s in collect() if s not in AR)
+    assert not missing, "Missing Arabic for:\n" + "\n".join(missing)
+
+
+def collect_python():
+    """Strings in gettext calls, read with Python's parser so text split over several lines is checked too."""
+    found = set()
+    for app in APPS:
+        for path in (ROOT / app).rglob("*.py"):
+            if "migrations" in path.parts:
+                continue
+            for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+                if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                        and node.func.id in ("_", "gettext", "gettext_lazy") and node.args
+                        and isinstance(node.args[0], ast.Constant) and isinstance(node.args[0].value, str)):
+                    found.add(node.args[0].value)
+    return found
+
+
+def test_multiline_python_strings_have_arabic():
+    missing = sorted(s for s in collect_python() if s not in AR)
     assert not missing, "Missing Arabic for:\n" + "\n".join(missing)

@@ -198,3 +198,43 @@ def help_for_page(context):
 
     request = context.get("request")
     return for_path(request.path) if request else None
+
+
+def _bilingual(context):
+    """Printed documents are bilingual unless {"bi": False} is in the context or the company's country pack prints
+    in English only (the UK in TriB International)."""
+    flag = context.get("bi")
+    if flag is None:
+        pack = context.get("pack")
+        flag = pack is None or getattr(pack, "bilingual_print", True)
+    return flag
+
+
+@register.simple_tag(takes_context=True)
+def bi(context, en, ar):
+    """A label on a printed document: "English / Arabic", or English alone."""
+    return f"{en} / {ar}" if _bilingual(context) else en
+
+
+@register.simple_tag(takes_context=True)
+def bih(context, en, ar):
+    """A table heading on a printed document: English with the Arabic underneath (narrower than "English / Arabic"),
+    or English alone."""
+    from django.utils.html import format_html
+
+    return format_html('<span dir="ltr">{}</span><br><span class="ar" dir="rtl">{}</span>', en, ar) if _bilingual(context) else en
+
+
+@register.filter
+def plain(value, places=2):
+    """A number for an <input type=number>: no thousands separator, at least `places` decimals, no extra zeros
+    (380.0000 → 380.00, 12.3750 → 12.375)."""
+    from decimal import Decimal, InvalidOperation
+
+    try:
+        s = f"{Decimal(value or 0):f}"
+    except (InvalidOperation, TypeError, ValueError):
+        return value
+    whole, _dot, frac = s.partition(".")
+    frac = frac.rstrip("0").ljust(int(places), "0")
+    return f"{whole}.{frac}" if frac else whole
